@@ -1,6 +1,11 @@
 # Persuader
 
+```
+npm i persuader
+```
+
 A TypeScript framework for LLM orchestration with Zod schema validation and intelligent retry loops.
+
 
 ## 🎯 Overview
 
