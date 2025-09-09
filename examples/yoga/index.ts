@@ -12,7 +12,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { glob } from 'glob';
-import { runPersuader } from '../../src/index.js';
+import { persuade } from '../../src/index.js';
 import { createYogaSessionContext } from './prompts/session-context.js';
 import {
   type PoseTransition,
@@ -78,7 +78,7 @@ async function processPose(
 ): Promise<{ transition?: PoseTransition; newSessionId?: string }> {
   console.log(`🔄 Processing: ${poseName}`);
 
-  const result = await runPersuader({
+  const result = await persuade({
     schema: TransitionSchema,
     input: { currentPose: poseName },
     context: sessionId

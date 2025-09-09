@@ -15,7 +15,7 @@
 
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { runPersuader } from '../../src/index.js';
+import { persuade } from '../../src/index.js';
 import { COACH_CONTEXT } from './prompts/coach-context.js';
 import {
   type CompleteWorkoutProgram,
@@ -84,7 +84,7 @@ Limitations/Injuries: ${userInput.limitations}
 
 Create a detailed assessment that will guide the entire program design.`;
 
-  const result = await runPersuader({
+  const result = await persuade({
     schema: FitnessProfileSchema,
     input: userInput,
     context: prompt,
@@ -115,7 +115,7 @@ async function selectExercises(
 ): Promise<{ exercises?: ExerciseSelection; sessionId?: string }> {
   console.log('🏋️ Stage 2: Selecting exercises...');
 
-  const result = await runPersuader({
+  const result = await persuade({
     schema: ExerciseSelectionSchema,
     input: { profile },
     context: `Based on the fitness profile we just created, select the most appropriate exercises for this user's program.
@@ -158,7 +158,7 @@ async function createWorkoutStructure(
 ): Promise<{ structure?: WorkoutStructure; sessionId?: string }> {
   console.log('📅 Stage 3: Creating workout structure...');
 
-  const result = await runPersuader({
+  const result = await persuade({
     schema: WorkoutStructureSchema,
     input: { profile, exercises },
     context: `Now create a complete weekly workout structure using the selected exercises.
@@ -206,7 +206,7 @@ async function createProgressionPlan(
 ): Promise<{ progression?: ProgressionPlan; sessionId?: string }> {
   console.log('📈 Stage 4: Creating progression plan...');
 
-  const result = await runPersuader({
+  const result = await persuade({
     schema: ProgressionPlanSchema,
     input: { profile, structure },
     context: `Create a 4-week progression plan that gradually increases the challenge and effectiveness of the workout program.
@@ -249,7 +249,7 @@ async function integrateRecovery(
 ): Promise<{ recovery?: RecoveryIntegration; sessionId?: string }> {
   console.log('😴 Stage 5: Integrating recovery protocols...');
 
-  const result = await runPersuader({
+  const result = await persuade({
     schema: RecoveryIntegrationSchema,
     input: { profile, structure },
     context: `Complete the workout program by adding comprehensive recovery and lifestyle guidance.

@@ -11,7 +11,7 @@ import { consola } from 'consola';
 import ora, { type Ora } from 'ora';
 import type { z } from 'zod';
 import { createClaudeCLIAdapter } from '../../adapters/claude-cli.js';
-import { runPersuader, validateRunnerOptions } from '../../core/runner.js';
+import { persuade, validateRunnerOptions } from '../../core/runner.js';
 import type { Options, Result } from '../../types/index.js';
 import type { ReadInputsResult } from '../../utils/file-io.js';
 import { readInputs, writeOutput } from '../../utils/file-io.js';
@@ -145,7 +145,7 @@ export async function runCommand(options: RunOptions): Promise<void> {
       consola.info(chalk.blue('🔄 Processing data through LLM...'));
     }
 
-    const result = await runPersuader(runOptions, provider);
+    const result = await persuade(runOptions, provider);
 
     if (!result.ok) {
       if (spinner?.isSpinning)

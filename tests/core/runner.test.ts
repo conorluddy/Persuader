@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { runPersuader } from '../../src/core/runner.js';
+import { persuade } from '../../src/core/runner.js';
 import type { ProviderAdapter } from '../../src/types/provider.js';
 
-describe('runPersuader', () => {
+describe('persuade', () => {
   const mockProvider: ProviderAdapter = {
     name: 'mock',
     supportsSession: false,
@@ -26,7 +26,7 @@ describe('runPersuader', () => {
       usage: { promptTokens: 10, completionTokens: 20, totalTokens: 30 },
     });
 
-    const result = await runPersuader(
+    const result = await persuade(
       {
         input: 'Test prompt',
         schema,
@@ -52,7 +52,7 @@ describe('runPersuader', () => {
         model: 'mock',
       });
 
-    const result = await runPersuader(
+    const result = await persuade(
       {
         input: 'Test prompt',
         schema,
@@ -74,7 +74,7 @@ describe('runPersuader', () => {
       model: 'mock',
     });
 
-    await runPersuader(
+    await persuade(
       {
         input: 'Main prompt',
         schema,
@@ -95,7 +95,7 @@ describe('runPersuader', () => {
       new Error('Provider unavailable')
     );
 
-    const result = await runPersuader(
+    const result = await persuade(
       {
         input: 'Test prompt',
         schema,
@@ -123,7 +123,7 @@ describe('runPersuader', () => {
       model: 'mock',
     });
 
-    const result = await runPersuader(
+    const result = await persuade(
       {
         input: 'Test prompt',
         schema,

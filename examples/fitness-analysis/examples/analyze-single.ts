@@ -7,7 +7,7 @@
 
 import { promises as fs, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { runPersuader } from '../../../src/index.js';
+import { persuade } from '../../../src/index.js';
 import { BASE_CONTEXT } from '../prompts/base-context.js';
 import { PHYSICAL_THERAPIST_LENS } from '../prompts/physical-therapist-lens.js';
 import { STRENGTH_COACH_LENS } from '../prompts/strength-coach-lens.js';
@@ -29,7 +29,7 @@ async function analyzeProgramWithLens(
   );
 
   try {
-    const result = await runPersuader({
+    const result = await persuade({
       schema: WorkoutProgramAnalysisSchema,
       input: JSON.stringify(programData, null, 2),
       context: BASE_CONTEXT,

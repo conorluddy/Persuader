@@ -2,6 +2,24 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🎯 Code Philosophy & Style
+
+**IMPORTANT: This project follows strict coding principles outlined in [CODESTYLE.md](./CODESTYLE.md)**
+
+### Core Principles (from CODESTYLE.md)
+- **Jackson's Law**: Small deficiencies compound exponentially - fix issues immediately
+- **Human-Centric Design**: Code for developers with ~7 item working memory limit
+- **KISS & Modularity**: Small, focused files (<300 lines guideline) with single responsibilities
+- **Fail Fast, Fix Early**: Validate at boundaries with clear, actionable errors
+- **Progressive Disclosure**: Start simple, reveal complexity only when needed
+
+### When Writing Code
+1. **Read [CODESTYLE.md](./CODESTYLE.md) first** - understand our values and patterns
+2. **Apply the Middle Way** - avoid extremism in any direction
+3. **Prioritize cognitive load reduction** over clever solutions
+4. **Use exceptional naming** that eliminates need for comments
+5. **Make errors actionable** with context and recovery suggestions
+
 ## Development Commands
 
 ### Core Development
@@ -80,7 +98,7 @@ Persuader is a TypeScript framework for schema-driven LLM orchestration with val
 ## Key Development Patterns
 
 ### Pipeline Flow
-The core `runPersuader` function in `runner.ts` orchestrates:
+The core `persuade` function in `runner.ts` orchestrates:
 1. Schema validation and options processing
 2. Session creation/reuse (if provider supports it)
 3. Prompt building with context and lens
@@ -145,3 +163,20 @@ The `persuader run` command supports:
 - **Progress Tracking**: Spinners and verbose logging
 - **Dry Run**: Configuration validation without LLM calls
 - Don't have more than a couple of node processes running at a time if possible
+
+## Code Quality Standards
+
+### Before Committing
+Always run these checks (as per CODESTYLE.md):
+```bash
+npm run typecheck        # Must pass - TypeScript validation
+npm run check            # Must pass - Biome linting/formatting
+npm run test:run         # Must pass - All tests
+```
+
+### Refactoring Guidelines
+When refactoring, follow the priorities in [CODESTYLE.md](./CODESTYLE.md#refactoring-triggers):
+1. Fix critical issues (silent errors, missing boundaries)
+2. Reduce cognitive load (split large functions/files)
+3. Improve clarity (naming, types, explicit behavior)
+4. Optimize structure (single responsibility, clear interfaces)

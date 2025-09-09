@@ -13,7 +13,7 @@
 
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { runPersuader } from '../../src/index.js';
+import { persuade } from '../../src/index.js';
 import { createSession } from '../../src/session/index.js';
 import {
   ExerciseDetailsSchema,
@@ -41,7 +41,7 @@ function saveStageOutput(stage: string, data: any, outputDir: string): void {
 async function assessProfile(input: any, sessionId?: string) {
   console.log('📋 Stage 1: Assessing profile...');
 
-  const result = await runPersuader({
+  const result = await persuade({
     schema: SimpleProfileSchema,
     input,
     context: sessionId
@@ -81,7 +81,7 @@ User input: ${JSON.stringify(input)}`,
 async function selectExerciseNames(profile: any, sessionId: string) {
   console.log('🏋️ Stage 2a: Selecting exercises...');
 
-  const result = await runPersuader({
+  const result = await persuade({
     schema: ExerciseNamesSchema,
     input: { profile },
     context: `Select exercises for ${profile.level} level, goals: ${profile.goals.join(', ')}.
@@ -113,7 +113,7 @@ async function getExerciseDetails(
   level: string,
   sessionId: string
 ) {
-  const result = await runPersuader({
+  const result = await persuade({
     schema: ExerciseDetailsSchema,
     input: { exercise: exerciseName, level },
     context: `Provide sets, reps, and rest for ${exerciseName} at ${level} level.
@@ -141,7 +141,7 @@ async function createWeeklySplit(
 ) {
   console.log('📅 Stage 3a: Creating weekly split...');
 
-  const result = await runPersuader({
+  const result = await persuade({
     schema: WeeklySplitSchema,
     input: { profile, exercises },
     context: `Create a ${profile.daysPerWeek}-day weekly split for ${profile.level} level.
@@ -176,7 +176,7 @@ Example for 4 days:
 async function defineTrainingPrinciples(profile: any, sessionId: string) {
   console.log('📊 Stage 3b: Defining training principles...');
 
-  const result = await runPersuader({
+  const result = await persuade({
     schema: TrainingPrinciplesSchema,
     input: { profile },
     context: `Define training principles for ${profile.level} level, goals: ${profile.goals.join(', ')}.
@@ -204,7 +204,7 @@ Example:
 async function createProgression(profile: any, sessionId: string) {
   console.log('📈 Stage 4: Creating 4-week progression...');
 
-  const result = await runPersuader({
+  const result = await persuade({
     schema: SimpleProgressionSchema,
     input: { profile },
     context: `Create a 4-week progression for ${profile.level} level.
@@ -233,7 +233,7 @@ Example:
 async function addRecovery(profile: any, sessionId: string) {
   console.log('🧘 Stage 5: Adding recovery guidelines...');
 
-  const result = await runPersuader({
+  const result = await persuade({
     schema: SimpleRecoverySchema,
     input: { profile },
     context: `Add recovery guidelines for someone training ${profile.daysPerWeek}x/week.

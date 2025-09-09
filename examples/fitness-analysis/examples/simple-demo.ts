@@ -6,7 +6,7 @@
  */
 
 import { promises as fs } from 'node:fs';
-import { runPersuader } from '../../../src/index.js';
+import { persuade } from '../../../src/index.js';
 import { BASE_CONTEXT } from '../prompts/base-context.js';
 import { STRENGTH_COACH_LENS } from '../prompts/strength-coach-lens.js';
 import { WorkoutProgramAnalysisSchema } from '../schemas/workout-analysis.js';
@@ -36,7 +36,7 @@ async function simpleDemo() {
   console.log('\n📋 Analyzing simple program...\n');
 
   try {
-    const result = await runPersuader({
+    const result = await persuade({
       schema: WorkoutProgramAnalysisSchema,
       input: JSON.stringify(simpleProgram, null, 2),
       context: `${BASE_CONTEXT}
