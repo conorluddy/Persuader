@@ -6,9 +6,9 @@
  */
 
 import type {
+  PipelineExecutionContext,
   PipelineStage,
   StageResult,
-  PipelineExecutionContext,
 } from './multi-stage.js';
 
 /**

@@ -6,9 +6,9 @@
  */
 
 import type {
+  PipelineExecutionContext,
   PipelineStatus,
   StageResult,
-  PipelineExecutionContext,
 } from './multi-stage.js';
 import type { TokenUsage } from './pipeline.js';
 
