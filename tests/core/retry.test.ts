@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { retryWithFeedback } from '../../src/core/retry.js';
 
-describe.skip('retryWithFeedback', () => {
+describe('retryWithFeedback', () => {
   it('succeeds on first attempt', async () => {
     const operation = vi
       .fn()
@@ -19,7 +19,7 @@ describe.skip('retryWithFeedback', () => {
     expect(operation).toHaveBeenCalledWith(1, undefined);
   });
 
-  it('retries on failure and eventually succeeds', async () => {
+  it.skip('retries on failure and eventually succeeds', async () => {
     const operation = vi
       .fn()
       .mockRejectedValueOnce(new Error('First failure'))
@@ -37,7 +37,7 @@ describe.skip('retryWithFeedback', () => {
     expect(operation).toHaveBeenCalledTimes(3);
   });
 
-  it('fails after max retries', async () => {
+  it.skip('fails after max retries', async () => {
     const operation = vi
       .fn()
       .mockRejectedValue(new Error('Persistent failure'));
@@ -53,7 +53,7 @@ describe.skip('retryWithFeedback', () => {
     expect(operation).toHaveBeenCalledTimes(3);
   });
 
-  it('includes feedback in retry attempts', async () => {
+  it.skip('includes feedback in retry attempts', async () => {
     const operation = vi
       .fn()
       .mockRejectedValueOnce(new Error('Validation error'))
@@ -71,7 +71,7 @@ describe.skip('retryWithFeedback', () => {
     expect(operation).toHaveBeenNthCalledWith(2, 2, expect.any(Error));
   });
 
-  it('accumulates errors across attempts', async () => {
+  it.skip('accumulates errors across attempts', async () => {
     const errors = ['Error 1', 'Error 2', 'Error 3'];
     const operation = vi.fn();
     errors.forEach(err => {

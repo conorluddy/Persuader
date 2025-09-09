@@ -1,9 +1,4 @@
 {
   "from": "Child's Pose",
-  "to": [
-    "Downward-Facing Dog",
-    "Cat-Cow Pose",
-    "Mountain Pose",
-    "Cobra Pose"
-  ]
+  "to": ["Downward-Facing Dog", "Cat-Cow Pose", "Mountain Pose", "Cobra Pose"]
 }

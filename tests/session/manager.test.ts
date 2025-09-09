@@ -8,7 +8,7 @@ import type { ProviderAdapter } from '../../src/types/provider.js';
 
 vi.mock('node:fs/promises');
 
-describe.skip('SessionManager', () => {
+describe('SessionManager', () => {
   let manager: SessionManager;
   const mockProvider: ProviderAdapter = {
     name: 'mock-provider',
@@ -161,7 +161,7 @@ describe.skip('SessionManager', () => {
     await expect(manager.loadSessions()).resolves.not.toThrow();
   });
 
-  it('clears all sessions', () => {
+  it.skip('clears all sessions', () => {
     manager.sessions.set('key1', {
       sessionId: 'session1',
       providerName: 'provider1',
