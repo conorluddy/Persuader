@@ -1,0 +1,25 @@
+{
+  "pose": "Bridge Pose",
+  "anatomicalProgression": ["Wheel Pose", "Camel Pose", "Upward-Facing Dog"],
+  "energeticFlow": ["Cat-Cow Pose", "Fish Pose", "Cobra Pose"],
+  "therapeuticAlternatives": [
+    "Half Bridge",
+    "Supported Bridge",
+    "Reclined Bound Angle"
+  ],
+  "counterPoses": [
+    "Child's Pose",
+    "Seated Forward Fold",
+    "Supine Spinal Twist"
+  ],
+  "preparatorySequence": ["Cat-Cow Pose", "Cobra Pose", "Four-Limbed Staff"],
+  "integrationOptions": ["Corpse Pose", "Easy Pose", "Staff Pose"],
+  "sourceData": {
+    "sanskritName": "Setu Bandha Sarvangasana",
+    "difficulty": "Unknown",
+    "energyState": "Unknown",
+    "primaryMuscles": [],
+    "energeticEffect": "Unknown"
+  },
+  "analysisTimestamp": "2025-09-07T08:59:40.441Z"
+}

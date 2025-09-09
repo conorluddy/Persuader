@@ -1,0 +1,10 @@
+{
+  "data": {
+    "name": "Dip",
+    "category": "Bodyweight Push",
+    "equipment": "Dip Bars",
+    "primaryMuscles": ["Lower Pectorals", "Anterior Deltoids", "Triceps"],
+    "difficulty": "Intermediate",
+    "movementPattern": "Vertical Push"
+  }
+}

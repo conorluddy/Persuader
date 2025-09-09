@@ -1,0 +1,62 @@
+{
+  "context": "Analyze this foundational inversion and identify comprehensive transition relationships. Downward-Facing Dog (Adho Mukha Svanasana) is one of the most commonly practiced poses, serving as both a strength-builder and a resting pose in flow sequences. Consider the shoulder stability, hamstring length, and weight distribution. Analyze transitions to planks, standing poses, and more advanced arm balances. Factor in wrist sensitivity and various modification options.",
+  "data": {
+    "currentPose": {
+      "name": "Downward-Facing Dog",
+      "sanskritName": "Adho Mukha Svanasana",
+      "variation": "Classic inverted V-shape",
+      "practitioner": {
+        "position": "Inverted V with hands and feet on ground",
+        "shoulderAlignment": "External rotation, broad across chest",
+        "spinalAction": "Long line from hands to tailbone",
+        "legAction": "Active, reaching heels toward ground"
+      },
+      "breathingPattern": {
+        "type": "Steady ujjayi breath",
+        "pace": "Even and controlled",
+        "awareness": "Full body integration with breath"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Core flow element and resting pose",
+      "energyState": "Energizing yet calming",
+      "intention": "Build strength and flexibility simultaneously",
+      "difficulty": "Beginner to Intermediate"
+    },
+    "environmentalFactors": {
+      "space": "Full yoga mat length",
+      "temperature": "All temperatures suitable",
+      "props": "Blocks under hands, strap around arms",
+      "surface": "Non-slip mat essential for hand safety"
+    },
+    "practitionerProfile": {
+      "experience": "Foundational for regular practitioners",
+      "physicalConsiderations": "Wrist issues, shoulder impingement",
+      "specificNeeds": [
+        "Upper body strength",
+        "Hamstring flexibility",
+        "Wrist stability"
+      ],
+      "practiceStyle": "Essential in Vinyasa, Ashtanga, Power yoga"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": [
+        "Latissimus dorsi",
+        "Serratus anterior",
+        "Hamstrings",
+        "Calves"
+      ],
+      "jointActions": ["Shoulder flexion", "Spinal extension", "Hip flexion"],
+      "breathingMuscles": ["Diaphragm expansion against gravity"],
+      "energeticEffect": "Energizing and centering"
+    },
+    "transitionOpportunities": [
+      "Flow to plank pose for vinyasa",
+      "Step forward to standing forward fold",
+      "Transition to three-legged dog",
+      "Move into wild thing for heart opening",
+      "Flow to dolphin for deeper inversion",
+      "Transition to child's pose for rest"
+    ]
+  }
+}

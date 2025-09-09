@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this seated pose and identify comprehensive transition relationships. Hero Pose (Virasana) Sitting between heels with shins on ground. Consider the Quadriceps stretch, ankle flexibility, meditation. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Hero Pose",
+      "sanskritName": "Virasana",
+      "variation": "Seated - Difficulty 3",
+      "practitioner": {
+        "position": "Sitting between heels with shins on ground",
+        "primaryFocus": "Quadriceps stretch, ankle flexibility, meditation",
+        "categoryType": "Seated",
+        "skillLevel": "Intermediate"
+      },
+      "breathingPattern": {
+        "type": "Natural, meditative breathing",
+        "pace": "Steady and even",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Build strength and flexibility",
+      "difficulty": "Intermediate"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Blocks or blanket for sitting",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "Intermediate practitioners",
+      "physicalConsiderations": "General physical limitations",
+      "specificNeeds": ["Quadriceps stretch, ankle flexibility, meditation"],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Full body integration"],
+      "jointActions": ["Multi-joint coordination"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Reclining hero",
+      "Camel pose",
+      "Table top",
+      "Thunderbolt pose"
+    ]
+  }
+}

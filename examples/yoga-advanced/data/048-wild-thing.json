@@ -1,0 +1,53 @@
+{
+  "context": "Analyze this arm balance pose and identify comprehensive transition relationships. Wild Thing (Camatkarasana) Side plank variation with heart opening. Consider the Heart opening, shoulder strength, emotional expression. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Wild Thing",
+      "sanskritName": "Camatkarasana",
+      "variation": "Arm Balance - Difficulty 4",
+      "practitioner": {
+        "position": "Side plank variation with heart opening",
+        "primaryFocus": "Heart opening, shoulder strength, emotional expression",
+        "categoryType": "Arm Balance",
+        "skillLevel": "Advanced"
+      },
+      "breathingPattern": {
+        "type": "Controlled, powerful breath",
+        "pace": "Controlled and powerful",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Build strength and confidence",
+      "difficulty": "Advanced"
+    },
+    "environmentalFactors": {
+      "space": "Mat space with clear fall zone",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Blocks or props for safety",
+      "surface": "Non-slip mat essential"
+    },
+    "practitionerProfile": {
+      "experience": "Advanced practitioners",
+      "physicalConsiderations": "Wrist sensitivity, upper body strength",
+      "specificNeeds": [
+        "Heart opening, shoulder strength, emotional expression"
+      ],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Upper body", "Core", "Shoulder stabilizers"],
+      "jointActions": ["Multi-joint coordination"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Side plank",
+      "Downward dog",
+      "Extended side angle",
+      "Thread the needle"
+    ]
+  }
+}

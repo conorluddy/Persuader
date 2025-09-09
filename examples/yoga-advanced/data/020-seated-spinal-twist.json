@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this seated twist pose and identify comprehensive transition relationships. Seated Spinal Twist (Ardha Matsyendrasana) Seated twist with one leg crossed over. Consider the Spinal mobility, digestive health, hip flexibility. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Seated Spinal Twist",
+      "sanskritName": "Ardha Matsyendrasana",
+      "variation": "Seated Twist - Difficulty 2",
+      "practitioner": {
+        "position": "Seated twist with one leg crossed over",
+        "primaryFocus": "Spinal mobility, digestive health, hip flexibility",
+        "categoryType": "Seated Twist",
+        "skillLevel": "Beginner-Intermediate"
+      },
+      "breathingPattern": {
+        "type": "Natural breath",
+        "pace": "Steady and even",
+        "awareness": "Internal cleansing and mobility"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Build strength and flexibility",
+      "difficulty": "Beginner-Intermediate"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Props for comfort and alignment",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "Beginner to intermediate",
+      "physicalConsiderations": "Spinal injuries, pregnancy modifications",
+      "specificNeeds": ["Spinal mobility, digestive health, hip flexibility"],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Full body integration"],
+      "jointActions": ["Spinal rotation", "Hip stability", "Shoulder mobility"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Staff pose",
+      "Easy pose",
+      "Table top",
+      "Supine twist"
+    ]
+  }
+}

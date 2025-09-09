@@ -1,0 +1,80 @@
+{
+  "program": {
+    "program_name": "Basic 3-Day Split",
+    "description": "Simple full body workout for beginners",
+    "duration_weeks": 6,
+    "frequency_per_week": 3,
+    "days": [
+      {
+        "day": "Monday",
+        "exercises": [
+          {
+            "exercise": "Squats",
+            "sets": 3,
+            "reps": "8-12"
+          },
+          {
+            "exercise": "Push-ups",
+            "sets": 3,
+            "reps": "5-10"
+          },
+          {
+            "exercise": "Bent-over rows",
+            "sets": 3,
+            "reps": "8-12"
+          }
+        ]
+      }
+    ]
+  },
+  "analysis": {
+    "overall_rating": "good",
+    "effectiveness_score": 6,
+    "program_strengths": [
+      "Simple, beginner-friendly full body workout",
+      "Balanced movement pattern selection",
+      "Moderate volume for novice trainees"
+    ],
+    "critical_weaknesses": [
+      "Limited exercise variety",
+      "No explicit progression strategy",
+      "Incomplete weekly programming"
+    ],
+    "specific_recommendations": [
+      "Add progression tracking for load increases",
+      "Incorporate more exercise variations",
+      "Develop complete 3-day split program structure",
+      "Include warm-up and cool-down protocols"
+    ],
+    "injury_risk_assessment": "low",
+    "target_population": [
+      "beginners",
+      "general fitness",
+      "sedentary individuals"
+    ],
+    "expected_outcomes": [
+      "Basic strength skill acquisition",
+      "Improved movement pattern coordination",
+      "Initial fitness level enhancement"
+    ],
+    "modification_priorities": [
+      {
+        "issue": "Incomplete weekly program design",
+        "solution": "Develop full 3-day split with balanced muscle group coverage",
+        "importance": "high"
+      },
+      {
+        "issue": "No explicit progression mechanism",
+        "solution": "Implement incremental load increases every 2 weeks",
+        "importance": "high"
+      }
+    ]
+  },
+  "metadata": {
+    "completedAt": "2025-09-08T08:50:59.867Z",
+    "executionTimeMs": 10447,
+    "attempts": 1,
+    "model": "claude-3-5-haiku-20241022",
+    "perspective": "Strength Coach"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "context": "Analyze this standing balance pose and identify comprehensive transition relationships. Half Moon Pose (Ardha Chandrasana) Standing balance with hand to floor and leg lifted. Consider the Balance, hip strength, spinal alignment, concentration. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Half Moon Pose",
+      "sanskritName": "Ardha Chandrasana",
+      "variation": "Standing Balance - Difficulty 3",
+      "practitioner": {
+        "position": "Standing balance with hand to floor and leg lifted",
+        "primaryFocus": "Balance, hip strength, spinal alignment, concentration",
+        "categoryType": "Standing Balance",
+        "skillLevel": "Intermediate"
+      },
+      "breathingPattern": {
+        "type": "Focused, steady breathing",
+        "pace": "Steady and even",
+        "awareness": "Balance and concentration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Focused and stable",
+      "intention": "Develop balance and focus",
+      "difficulty": "Intermediate"
+    },
+    "environmentalFactors": {
+      "space": "Mat space with wall nearby",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Wall or chair for support",
+      "surface": "Level, non-slip surface"
+    },
+    "practitionerProfile": {
+      "experience": "Intermediate practitioners",
+      "physicalConsiderations": "Balance challenges, ankle stability",
+      "specificNeeds": [
+        "Balance, hip strength, spinal alignment, concentration"
+      ],
+      "practiceStyle": "All styles, especially Hatha and therapeutic"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Deep stabilizers", "Core", "Proprioceptors"],
+      "jointActions": ["Multi-joint coordination"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Centering and focusing"
+    },
+    "transitionOpportunities": [
+      "Triangle pose",
+      "Warrior III",
+      "Revolved half moon",
+      "Standing split"
+    ]
+  }
+}

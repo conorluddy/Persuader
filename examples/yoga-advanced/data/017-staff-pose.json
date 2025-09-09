@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this seated pose and identify comprehensive transition relationships. Staff Pose (Dandasana) Seated with legs straight, spine upright. Consider the Core strength, spinal alignment, leg engagement. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Staff Pose",
+      "sanskritName": "Dandasana",
+      "variation": "Seated - Difficulty 2",
+      "practitioner": {
+        "position": "Seated with legs straight, spine upright",
+        "primaryFocus": "Core strength, spinal alignment, leg engagement",
+        "categoryType": "Seated",
+        "skillLevel": "Beginner-Intermediate"
+      },
+      "breathingPattern": {
+        "type": "Natural, meditative breathing",
+        "pace": "Steady and even",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Build strength and flexibility",
+      "difficulty": "Beginner-Intermediate"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Blocks or blanket for sitting",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "Beginner to intermediate",
+      "physicalConsiderations": "General physical limitations",
+      "specificNeeds": ["Core strength, spinal alignment, leg engagement"],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Full body integration"],
+      "jointActions": ["Multi-joint coordination"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Seated forward fold",
+      "Boat pose",
+      "Seated wide-legged fold",
+      "Seated spinal wave"
+    ]
+  }
+}

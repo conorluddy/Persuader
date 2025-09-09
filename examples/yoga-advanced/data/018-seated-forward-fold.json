@@ -1,0 +1,53 @@
+{
+  "context": "Analyze this seated forward fold pose and identify comprehensive transition relationships. Seated Forward Fold (Paschimottanasana) Forward fold over straight legs while seated. Consider the Hamstring flexibility, spinal mobility, introspection. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Seated Forward Fold",
+      "sanskritName": "Paschimottanasana",
+      "variation": "Seated Forward Fold - Difficulty 2",
+      "practitioner": {
+        "position": "Forward fold over straight legs while seated",
+        "primaryFocus": "Hamstring flexibility, spinal mobility, introspection",
+        "categoryType": "Seated Forward Fold",
+        "skillLevel": "Beginner-Intermediate"
+      },
+      "breathingPattern": {
+        "type": "Natural breath",
+        "pace": "Steady and even",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Build strength and flexibility",
+      "difficulty": "Beginner-Intermediate"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Props for comfort and alignment",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "Beginner to intermediate",
+      "physicalConsiderations": "General physical limitations",
+      "specificNeeds": [
+        "Hamstring flexibility, spinal mobility, introspection"
+      ],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Full body integration"],
+      "jointActions": ["Multi-joint coordination"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Staff pose",
+      "Boat pose",
+      "Seated twist",
+      "Table top"
+    ]
+  }
+}

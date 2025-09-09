@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this core strengthening pose and identify comprehensive transition relationships. Boat Pose (Navasana) V-shape balance on sitting bones. Consider the Core strength, hip flexor strength, balance. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Boat Pose",
+      "sanskritName": "Navasana",
+      "variation": "Core Strengthening - Difficulty 3",
+      "practitioner": {
+        "position": "V-shape balance on sitting bones",
+        "primaryFocus": "Core strength, hip flexor strength, balance",
+        "categoryType": "Core Strengthening",
+        "skillLevel": "Intermediate"
+      },
+      "breathingPattern": {
+        "type": "Strong abdominal breathing",
+        "pace": "Steady and even",
+        "awareness": "Power and stability"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Active strengthening phase",
+      "energyState": "Energizing and powerful",
+      "intention": "Build strength and flexibility",
+      "difficulty": "Intermediate"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Props for comfort and alignment",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "Intermediate practitioners",
+      "physicalConsiderations": "General physical limitations",
+      "specificNeeds": ["Core strength, hip flexor strength, balance"],
+      "practiceStyle": "Power yoga, Vinyasa, athletic styles"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Abdominals", "Deep core", "Hip flexors"],
+      "jointActions": ["Multi-joint coordination"],
+      "breathingMuscles": ["Deep abdominal support"],
+      "energeticEffect": "Empowering and energizing"
+    },
+    "transitionOpportunities": [
+      "Low boat",
+      "Staff pose",
+      "Hollow body hold",
+      "Seated forward fold"
+    ]
+  }
+}

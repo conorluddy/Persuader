@@ -1,0 +1,17 @@
+{
+  "pose": "Bound Angle Pose",
+  "anatomicalProgression": ["Lotus Pose", "Happy Baby", "Seated Spinal Twist"],
+  "energeticFlow": ["Easy Pose", "Seated Forward Fold", "Mountain Pose"],
+  "therapeuticAlternatives": ["Child's Pose", "Staff Pose", "Corpse Pose"],
+  "counterPoses": ["Seated Forward Fold", "Staff Pose", "Supine Spinal Twist"],
+  "preparatorySequence": ["Easy Pose", "Cat-Cow Pose", "Mountain Pose"],
+  "integrationOptions": ["Corpse Pose", "Child's Pose", "Easy Pose"],
+  "sourceData": {
+    "sanskritName": "Baddha Konasana",
+    "difficulty": "Unknown",
+    "energyState": "Unknown",
+    "primaryMuscles": [],
+    "energeticEffect": "Unknown"
+  },
+  "analysisTimestamp": "2025-09-07T08:59:21.462Z"
+}

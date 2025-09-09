@@ -1,0 +1,10 @@
+{
+  "data": {
+    "name": "Squat",
+    "category": "Compound Push",
+    "equipment": "Barbell",
+    "primaryMuscles": ["Quadriceps", "Glutes", "Calves"],
+    "difficulty": "Intermediate",
+    "movementPattern": "Knee Dominant"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this standing side bend pose and identify comprehensive transition relationships. Extended Side Angle (Utthita Parsvakonasana) Deep side stretch from warrior II with forearm to thigh. Consider the Side body lengthening, leg strength, spinal mobility. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Extended Side Angle",
+      "sanskritName": "Utthita Parsvakonasana",
+      "variation": "Standing Side Bend - Difficulty 2",
+      "practitioner": {
+        "position": "Deep side stretch from warrior II with forearm to thigh",
+        "primaryFocus": "Side body lengthening, leg strength, spinal mobility",
+        "categoryType": "Standing Side Bend",
+        "skillLevel": "Beginner-Intermediate"
+      },
+      "breathingPattern": {
+        "type": "Natural breath",
+        "pace": "Steady and even",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Build strength and flexibility",
+      "difficulty": "Beginner-Intermediate"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Props for comfort and alignment",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "Beginner to intermediate",
+      "physicalConsiderations": "General physical limitations",
+      "specificNeeds": ["Side body lengthening, leg strength, spinal mobility"],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Full body integration"],
+      "jointActions": ["Multi-joint coordination"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Warrior II",
+      "Wild thing",
+      "Side plank",
+      "Reverse warrior"
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "data": {
+    "name": "Deadlift",
+    "category": "Compound Pull",
+    "equipment": "Barbell",
+    "primaryMuscles": ["Hamstrings", "Glutes", "Erector Spinae"],
+    "difficulty": "Advanced",
+    "movementPattern": "Hip Hinge"
+  }
+}

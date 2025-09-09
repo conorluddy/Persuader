@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this prone backbend pose and identify comprehensive transition relationships. Upward-Facing Dog (Urdhva Mukha Svanasana) Backbend with hands and feet on ground, thighs lifted. Consider the Heart opening, arm strength, hip flexor stretch. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Upward-Facing Dog",
+      "sanskritName": "Urdhva Mukha Svanasana",
+      "variation": "Prone Backbend - Difficulty 3",
+      "practitioner": {
+        "position": "Backbend with hands and feet on ground, thighs lifted",
+        "primaryFocus": "Heart opening, arm strength, hip flexor stretch",
+        "categoryType": "Prone Backbend",
+        "skillLevel": "Intermediate"
+      },
+      "breathingPattern": {
+        "type": "Deep heart-opening breath",
+        "pace": "Steady and even",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Open heart and build courage",
+      "difficulty": "Intermediate"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Blocks, strap for modifications",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "Intermediate practitioners",
+      "physicalConsiderations": "Lower back sensitivity, neck issues",
+      "specificNeeds": ["Heart opening, arm strength, hip flexor stretch"],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Erector spinae", "Heart opening muscles", "Glutes"],
+      "jointActions": ["Spinal extension", "Hip extension", "Shoulder opening"],
+      "breathingMuscles": ["Chest expansion", "Heart opening"],
+      "energeticEffect": "Heart opening and energizing"
+    },
+    "transitionOpportunities": [
+      "Downward dog",
+      "Chaturanga",
+      "Cobra pose",
+      "Wild thing"
+    ]
+  }
+}

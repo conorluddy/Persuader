@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this standing balance pose and identify comprehensive transition relationships. Dancer's Pose (Natarajasana) Standing backbend balance holding foot behind body. Consider the Balance, backbending, hip flexor stretch, focus. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Dancer's Pose",
+      "sanskritName": "Natarajasana",
+      "variation": "Standing Balance - Difficulty 4",
+      "practitioner": {
+        "position": "Standing backbend balance holding foot behind body",
+        "primaryFocus": "Balance, backbending, hip flexor stretch, focus",
+        "categoryType": "Standing Balance",
+        "skillLevel": "Advanced"
+      },
+      "breathingPattern": {
+        "type": "Focused, steady breathing",
+        "pace": "Controlled and powerful",
+        "awareness": "Balance and concentration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Focused and stable",
+      "intention": "Develop balance and focus",
+      "difficulty": "Advanced"
+    },
+    "environmentalFactors": {
+      "space": "Mat space with wall nearby",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Wall or chair for support",
+      "surface": "Level, non-slip surface"
+    },
+    "practitionerProfile": {
+      "experience": "Advanced practitioners",
+      "physicalConsiderations": "Balance challenges, ankle stability",
+      "specificNeeds": ["Balance, backbending, hip flexor stretch, focus"],
+      "practiceStyle": "All styles, especially Hatha and therapeutic"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Deep stabilizers", "Core", "Proprioceptors"],
+      "jointActions": ["Multi-joint coordination"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Centering and focusing"
+    },
+    "transitionOpportunities": [
+      "Tree pose",
+      "Standing figure-four",
+      "King pigeon prep",
+      "Warrior III"
+    ]
+  }
+}

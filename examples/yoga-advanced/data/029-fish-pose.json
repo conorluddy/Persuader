@@ -1,0 +1,53 @@
+{
+  "context": "Analyze this supine backbend pose and identify comprehensive transition relationships. Fish Pose (Matsyasana) Backbend lying on back with crown of head on ground. Consider the Throat opening, heart center opening, shoulder flexibility. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Fish Pose",
+      "sanskritName": "Matsyasana",
+      "variation": "Supine Backbend - Difficulty 2",
+      "practitioner": {
+        "position": "Backbend lying on back with crown of head on ground",
+        "primaryFocus": "Throat opening, heart center opening, shoulder flexibility",
+        "categoryType": "Supine Backbend",
+        "skillLevel": "Beginner-Intermediate"
+      },
+      "breathingPattern": {
+        "type": "Expansive chest breathing",
+        "pace": "Steady and even",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Heart opening and strength",
+      "difficulty": "Beginner-Intermediate"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Props for comfort and alignment",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "Beginner to intermediate",
+      "physicalConsiderations": "Shoulder flexibility, neck alignment",
+      "specificNeeds": [
+        "Throat opening, heart center opening, shoulder flexibility"
+      ],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Full body integration"],
+      "jointActions": ["Spinal extension", "Shoulder flexion", "Hip opening"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Bridge pose",
+      "Happy baby",
+      "Supine twist",
+      "Savasana"
+    ]
+  }
+}

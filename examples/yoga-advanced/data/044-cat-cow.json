@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this vinyasa transition pose and identify comprehensive transition relationships. Cat-Cow Pose (Marjaryasana-Bitilasana) Spinal movement between flexion and extension. Consider the Spinal mobility, breath coordination, warm-up. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Cat-Cow Pose",
+      "sanskritName": "Marjaryasana-Bitilasana",
+      "variation": "Vinyasa Transition - Difficulty 1",
+      "practitioner": {
+        "position": "Spinal movement between flexion and extension",
+        "primaryFocus": "Spinal mobility, breath coordination, warm-up",
+        "categoryType": "Vinyasa Transition",
+        "skillLevel": "Beginner"
+      },
+      "breathingPattern": {
+        "type": "Breath-synchronized movement",
+        "pace": "Slow and calming",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Flow connection",
+      "energyState": "Balanced and focused",
+      "intention": "Build strength and flexibility",
+      "difficulty": "Beginner"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Props for comfort and alignment",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "All levels with modifications",
+      "physicalConsiderations": "General physical limitations",
+      "specificNeeds": ["Spinal mobility, breath coordination, warm-up"],
+      "practiceStyle": "Vinyasa, Ashtanga, Power yoga"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Full body integration"],
+      "jointActions": ["Multi-joint coordination"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Table top",
+      "Downward dog",
+      "Child's pose",
+      "Thread the needle"
+    ]
+  }
+}

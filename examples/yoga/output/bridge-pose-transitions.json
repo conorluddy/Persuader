@@ -1,0 +1,10 @@
+{
+  "from": "Bridge Pose",
+  "to": [
+    "Wheel Pose",
+    "Happy Baby",
+    "Supine Spinal Twist",
+    "Corpse Pose",
+    "Seated Spinal Twist"
+  ]
+}

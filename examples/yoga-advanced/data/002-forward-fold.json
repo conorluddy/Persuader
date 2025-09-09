@@ -1,0 +1,60 @@
+{
+  "context": "Analyze this fundamental forward folding pose and identify transition relationships. Standing Forward Fold (Uttanasana) is a key pose in sun salutations and serves as both an active pose and a resting position. Consider the hamstring flexibility requirements, spinal articulation, and inversion effects. Analyze transitions into arm balances, twists, and back into standing poses. Factor in modifications for tight hamstrings and variations for different body types.",
+  "data": {
+    "currentPose": {
+      "name": "Standing Forward Fold",
+      "sanskritName": "Uttanasana",
+      "variation": "Hands toward floor",
+      "practitioner": {
+        "position": "Standing with torso folded forward",
+        "spinalAction": "Flexion with length",
+        "armConfiguration": "Hands reaching toward floor or shins",
+        "legEngagement": "Active, slight bend in knees"
+      },
+      "breathingPattern": {
+        "type": "Deep abdominal breathing",
+        "pace": "Slow and calming",
+        "awareness": "Release and surrender"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Sun salutation component",
+      "energyState": "Calming and introspective",
+      "intention": "Release tension, lengthen spine",
+      "difficulty": "Beginner to Intermediate"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat width",
+      "temperature": "Cool to moderate preferred",
+      "props": "Blocks for hands, strap for arms",
+      "surface": "Non-slip mat recommended"
+    },
+    "practitionerProfile": {
+      "experience": "Beginner with modifications",
+      "physicalConsiderations": "Tight hamstrings common",
+      "specificNeeds": [
+        "Hamstring flexibility",
+        "Lower back care",
+        "Blood pressure awareness"
+      ],
+      "practiceStyle": "All styles, especially Vinyasa and Hatha"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": [
+        "Hamstrings stretching",
+        "Erector spinae lengthening",
+        "Calves stretching"
+      ],
+      "jointActions": ["Hip flexion", "Spinal flexion", "Ankle dorsiflexion"],
+      "breathingMuscles": ["Deep abdominal breathing"],
+      "energeticEffect": "Calming and grounding"
+    },
+    "transitionOpportunities": [
+      "Flow back to mountain pose on inhale",
+      "Transition to half lift for spinal extension",
+      "Move into twisted forward fold",
+      "Step back to downward dog",
+      "Transition to crow pose from deep fold"
+    ]
+  }
+}

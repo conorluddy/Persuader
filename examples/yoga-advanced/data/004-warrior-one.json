@@ -1,0 +1,56 @@
+{
+  "context": "Analyze this powerful standing pose and its dynamic relationships in sequences. Warrior I (Virabhadrasana I) combines strength, stability, and openness in a challenging standing position. Consider the hip square alignment, back leg engagement, and heart opening aspects. Analyze transitions between warrior variations, sun salutations, and balancing poses. Factor in hip flexibility limitations and different foot positioning options for stability.",
+  "data": {
+    "currentPose": {
+      "name": "Warrior I",
+      "sanskritName": "Virabhadrasana I",
+      "variation": "Arms reaching overhead",
+      "practitioner": {
+        "position": "Standing lunge with back foot turned out",
+        "hipAlignment": "Squared toward front of mat",
+        "armConfiguration": "Arms reaching up, shoulder-width apart",
+        "legAction": "Front thigh parallel, back leg straight and strong"
+      },
+      "breathingPattern": {
+        "type": "Strong ujjayi breath",
+        "pace": "Steady and powerful",
+        "awareness": "Strength and openness combined"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Standing sequence pinnacle",
+      "energyState": "Powerful and focused",
+      "intention": "Embody strength and courage",
+      "difficulty": "Intermediate"
+    },
+    "environmentalFactors": {
+      "space": "Wide mat, room for long stance",
+      "temperature": "Generates internal heat",
+      "props": "Block under front thigh for support",
+      "surface": "Stable ground for balance"
+    },
+    "practitionerProfile": {
+      "experience": "Intermediate practitioners",
+      "physicalConsiderations": "Hip flexor tightness, knee sensitivity",
+      "specificNeeds": ["Hip flexibility", "Leg strength", "Balance skills"],
+      "practiceStyle": "Vinyasa, Power yoga, Hatha sequences"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Quadriceps", "Hip flexors", "Glutes", "Deltoids"],
+      "jointActions": [
+        "Hip flexion front",
+        "Hip extension back",
+        "Shoulder flexion"
+      ],
+      "breathingMuscles": ["Chest expansion", "Deep abdominal support"],
+      "energeticEffect": "Empowering and grounding"
+    },
+    "transitionOpportunities": [
+      "Flow to high lunge for more dynamic movement",
+      "Transition to warrior III for balance challenge",
+      "Move to twisted lunge for spinal rotation",
+      "Flow to humble warrior for introspection",
+      "Step to pyramid pose for deep forward fold"
+    ]
+  }
+}

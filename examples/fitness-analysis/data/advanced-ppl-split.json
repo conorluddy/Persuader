@@ -1,0 +1,492 @@
+{
+  "program_name": "Advanced Push/Pull/Legs Split",
+  "description": "6-day advanced split focusing on high volume hypertrophy training for experienced lifters",
+  "duration_weeks": 12,
+  "frequency_per_week": 6,
+  "target_population": [
+    "advanced_lifters",
+    "competitive_bodybuilders",
+    "powerlifters_off_season"
+  ],
+  "equipment_required": [
+    "full_gym",
+    "barbells",
+    "dumbbells",
+    "cables",
+    "machines"
+  ],
+  "rest_days": ["Sunday"],
+
+  "days": [
+    {
+      "day": "Monday",
+      "session_name": "Push A (Chest Focus)",
+      "estimated_duration_minutes": 90,
+      "warm_up": [
+        {
+          "exercise": "Dynamic Warm-up + Activation",
+          "duration": "10-15 minutes",
+          "description": "Shoulder dislocations, band pull-aparts, light chest/shoulder movements"
+        }
+      ],
+      "main_exercises": [
+        {
+          "exercise": "Barbell Bench Press",
+          "sets": 4,
+          "reps": "6-8",
+          "weight": "80-85% 1RM",
+          "rest_seconds": 180,
+          "notes": "Competition commands, controlled negative",
+          "progression": "Add 2.5-5lbs weekly or add reps"
+        },
+        {
+          "exercise": "Incline Dumbbell Press",
+          "sets": 4,
+          "reps": "8-10",
+          "weight": "70-75% equivalent load",
+          "rest_seconds": 150,
+          "notes": "45-degree angle, full ROM",
+          "progression": "Progressive overload weekly"
+        },
+        {
+          "exercise": "Weighted Dips",
+          "sets": 3,
+          "reps": "10-12",
+          "weight": "bodyweight + 25-45lbs",
+          "rest_seconds": 120,
+          "notes": "Lean forward for chest emphasis",
+          "progression": "Add weight when completing all reps"
+        },
+        {
+          "exercise": "Overhead Press",
+          "sets": 4,
+          "reps": "6-8",
+          "weight": "75-80% 1RM",
+          "rest_seconds": 180,
+          "notes": "Strict form, no knee bounce",
+          "progression": "Linear progression when possible"
+        },
+        {
+          "exercise": "Lateral Raises",
+          "sets": 4,
+          "reps": "12-15",
+          "weight": "moderate load",
+          "rest_seconds": 90,
+          "notes": "Control tempo, slight forward lean",
+          "progression": "Volume progression over weight"
+        },
+        {
+          "exercise": "Close-grip Bench Press",
+          "sets": 3,
+          "reps": "10-12",
+          "weight": "65-70% regular bench",
+          "rest_seconds": 120,
+          "notes": "Elbows closer to body",
+          "progression": "Progressive overload"
+        },
+        {
+          "exercise": "Tricep Rope Pushdowns",
+          "sets": 3,
+          "reps": "15-20",
+          "weight": "moderate to high",
+          "rest_seconds": 75,
+          "notes": "Full extension, squeeze at bottom",
+          "progression": "Volume and intensity"
+        }
+      ],
+      "cool_down": [
+        {
+          "exercise": "Chest and Shoulder Stretching",
+          "duration": "8-10 minutes",
+          "description": "Focus on chest, front delts, triceps"
+        }
+      ]
+    },
+    {
+      "day": "Tuesday",
+      "session_name": "Pull A (Back Width Focus)",
+      "estimated_duration_minutes": 85,
+      "warm_up": [
+        {
+          "exercise": "Upper Body Dynamic Warm-up",
+          "duration": "10-15 minutes",
+          "description": "Band pull-aparts, arm circles, lat stretches"
+        }
+      ],
+      "main_exercises": [
+        {
+          "exercise": "Wide-grip Pull-ups/Lat Pulldowns",
+          "sets": 4,
+          "reps": "8-12",
+          "weight": "bodyweight or heavy resistance",
+          "rest_seconds": 150,
+          "notes": "Full hang to chest, control negative",
+          "progression": "Add weight or reps weekly"
+        },
+        {
+          "exercise": "Barbell Rows",
+          "sets": 4,
+          "reps": "6-8",
+          "weight": "heavy load",
+          "rest_seconds": 180,
+          "notes": "Pull to lower chest, squeeze shoulder blades",
+          "progression": "Progressive overload"
+        },
+        {
+          "exercise": "T-Bar Rows",
+          "sets": 4,
+          "reps": "10-12",
+          "weight": "moderate to heavy",
+          "rest_seconds": 120,
+          "notes": "Chest supported if available",
+          "progression": "Weight and volume increases"
+        },
+        {
+          "exercise": "Cable Seated Rows",
+          "sets": 3,
+          "reps": "12-15",
+          "weight": "moderate load",
+          "rest_seconds": 90,
+          "notes": "Squeeze shoulder blades, control tempo",
+          "progression": "Volume progression"
+        },
+        {
+          "exercise": "Face Pulls",
+          "sets": 4,
+          "reps": "15-20",
+          "weight": "light to moderate",
+          "rest_seconds": 75,
+          "notes": "High elbows, external rotation",
+          "progression": "Higher reps and time under tension"
+        },
+        {
+          "exercise": "Barbell Curls",
+          "sets": 3,
+          "reps": "10-12",
+          "weight": "moderate load",
+          "rest_seconds": 90,
+          "notes": "Control negative, no swinging",
+          "progression": "Progressive overload"
+        },
+        {
+          "exercise": "Hammer Curls",
+          "sets": 3,
+          "reps": "12-15",
+          "weight": "moderate load",
+          "rest_seconds": 75,
+          "notes": "Neutral grip, control tempo",
+          "progression": "Volume and weight increases"
+        }
+      ],
+      "cool_down": [
+        {
+          "exercise": "Back and Bicep Stretching",
+          "duration": "8-10 minutes",
+          "description": "Lat stretches, doorway chest stretch, bicep stretches"
+        }
+      ]
+    },
+    {
+      "day": "Wednesday",
+      "session_name": "Legs A (Quad Focus)",
+      "estimated_duration_minutes": 100,
+      "warm_up": [
+        {
+          "exercise": "Lower Body Dynamic Warm-up",
+          "duration": "15 minutes",
+          "description": "Hip circles, leg swings, bodyweight squats, lunges"
+        }
+      ],
+      "main_exercises": [
+        {
+          "exercise": "Back Squat",
+          "sets": 5,
+          "reps": "5-8",
+          "weight": "80-90% 1RM",
+          "rest_seconds": 240,
+          "notes": "Competition depth, controlled ascent",
+          "progression": "Linear progression weekly"
+        },
+        {
+          "exercise": "Front Squat",
+          "sets": 4,
+          "reps": "8-10",
+          "weight": "70-75% back squat",
+          "rest_seconds": 180,
+          "notes": "High elbows, upright torso",
+          "progression": "Progressive overload"
+        },
+        {
+          "exercise": "Romanian Deadlift",
+          "sets": 4,
+          "reps": "8-10",
+          "weight": "70-80% conventional deadlift",
+          "rest_seconds": 150,
+          "notes": "Hip hinge pattern, stretch hamstrings",
+          "progression": "Weight and volume increases"
+        },
+        {
+          "exercise": "Bulgarian Split Squats",
+          "sets": 3,
+          "reps": "10-12 per leg",
+          "weight": "bodyweight + dumbbells",
+          "rest_seconds": 120,
+          "notes": "Rear foot elevated, front leg emphasis",
+          "progression": "Add weight gradually"
+        },
+        {
+          "exercise": "Leg Press",
+          "sets": 4,
+          "reps": "15-20",
+          "weight": "heavy load",
+          "rest_seconds": 120,
+          "notes": "Full ROM, control negative",
+          "progression": "Volume and load increases"
+        },
+        {
+          "exercise": "Walking Lunges",
+          "sets": 3,
+          "reps": "12-15 per leg",
+          "weight": "bodyweight + dumbbells",
+          "rest_seconds": 90,
+          "notes": "Long stride, knee tracking",
+          "progression": "Distance and weight increases"
+        },
+        {
+          "exercise": "Calf Raises",
+          "sets": 4,
+          "reps": "15-20",
+          "weight": "heavy load",
+          "rest_seconds": 90,
+          "notes": "Full ROM, pause at top",
+          "progression": "Weight and rep increases"
+        }
+      ],
+      "cool_down": [
+        {
+          "exercise": "Lower Body Stretching",
+          "duration": "15 minutes",
+          "description": "Hip flexors, quads, hamstrings, calves, glutes"
+        }
+      ]
+    },
+    {
+      "day": "Thursday",
+      "session_name": "Push B (Shoulder Focus)",
+      "estimated_duration_minutes": 85,
+      "warm_up": [
+        {
+          "exercise": "Shoulder Mobility and Activation",
+          "duration": "12 minutes",
+          "description": "Band work, shoulder dislocations, light pressing movements"
+        }
+      ],
+      "main_exercises": [
+        {
+          "exercise": "Overhead Press",
+          "sets": 5,
+          "reps": "5-8",
+          "weight": "80-85% 1RM",
+          "rest_seconds": 180,
+          "notes": "Strict form, full lockout",
+          "progression": "Linear progression"
+        },
+        {
+          "exercise": "Dumbbell Shoulder Press",
+          "sets": 4,
+          "reps": "10-12",
+          "weight": "moderate to heavy",
+          "rest_seconds": 120,
+          "notes": "Full ROM, control tempo",
+          "progression": "Progressive overload"
+        },
+        {
+          "exercise": "Incline Barbell Press",
+          "sets": 4,
+          "reps": "8-10",
+          "weight": "75-80% flat bench",
+          "rest_seconds": 150,
+          "notes": "30-45 degree angle",
+          "progression": "Weekly increases"
+        },
+        {
+          "exercise": "Lateral Raise Mechanical Drop Set",
+          "sets": 3,
+          "reps": "12+8+8",
+          "weight": "heavy to moderate to light",
+          "rest_seconds": 120,
+          "notes": "No rest between weight changes",
+          "progression": "Starting weight increases"
+        },
+        {
+          "exercise": "Rear Delt Flyes",
+          "sets": 4,
+          "reps": "15-20",
+          "weight": "light to moderate",
+          "rest_seconds": 75,
+          "notes": "Slight bend in elbows, squeeze",
+          "progression": "Volume progression"
+        },
+        {
+          "exercise": "Dips",
+          "sets": 3,
+          "reps": "12-15",
+          "weight": "bodyweight",
+          "rest_seconds": 90,
+          "notes": "Full ROM, tricep emphasis",
+          "progression": "Add weight when completing reps"
+        },
+        {
+          "exercise": "Diamond Push-ups",
+          "sets": 3,
+          "reps": "15-25",
+          "weight": "bodyweight",
+          "rest_seconds": 75,
+          "notes": "Hands in diamond shape",
+          "progression": "Rep increases"
+        }
+      ]
+    },
+    {
+      "day": "Friday",
+      "session_name": "Pull B (Back Thickness Focus)",
+      "estimated_duration_minutes": 85,
+      "main_exercises": [
+        {
+          "exercise": "Conventional Deadlift",
+          "sets": 5,
+          "reps": "5-6",
+          "weight": "85-90% 1RM",
+          "rest_seconds": 240,
+          "notes": "Competition form, controlled descent",
+          "progression": "Weekly load increases"
+        },
+        {
+          "exercise": "Close-grip Lat Pulldowns",
+          "sets": 4,
+          "reps": "10-12",
+          "weight": "heavy resistance",
+          "rest_seconds": 120,
+          "notes": "Pull to upper chest, squeeze lats",
+          "progression": "Progressive overload"
+        },
+        {
+          "exercise": "Cable Rows",
+          "sets": 4,
+          "reps": "12-15",
+          "weight": "moderate to heavy",
+          "rest_seconds": 90,
+          "notes": "Various handles, mid-trap focus",
+          "progression": "Weight and volume"
+        },
+        {
+          "exercise": "Shrugs",
+          "sets": 4,
+          "reps": "12-15",
+          "weight": "heavy load",
+          "rest_seconds": 90,
+          "notes": "Hold peak contraction briefly",
+          "progression": "Progressive overload"
+        },
+        {
+          "exercise": "Preacher Curls",
+          "sets": 3,
+          "reps": "10-12",
+          "weight": "moderate load",
+          "rest_seconds": 90,
+          "notes": "Full ROM, control negative",
+          "progression": "Weight increases"
+        },
+        {
+          "exercise": "Cable Hammer Curls",
+          "sets": 3,
+          "reps": "15-20",
+          "weight": "moderate resistance",
+          "rest_seconds": 75,
+          "notes": "Rope attachment, neutral grip",
+          "progression": "Volume progression"
+        }
+      ]
+    },
+    {
+      "day": "Saturday",
+      "session_name": "Legs B (Hamstring/Glute Focus)",
+      "estimated_duration_minutes": 95,
+      "main_exercises": [
+        {
+          "exercise": "Sumo Deadlift",
+          "sets": 4,
+          "reps": "6-8",
+          "weight": "80-85% conventional",
+          "rest_seconds": 180,
+          "notes": "Wide stance, vertical torso",
+          "progression": "Progressive overload"
+        },
+        {
+          "exercise": "Romanian Deadlift",
+          "sets": 4,
+          "reps": "10-12",
+          "weight": "70-75% conventional",
+          "rest_seconds": 150,
+          "notes": "Deep stretch, hip hinge",
+          "progression": "Weight and volume"
+        },
+        {
+          "exercise": "Hip Thrusts",
+          "sets": 4,
+          "reps": "12-15",
+          "weight": "heavy load",
+          "rest_seconds": 120,
+          "notes": "Glute squeeze at top, full ROM",
+          "progression": "Progressive overload"
+        },
+        {
+          "exercise": "Leg Curls",
+          "sets": 4,
+          "reps": "15-20",
+          "weight": "moderate to heavy",
+          "rest_seconds": 90,
+          "notes": "Control negative, full flex",
+          "progression": "Weight and volume increases"
+        },
+        {
+          "exercise": "Good Mornings",
+          "sets": 3,
+          "reps": "12-15",
+          "weight": "light to moderate",
+          "rest_seconds": 90,
+          "notes": "Hip hinge, maintain arch",
+          "progression": "Gradual weight increases"
+        },
+        {
+          "exercise": "Single-leg Calf Raises",
+          "sets": 3,
+          "reps": "15-20 per leg",
+          "weight": "bodyweight + dumbbell",
+          "rest_seconds": 60,
+          "notes": "Full ROM, balance challenge",
+          "progression": "Weight and rep increases"
+        }
+      ]
+    }
+  ],
+
+  "progression_notes": {
+    "weeks_1_4": "Establish movement patterns and work capacity",
+    "weeks_5_8": "Peak intensity phase with maximum loads",
+    "weeks_9_12": "Volume accumulation and specialization"
+  },
+
+  "deload_protocol": {
+    "frequency": "Every 4th week",
+    "method": "Reduce volume by 40% and intensity by 15%",
+    "purpose": "Recovery and supercompensation"
+  },
+
+  "advanced_techniques": [
+    "Drop sets on isolation exercises",
+    "Rest-pause training for muscle building",
+    "Cluster sets for strength work",
+    "Pre-exhaustion protocols"
+  ]
+}

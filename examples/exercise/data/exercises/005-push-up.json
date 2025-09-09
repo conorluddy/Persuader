@@ -1,0 +1,10 @@
+{
+  "data": {
+    "name": "Push-up",
+    "category": "Bodyweight Push",
+    "equipment": "None",
+    "primaryMuscles": ["Pectorals", "Anterior Deltoids", "Triceps"],
+    "difficulty": "Beginner",
+    "movementPattern": "Horizontal Push"
+  }
+}

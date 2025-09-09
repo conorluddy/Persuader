@@ -1,0 +1,53 @@
+{
+  "context": "Analyze this standing forward fold pose and identify comprehensive transition relationships. Pyramid Pose (Parsvottanasana) Deep forward fold over straight front leg. Consider the Hamstring flexibility, hip mobility, spinal articulation. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Pyramid Pose",
+      "sanskritName": "Parsvottanasana",
+      "variation": "Standing Forward Fold - Difficulty 3",
+      "practitioner": {
+        "position": "Deep forward fold over straight front leg",
+        "primaryFocus": "Hamstring flexibility, hip mobility, spinal articulation",
+        "categoryType": "Standing Forward Fold",
+        "skillLevel": "Intermediate"
+      },
+      "breathingPattern": {
+        "type": "Natural breath",
+        "pace": "Steady and even",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Build strength and flexibility",
+      "difficulty": "Intermediate"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Props for comfort and alignment",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "Intermediate practitioners",
+      "physicalConsiderations": "General physical limitations",
+      "specificNeeds": [
+        "Hamstring flexibility, hip mobility, spinal articulation"
+      ],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Full body integration"],
+      "jointActions": ["Multi-joint coordination"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Warrior I",
+      "Revolved triangle",
+      "Low lunge",
+      "Standing split"
+    ]
+  }
+}

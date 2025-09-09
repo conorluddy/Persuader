@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this prone backbend pose and identify comprehensive transition relationships. Cobra Pose (Bhujangasana) Prone backbend with hands pressing into ground. Consider the Spinal extension, heart opening, arm strength. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Cobra Pose",
+      "sanskritName": "Bhujangasana",
+      "variation": "Prone Backbend - Difficulty 2",
+      "practitioner": {
+        "position": "Prone backbend with hands pressing into ground",
+        "primaryFocus": "Spinal extension, heart opening, arm strength",
+        "categoryType": "Prone Backbend",
+        "skillLevel": "Beginner-Intermediate"
+      },
+      "breathingPattern": {
+        "type": "Deep heart-opening breath",
+        "pace": "Steady and even",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Open heart and build courage",
+      "difficulty": "Beginner-Intermediate"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Blocks, strap for modifications",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "Beginner to intermediate",
+      "physicalConsiderations": "Lower back sensitivity, neck issues",
+      "specificNeeds": ["Spinal extension, heart opening, arm strength"],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Erector spinae", "Heart opening muscles", "Glutes"],
+      "jointActions": ["Spinal extension", "Hip extension", "Shoulder opening"],
+      "breathingMuscles": ["Chest expansion", "Heart opening"],
+      "energeticEffect": "Heart opening and energizing"
+    },
+    "transitionOpportunities": [
+      "Upward dog",
+      "Downward dog",
+      "Child's pose",
+      "Locust pose"
+    ]
+  }
+}

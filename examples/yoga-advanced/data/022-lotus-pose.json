@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this seated hip opener pose and identify comprehensive transition relationships. Lotus Pose (Padmasana) Cross-legged with feet on opposite thighs. Consider the Extreme hip opening, meditation, ankle flexibility. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Lotus Pose",
+      "sanskritName": "Padmasana",
+      "variation": "Seated Hip Opener - Difficulty 4",
+      "practitioner": {
+        "position": "Cross-legged with feet on opposite thighs",
+        "primaryFocus": "Extreme hip opening, meditation, ankle flexibility",
+        "categoryType": "Seated Hip Opener",
+        "skillLevel": "Advanced"
+      },
+      "breathingPattern": {
+        "type": "Natural breath",
+        "pace": "Controlled and powerful",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Build strength and flexibility",
+      "difficulty": "Advanced"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Blocks or props for safety",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "Advanced practitioners",
+      "physicalConsiderations": "General physical limitations",
+      "specificNeeds": ["Extreme hip opening, meditation, ankle flexibility"],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Full body integration"],
+      "jointActions": ["Multi-joint coordination"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Half lotus",
+      "Easy pose",
+      "Seated meditation",
+      "Fish pose in lotus"
+    ]
+  }
+}

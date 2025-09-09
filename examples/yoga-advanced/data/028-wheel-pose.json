@@ -1,0 +1,53 @@
+{
+  "context": "Analyze this supine backbend pose and identify comprehensive transition relationships. Wheel Pose (Urdhva Dhanurasana) Full backbend with hands and feet on ground. Consider the Full body strength, extreme heart opening, wrist strength. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Wheel Pose",
+      "sanskritName": "Urdhva Dhanurasana",
+      "variation": "Supine Backbend - Difficulty 5",
+      "practitioner": {
+        "position": "Full backbend with hands and feet on ground",
+        "primaryFocus": "Full body strength, extreme heart opening, wrist strength",
+        "categoryType": "Supine Backbend",
+        "skillLevel": "Expert"
+      },
+      "breathingPattern": {
+        "type": "Expansive chest breathing",
+        "pace": "Controlled and powerful",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Heart opening and strength",
+      "difficulty": "Expert"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Blocks or props for safety",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "Expert level only",
+      "physicalConsiderations": "Shoulder flexibility, neck alignment",
+      "specificNeeds": [
+        "Full body strength, extreme heart opening, wrist strength"
+      ],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Full body integration"],
+      "jointActions": ["Spinal extension", "Shoulder flexion", "Hip opening"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Bridge pose",
+      "Camel pose",
+      "Happy baby",
+      "Fish pose"
+    ]
+  }
+}

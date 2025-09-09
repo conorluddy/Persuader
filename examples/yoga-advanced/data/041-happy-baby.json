@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this supine hip opener pose and identify comprehensive transition relationships. Happy Baby (Ananda Balasana) Lying on back holding feet with knees to armpits. Consider the Hip opening, lower back release, playfulness. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Happy Baby",
+      "sanskritName": "Ananda Balasana",
+      "variation": "Supine Hip Opener - Difficulty 1",
+      "practitioner": {
+        "position": "Lying on back holding feet with knees to armpits",
+        "primaryFocus": "Hip opening, lower back release, playfulness",
+        "categoryType": "Supine Hip Opener",
+        "skillLevel": "Beginner"
+      },
+      "breathingPattern": {
+        "type": "Natural breath",
+        "pace": "Slow and calming",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Build strength and flexibility",
+      "difficulty": "Beginner"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Props for comfort and alignment",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "All levels with modifications",
+      "physicalConsiderations": "General physical limitations",
+      "specificNeeds": ["Hip opening, lower back release, playfulness"],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Full body integration"],
+      "jointActions": ["Multi-joint coordination"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Supine twist",
+      "Savasana",
+      "Bridge pose",
+      "Knees to chest"
+    ]
+  }
+}

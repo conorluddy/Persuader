@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this standing twist pose and identify comprehensive transition relationships. Revolved Triangle (Parivrtta Trikonasana) Standing twist with hand to floor, opposite arm up. Consider the Spinal rotation, balance, hamstring flexibility. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Revolved Triangle",
+      "sanskritName": "Parivrtta Trikonasana",
+      "variation": "Standing Twist - Difficulty 4",
+      "practitioner": {
+        "position": "Standing twist with hand to floor, opposite arm up",
+        "primaryFocus": "Spinal rotation, balance, hamstring flexibility",
+        "categoryType": "Standing Twist",
+        "skillLevel": "Advanced"
+      },
+      "breathingPattern": {
+        "type": "Natural breath",
+        "pace": "Controlled and powerful",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Build strength and flexibility",
+      "difficulty": "Advanced"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Blocks or props for safety",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "Advanced practitioners",
+      "physicalConsiderations": "General physical limitations",
+      "specificNeeds": ["Spinal rotation, balance, hamstring flexibility"],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Full body integration"],
+      "jointActions": ["Multi-joint coordination"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Triangle pose",
+      "Twisted lunge",
+      "Pyramid pose",
+      "Standing split"
+    ]
+  }
+}

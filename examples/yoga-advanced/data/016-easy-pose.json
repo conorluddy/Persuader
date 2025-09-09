@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this seated pose and identify comprehensive transition relationships. Easy Pose (Sukhasana) Cross-legged sitting position for meditation. Consider the Hip opening, spinal alignment, meditation prep. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Easy Pose",
+      "sanskritName": "Sukhasana",
+      "variation": "Seated - Difficulty 1",
+      "practitioner": {
+        "position": "Cross-legged sitting position for meditation",
+        "primaryFocus": "Hip opening, spinal alignment, meditation prep",
+        "categoryType": "Seated",
+        "skillLevel": "Beginner"
+      },
+      "breathingPattern": {
+        "type": "Natural, meditative breathing",
+        "pace": "Slow and calming",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Build strength and flexibility",
+      "difficulty": "Beginner"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Blocks or blanket for sitting",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "All levels with modifications",
+      "physicalConsiderations": "General physical limitations",
+      "specificNeeds": ["Hip opening, spinal alignment, meditation prep"],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Full body integration"],
+      "jointActions": ["Multi-joint coordination"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Seated forward fold",
+      "Seated twist",
+      "Table top",
+      "Staff pose"
+    ]
+  }
+}

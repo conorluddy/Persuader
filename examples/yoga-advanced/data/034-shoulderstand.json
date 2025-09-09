@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this inversion pose and identify comprehensive transition relationships. Shoulderstand (Sarvangasana) Inverted pose balanced on shoulders. Consider the Thyroid stimulation, circulation, core strength. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Shoulderstand",
+      "sanskritName": "Sarvangasana",
+      "variation": "Inversion - Difficulty 4",
+      "practitioner": {
+        "position": "Inverted pose balanced on shoulders",
+        "primaryFocus": "Thyroid stimulation, circulation, core strength",
+        "categoryType": "Inversion",
+        "skillLevel": "Advanced"
+      },
+      "breathingPattern": {
+        "type": "Calm, steady breath against gravity",
+        "pace": "Controlled and powerful",
+        "awareness": "Calm focus and circulation"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Peak pose or cooling",
+      "energyState": "Cooling and centering",
+      "intention": "Build strength and flexibility",
+      "difficulty": "Advanced"
+    },
+    "environmentalFactors": {
+      "space": "Wall space for support",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Wall, blanket for shoulders",
+      "surface": "Firm, stable surface"
+    },
+    "practitionerProfile": {
+      "experience": "Advanced practitioners",
+      "physicalConsiderations": "Neck issues, blood pressure, menstruation",
+      "specificNeeds": ["Thyroid stimulation, circulation, core strength"],
+      "practiceStyle": "Advanced Hatha, Iyengar, traditional styles"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Full body integration"],
+      "jointActions": ["Multi-joint coordination"],
+      "breathingMuscles": ["Breathing against gravity"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Fish pose",
+      "Plow pose",
+      "Ear pressure pose",
+      "Happy baby"
+    ]
+  }
+}

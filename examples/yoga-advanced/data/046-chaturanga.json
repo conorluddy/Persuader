@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this plank variation pose and identify comprehensive transition relationships. Four-Limbed Staff (Chaturanga Dandasana) Low push-up position with elbows close to body. Consider the Upper body strength, core stability, alignment. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Four-Limbed Staff",
+      "sanskritName": "Chaturanga Dandasana",
+      "variation": "Plank Variation - Difficulty 3",
+      "practitioner": {
+        "position": "Low push-up position with elbows close to body",
+        "primaryFocus": "Upper body strength, core stability, alignment",
+        "categoryType": "Plank Variation",
+        "skillLevel": "Intermediate"
+      },
+      "breathingPattern": {
+        "type": "Natural breath",
+        "pace": "Steady and even",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Build strength and flexibility",
+      "difficulty": "Intermediate"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Props for comfort and alignment",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "Intermediate practitioners",
+      "physicalConsiderations": "General physical limitations",
+      "specificNeeds": ["Upper body strength, core stability, alignment"],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Full body integration"],
+      "jointActions": ["Multi-joint coordination"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Upward dog",
+      "Cobra pose",
+      "Plank pose",
+      "Downward dog"
+    ]
+  }
+}

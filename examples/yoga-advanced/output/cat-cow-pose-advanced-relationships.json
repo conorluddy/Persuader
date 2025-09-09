@@ -1,0 +1,21 @@
+{
+  "pose": "Cat-Cow Pose",
+  "anatomicalProgression": ["Downward-Facing Dog", "Plank Pose", "Cobra Pose"],
+  "energeticFlow": ["Mountain Pose", "Child's Pose", "Easy Pose"],
+  "therapeuticAlternatives": [
+    "Child's Pose",
+    "Staff Pose",
+    "Seated Spinal Twist"
+  ],
+  "counterPoses": ["Standing Forward Fold", "Corpse Pose", "Child's Pose"],
+  "preparatorySequence": ["Mountain Pose", "Easy Pose", "Child's Pose"],
+  "integrationOptions": ["Corpse Pose", "Easy Pose", "Seated Spinal Twist"],
+  "sourceData": {
+    "sanskritName": "Marjaryasana-Bitilasana",
+    "difficulty": "Unknown",
+    "energyState": "Unknown",
+    "primaryMuscles": [],
+    "energeticEffect": "Unknown"
+  },
+  "analysisTimestamp": "2025-09-07T09:00:23.885Z"
+}

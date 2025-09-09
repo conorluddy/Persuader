@@ -1,0 +1,18 @@
+{
+  "note": "This is a sample output file. The actual workout-generator creates a complete multi-stage workout program through 5 sequential LLM calls.",
+  "stages": [
+    "1. Fitness Profile Assessment",
+    "2. Exercise Selection",
+    "3. Workout Structure Creation",
+    "4. Progression Planning",
+    "5. Recovery Integration"
+  ],
+  "expectedOutput": {
+    "fitnessProfile": "User fitness level and goals",
+    "exercises": "Selected exercises based on profile",
+    "workoutStructure": "Weekly schedule and training principles",
+    "progressionPlan": "4-week progression with intensity adjustments",
+    "recoveryPlan": "Rest days and recovery strategies"
+  },
+  "runTime": "Typically 2-5 minutes depending on LLM response times"
+}

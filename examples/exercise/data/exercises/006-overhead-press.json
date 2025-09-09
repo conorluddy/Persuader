@@ -1,0 +1,10 @@
+{
+  "data": {
+    "name": "Overhead Press",
+    "category": "Compound Push",
+    "equipment": "Barbell",
+    "primaryMuscles": ["Anterior Deltoids", "Triceps", "Upper Chest"],
+    "difficulty": "Intermediate",
+    "movementPattern": "Vertical Push"
+  }
+}

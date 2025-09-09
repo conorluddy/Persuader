@@ -1,0 +1,64 @@
+{
+  "timestamp": "2025-09-08T18:53:41.219Z",
+  "totalExercises": 8,
+  "successfulAnalyses": 8,
+  "totalRelationships": 47,
+  "relationships": [
+    {
+      "exercise": "Barbell Row",
+      "similarMuscles": ["Pull-up", "Deadlift"],
+      "variationOf": ["Deadlift"],
+      "progressionFrom": ["Pull-up"],
+      "substitutableFor": ["Pull-up", "Deadlift"]
+    },
+    {
+      "exercise": "Bench Press",
+      "similarMuscles": ["Dip", "Push-up", "Overhead Press"],
+      "variationOf": [],
+      "progressionFrom": ["Push-up"],
+      "substitutableFor": ["Overhead Press", "Dip"]
+    },
+    {
+      "exercise": "Deadlift",
+      "similarMuscles": ["Squat", "Barbell Row", "Pull-up"],
+      "variationOf": [],
+      "progressionFrom": ["Pull-up"],
+      "substitutableFor": ["Barbell Row", "Pull-up"]
+    },
+    {
+      "exercise": "Dip",
+      "similarMuscles": ["Push-up", "Bench Press", "Overhead Press"],
+      "variationOf": ["Push-up"],
+      "progressionFrom": ["Push-up"],
+      "substitutableFor": ["Bench Press", "Overhead Press"]
+    },
+    {
+      "exercise": "Overhead Press",
+      "similarMuscles": ["Bench Press", "Push-up", "Dip"],
+      "variationOf": [],
+      "progressionFrom": ["Push-up"],
+      "substitutableFor": ["Bench Press", "Dip"]
+    },
+    {
+      "exercise": "Pull-up",
+      "similarMuscles": ["Barbell Row", "Deadlift", "Dip"],
+      "variationOf": ["Push-up"],
+      "progressionFrom": ["Push-up"],
+      "substitutableFor": ["Barbell Row", "Dip"]
+    },
+    {
+      "exercise": "Push-up",
+      "similarMuscles": ["Bench Press", "Dip", "Overhead Press"],
+      "variationOf": [],
+      "progressionFrom": [],
+      "substitutableFor": ["Bench Press", "Dip"]
+    },
+    {
+      "exercise": "Squat",
+      "similarMuscles": ["Deadlift", "Overhead Press"],
+      "variationOf": [],
+      "progressionFrom": ["Push-up"],
+      "substitutableFor": ["Deadlift"]
+    }
+  ]
+}

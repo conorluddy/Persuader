@@ -1,0 +1,53 @@
+{
+  "context": "Analyze this standing pose and identify comprehensive transition relationships. Triangle Pose (Trikonasana) Standing side bend with straight legs and hand to floor. Consider the Hamstring flexibility, lateral spinal extension, balance. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Triangle Pose",
+      "sanskritName": "Trikonasana",
+      "variation": "Standing - Difficulty 2",
+      "practitioner": {
+        "position": "Standing side bend with straight legs and hand to floor",
+        "primaryFocus": "Hamstring flexibility, lateral spinal extension, balance",
+        "categoryType": "Standing",
+        "skillLevel": "Beginner-Intermediate"
+      },
+      "breathingPattern": {
+        "type": "Strong ujjayi breath",
+        "pace": "Steady and even",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Standing sequence foundation",
+      "energyState": "Grounding and strengthening",
+      "intention": "Build strength and flexibility",
+      "difficulty": "Beginner-Intermediate"
+    },
+    "environmentalFactors": {
+      "space": "Full yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Props for comfort and alignment",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "Beginner to intermediate",
+      "physicalConsiderations": "General physical limitations",
+      "specificNeeds": [
+        "Hamstring flexibility, lateral spinal extension, balance"
+      ],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Leg stabilizers", "Core muscles", "Postural muscles"],
+      "jointActions": ["Hip stability", "Spinal alignment", "Ankle stability"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Grounding and strengthening"
+    },
+    "transitionOpportunities": [
+      "Warrior II",
+      "Extended side angle",
+      "Revolved triangle",
+      "Wide-legged forward fold"
+    ]
+  }
+}

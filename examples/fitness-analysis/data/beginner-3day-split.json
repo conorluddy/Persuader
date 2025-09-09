@@ -1,0 +1,236 @@
+{
+  "program_name": "Beginner 3-Day Full Body Split",
+  "description": "Full body workout program designed for beginners with 2-6 months of training experience",
+  "duration_weeks": 8,
+  "frequency_per_week": 3,
+  "target_population": ["beginners", "returning_trainees", "general_fitness"],
+  "equipment_required": [
+    "barbell",
+    "dumbbells",
+    "bench",
+    "squat_rack",
+    "pull_up_bar"
+  ],
+  "rest_days": ["Tuesday", "Thursday", "Saturday", "Sunday"],
+
+  "days": [
+    {
+      "day": "Monday",
+      "session_name": "Full Body A",
+      "estimated_duration_minutes": 60,
+      "warm_up": [
+        {
+          "exercise": "Dynamic Warm-up",
+          "duration": "5-10 minutes",
+          "description": "Light cardio, arm circles, leg swings, hip circles"
+        }
+      ],
+      "main_exercises": [
+        {
+          "exercise": "Goblet Squat",
+          "sets": 3,
+          "reps": "8-12",
+          "weight": "bodyweight + 15-25lbs dumbbell",
+          "rest_seconds": 120,
+          "notes": "Focus on depth and control",
+          "progression": "Add weight when completing 3x12 with good form"
+        },
+        {
+          "exercise": "Push-ups (modified as needed)",
+          "sets": 3,
+          "reps": "5-15",
+          "weight": "bodyweight",
+          "rest_seconds": 90,
+          "notes": "Use knees or incline if needed",
+          "progression": "Progress to full push-ups, then add reps"
+        },
+        {
+          "exercise": "Bent-over Dumbbell Row",
+          "sets": 3,
+          "reps": "8-12",
+          "weight": "15-25lbs per dumbbell",
+          "rest_seconds": 120,
+          "notes": "Hinge at hips, squeeze shoulder blades",
+          "progression": "Increase weight when completing 3x12"
+        },
+        {
+          "exercise": "Dumbbell Shoulder Press",
+          "sets": 3,
+          "reps": "8-12",
+          "weight": "10-20lbs per dumbbell",
+          "rest_seconds": 120,
+          "notes": "Press straight up, avoid arching back",
+          "progression": "Increase weight gradually"
+        },
+        {
+          "exercise": "Plank",
+          "sets": 3,
+          "reps": "20-60 seconds",
+          "weight": "bodyweight",
+          "rest_seconds": 60,
+          "notes": "Maintain straight line from head to heels",
+          "progression": "Increase hold time weekly"
+        }
+      ],
+      "cool_down": [
+        {
+          "exercise": "Static Stretching",
+          "duration": "5-10 minutes",
+          "description": "Hip flexors, hamstrings, chest, shoulders"
+        }
+      ]
+    },
+    {
+      "day": "Wednesday",
+      "session_name": "Full Body B",
+      "estimated_duration_minutes": 60,
+      "warm_up": [
+        {
+          "exercise": "Dynamic Warm-up",
+          "duration": "5-10 minutes",
+          "description": "Light movement, joint mobility"
+        }
+      ],
+      "main_exercises": [
+        {
+          "exercise": "Dumbbell Romanian Deadlift",
+          "sets": 3,
+          "reps": "8-12",
+          "weight": "20-30lbs per dumbbell",
+          "rest_seconds": 150,
+          "notes": "Focus on hip hinge pattern",
+          "progression": "Increase weight when form is perfect"
+        },
+        {
+          "exercise": "Incline Push-ups",
+          "sets": 3,
+          "reps": "8-15",
+          "weight": "bodyweight",
+          "rest_seconds": 90,
+          "notes": "Use bench or step for incline",
+          "progression": "Lower incline angle over time"
+        },
+        {
+          "exercise": "Lat Pulldown or Assisted Pull-ups",
+          "sets": 3,
+          "reps": "8-12",
+          "weight": "50-70% bodyweight",
+          "rest_seconds": 120,
+          "notes": "Pull to chest, control negative",
+          "progression": "Reduce assistance or increase weight"
+        },
+        {
+          "exercise": "Dumbbell Lunges",
+          "sets": 3,
+          "reps": "6-10 per leg",
+          "weight": "10-20lbs per dumbbell",
+          "rest_seconds": 120,
+          "notes": "Step back into lunge, control descent",
+          "progression": "Increase weight or reps"
+        },
+        {
+          "exercise": "Dead Bug",
+          "sets": 3,
+          "reps": "8-12 per side",
+          "weight": "bodyweight",
+          "rest_seconds": 60,
+          "notes": "Keep lower back pressed to floor",
+          "progression": "Slow tempo, add resistance band"
+        }
+      ],
+      "cool_down": [
+        {
+          "exercise": "Static Stretching",
+          "duration": "5-10 minutes",
+          "description": "Focus on worked muscles"
+        }
+      ]
+    },
+    {
+      "day": "Friday",
+      "session_name": "Full Body C",
+      "estimated_duration_minutes": 60,
+      "warm_up": [
+        {
+          "exercise": "Dynamic Warm-up",
+          "duration": "5-10 minutes",
+          "description": "Movement prep and activation"
+        }
+      ],
+      "main_exercises": [
+        {
+          "exercise": "Bodyweight or Goblet Squat",
+          "sets": 3,
+          "reps": "10-15",
+          "weight": "bodyweight or light dumbbell",
+          "rest_seconds": 120,
+          "notes": "Higher reps for endurance",
+          "progression": "Add weight or reps"
+        },
+        {
+          "exercise": "Dumbbell Bench Press or Floor Press",
+          "sets": 3,
+          "reps": "8-12",
+          "weight": "15-25lbs per dumbbell",
+          "rest_seconds": 120,
+          "notes": "Control the negative portion",
+          "progression": "Increase weight gradually"
+        },
+        {
+          "exercise": "Single-arm Dumbbell Row",
+          "sets": 3,
+          "reps": "8-12 per arm",
+          "weight": "20-30lbs dumbbell",
+          "rest_seconds": 90,
+          "notes": "Support on bench, row to hip",
+          "progression": "Increase weight when completing all reps"
+        },
+        {
+          "exercise": "Dumbbell Step-ups",
+          "sets": 3,
+          "reps": "8-12 per leg",
+          "weight": "10-20lbs per dumbbell",
+          "rest_seconds": 120,
+          "notes": "Control both up and down phases",
+          "progression": "Higher step or more weight"
+        },
+        {
+          "exercise": "Side Plank",
+          "sets": 2,
+          "reps": "15-45 seconds per side",
+          "weight": "bodyweight",
+          "rest_seconds": 60,
+          "notes": "Modified on knees if needed",
+          "progression": "Increase hold time"
+        }
+      ],
+      "cool_down": [
+        {
+          "exercise": "Full Body Stretching",
+          "duration": "10 minutes",
+          "description": "Comprehensive stretching routine"
+        }
+      ]
+    }
+  ],
+
+  "progression_notes": {
+    "weeks_1_2": "Focus on learning movement patterns with lighter weights",
+    "weeks_3_4": "Begin increasing weights when completing all reps with good form",
+    "weeks_5_6": "Continue progressive overload, may add extra set to some exercises",
+    "weeks_7_8": "Peak phase before transitioning to intermediate program"
+  },
+
+  "deload_protocol": {
+    "frequency": "Week 5",
+    "method": "Reduce weight by 20% while maintaining rep ranges",
+    "purpose": "Allow for recovery and supercompensation"
+  },
+
+  "success_metrics": [
+    "Completing all prescribed reps with proper form",
+    "Progressive weight increases over 8 weeks",
+    "Improved movement quality and confidence",
+    "Consistent attendance and adherence"
+  ]
+}

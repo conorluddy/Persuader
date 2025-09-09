@@ -1,0 +1,55 @@
+{
+  "context": "Analyze this foundational yoga pose and identify potential transitions and relationships. Mountain Pose (Tadasana) is the foundation of all standing poses and serves as a reset pose throughout practice. Consider the stability, grounding effects, and natural progressions from this neutral standing position. Analyze both immediate transition possibilities and longer-term progressions for building a complete standing sequence. Factor in the accessibility for all levels and the pose's role in establishing proper alignment.",
+  "data": {
+    "currentPose": {
+      "name": "Mountain Pose",
+      "sanskritName": "Tadasana",
+      "variation": "Basic Foundation",
+      "practitioner": {
+        "position": "Standing with feet hip-width apart",
+        "alignment": "Spine neutral, crown reaching up",
+        "armConfiguration": "Arms at sides, palms facing forward",
+        "groundingLevel": "Strong"
+      },
+      "breathingPattern": {
+        "type": "Natural breath",
+        "pace": "Steady and even",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Beginning foundation",
+      "energyState": "Centered and grounded",
+      "intention": "Establish alignment and presence",
+      "difficulty": "Beginner"
+    },
+    "environmentalFactors": {
+      "space": "Minimal space required",
+      "temperature": "Room temperature preferred",
+      "props": "None required, wall optional for support",
+      "surface": "Stable, level ground"
+    },
+    "practitionerProfile": {
+      "experience": "All levels - foundational pose",
+      "physicalConsiderations": "Accessible to most bodies",
+      "specificNeeds": ["Postural awareness", "Balance stability", "Grounding"],
+      "practiceStyle": "Hatha, Vinyasa, all styles"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": [
+        "Deep core stabilizers",
+        "Postural muscles",
+        "Leg muscles"
+      ],
+      "jointActions": ["Spinal alignment", "Hip neutral", "Ankle stability"],
+      "breathingMuscles": ["Diaphragm", "Intercostals"],
+      "energeticEffect": "Grounding and centering"
+    },
+    "transitionOpportunities": [
+      "Flow into forward fold for sun salutation",
+      "Progress to tree pose for balance challenge",
+      "Move into standing side bend for lateral opening",
+      "Transition to warrior poses for strength building"
+    ]
+  }
+}

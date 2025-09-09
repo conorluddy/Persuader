@@ -1,0 +1,53 @@
+{
+  "context": "Analyze this arm balance pose and identify comprehensive transition relationships. Flying Pigeon (Eka Pada Galavasana) Advanced arm balance with leg hooked around arm. Consider the Upper body strength, hip flexibility, advanced balance. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Flying Pigeon",
+      "sanskritName": "Eka Pada Galavasana",
+      "variation": "Arm Balance - Difficulty 5",
+      "practitioner": {
+        "position": "Advanced arm balance with leg hooked around arm",
+        "primaryFocus": "Upper body strength, hip flexibility, advanced balance",
+        "categoryType": "Arm Balance",
+        "skillLevel": "Expert"
+      },
+      "breathingPattern": {
+        "type": "Controlled, powerful breath",
+        "pace": "Controlled and powerful",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Build strength and confidence",
+      "difficulty": "Expert"
+    },
+    "environmentalFactors": {
+      "space": "Mat space with clear fall zone",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Blocks or props for safety",
+      "surface": "Non-slip mat essential"
+    },
+    "practitionerProfile": {
+      "experience": "Expert level only",
+      "physicalConsiderations": "Wrist sensitivity, upper body strength",
+      "specificNeeds": [
+        "Upper body strength, hip flexibility, advanced balance"
+      ],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Upper body", "Core", "Shoulder stabilizers"],
+      "jointActions": ["Multi-joint coordination"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Crow pose",
+      "Pigeon pose",
+      "Side plank",
+      "Chaturanga"
+    ]
+  }
+}

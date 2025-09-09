@@ -1,0 +1,10 @@
+{
+  "data": {
+    "name": "Pull-up",
+    "category": "Compound Pull",
+    "equipment": "Pull-up Bar",
+    "primaryMuscles": ["Latissimus Dorsi", "Rhomboids", "Biceps"],
+    "difficulty": "Intermediate",
+    "movementPattern": "Vertical Pull"
+  }
+}

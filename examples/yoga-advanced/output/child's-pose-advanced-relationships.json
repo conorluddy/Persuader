@@ -1,0 +1,21 @@
+{
+  "pose": "Child's Pose",
+  "anatomicalProgression": [
+    "Seated Forward Fold",
+    "Happy Baby",
+    "Wide-Legged Seated Forward Fold"
+  ],
+  "energeticFlow": ["Corpse Pose", "Easy Pose", "Cat-Cow Pose"],
+  "therapeuticAlternatives": ["Legs Up the Wall", "Supine Spinal Twist"],
+  "counterPoses": ["Cobra Pose", "Upward-Facing Dog", "Mountain Pose"],
+  "preparatorySequence": ["Cat-Cow Pose", "Mountain Pose", "Easy Pose"],
+  "integrationOptions": ["Corpse Pose", "Easy Pose"],
+  "sourceData": {
+    "sanskritName": "Balasana",
+    "difficulty": "Unknown",
+    "energyState": "Unknown",
+    "primaryMuscles": [],
+    "energeticEffect": "Unknown"
+  },
+  "analysisTimestamp": "2025-09-07T09:00:41.930Z"
+}

@@ -1,0 +1,56 @@
+{
+  "context": "Analyze this foundational balancing pose and its relationships within standing sequences. Tree Pose (Vrksasana) develops balance, focus, and single-leg strength while creating a sense of rootedness and growth. Consider the standing leg engagement, hip opening of the bent leg, and various arm positions. Analyze progressions from wall support to advanced variations and its role in building concentration and stability.",
+  "data": {
+    "currentPose": {
+      "name": "Tree Pose",
+      "sanskritName": "Vrksasana",
+      "variation": "Foot on inner thigh, arms in prayer",
+      "practitioner": {
+        "position": "Standing on one leg with other foot on inner thigh",
+        "standingLegAction": "Rooted and stable like tree trunk",
+        "bentLegAction": "Knee pointing out, hip opening",
+        "armConfiguration": "Prayer at heart center or reaching up"
+      },
+      "breathingPattern": {
+        "type": "Steady, focused breathing",
+        "pace": "Calm and centering",
+        "awareness": "Balance between effort and ease"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Standing balance series",
+      "energyState": "Focused and stable",
+      "intention": "Develop balance and concentration",
+      "difficulty": "Beginner to Intermediate"
+    },
+    "environmentalFactors": {
+      "space": "Minimal space, wall nearby for support",
+      "temperature": "Room temperature ideal",
+      "props": "Wall or chair for balance assistance",
+      "surface": "Stable, non-slip surface"
+    },
+    "practitionerProfile": {
+      "experience": "Suitable for all levels with modifications",
+      "physicalConsiderations": "Balance challenges, ankle instability",
+      "specificNeeds": ["Balance development", "Focus training", "Hip opening"],
+      "practiceStyle": "All styles, especially Hatha and therapeutic"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": [
+        "Standing leg stabilizers",
+        "Deep core",
+        "Hip abductors"
+      ],
+      "jointActions": ["Hip abduction", "Ankle stability", "Spinal extension"],
+      "breathingMuscles": ["Steady diaphragmatic breathing"],
+      "energeticEffect": "Grounding with upward growth"
+    },
+    "transitionOpportunities": [
+      "Flow to dancer's pose for more challenge",
+      "Transition to warrior III for dynamic balance",
+      "Move to standing figure-four for hip opening",
+      "Return to mountain pose for grounding",
+      "Flow to standing side bend with arms up"
+    ]
+  }
+}

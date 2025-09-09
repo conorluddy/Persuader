@@ -1,0 +1,60 @@
+{
+  "context": "Analyze this restorative pose and its role in yoga sequences. Child's Pose (Balasana) serves as a resting pose, counter-pose, and introspective position throughout practice. Consider the hip flexion, spinal rounding, and meditative qualities. Analyze its use as a transition between challenging poses and its variations for different body types. Factor in knee sensitivity and shoulder limitations that may require modifications.",
+  "data": {
+    "currentPose": {
+      "name": "Child's Pose",
+      "sanskritName": "Balasana",
+      "variation": "Traditional with arms extended",
+      "practitioner": {
+        "position": "Kneeling with torso folded over thighs",
+        "hipAction": "Sitting back toward heels",
+        "armConfiguration": "Extended forward or alongside body",
+        "spinalAction": "Gentle rounding and release"
+      },
+      "breathingPattern": {
+        "type": "Deep, calming breath",
+        "pace": "Slow and restorative",
+        "awareness": "Internal focus and surrender"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Resting and integration",
+      "energyState": "Deeply calming and restorative",
+      "intention": "Rest, restore, and reconnect",
+      "difficulty": "Beginner"
+    },
+    "environmentalFactors": {
+      "space": "Mat length, comfortable floor surface",
+      "temperature": "May need blanket for warmth",
+      "props": "Blanket, bolster, pillow for knees",
+      "surface": "Soft mat or additional padding"
+    },
+    "practitionerProfile": {
+      "experience": "All levels, especially beginners",
+      "physicalConsiderations": "Knee injuries, pregnancy modifications",
+      "specificNeeds": [
+        "Rest and restoration",
+        "Introspection",
+        "Stress relief"
+      ],
+      "practiceStyle": "All styles, especially restorative and Yin"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": [
+        "Hip flexors stretching",
+        "Lower back release",
+        "Shoulders and arms"
+      ],
+      "jointActions": ["Hip flexion", "Knee flexion", "Spinal flexion"],
+      "breathingMuscles": ["Gentle abdominal breathing"],
+      "energeticEffect": "Deeply grounding and calming"
+    },
+    "transitionOpportunities": [
+      "Flow to table top for gentle movement",
+      "Transition to downward dog slowly",
+      "Move to seated meditation",
+      "Flow to cat-cow for spinal mobility",
+      "Transition to side-lying for further rest"
+    ]
+  }
+}

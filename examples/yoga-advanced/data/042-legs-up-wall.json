@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this restorative pose and identify comprehensive transition relationships. Legs Up the Wall (Viparita Karani) Legs elevated against wall while lying down. Consider the Circulation, relaxation, nervous system calming. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Legs Up the Wall",
+      "sanskritName": "Viparita Karani",
+      "variation": "Restorative - Difficulty 1",
+      "practitioner": {
+        "position": "Legs elevated against wall while lying down",
+        "primaryFocus": "Circulation, relaxation, nervous system calming",
+        "categoryType": "Restorative",
+        "skillLevel": "Beginner"
+      },
+      "breathingPattern": {
+        "type": "Deep, calming breath",
+        "pace": "Slow and calming",
+        "awareness": "Deep relaxation and surrender"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Closing and integration",
+      "energyState": "Deeply calming",
+      "intention": "Deep relaxation and healing",
+      "difficulty": "Beginner"
+    },
+    "environmentalFactors": {
+      "space": "Comfortable floor space",
+      "temperature": "Warm and comfortable",
+      "props": "Bolsters, blankets, blocks",
+      "surface": "Soft, supportive surface"
+    },
+    "practitionerProfile": {
+      "experience": "All levels with modifications",
+      "physicalConsiderations": "General physical limitations",
+      "specificNeeds": ["Circulation, relaxation, nervous system calming"],
+      "practiceStyle": "Restorative, Yin, gentle yoga"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Full body integration"],
+      "jointActions": ["Multi-joint coordination"],
+      "breathingMuscles": ["Gentle diaphragmatic breathing"],
+      "energeticEffect": "Deeply calming and restorative"
+    },
+    "transitionOpportunities": [
+      "Savasana",
+      "Supine twist",
+      "Fish pose",
+      "Meditation"
+    ]
+  }
+}

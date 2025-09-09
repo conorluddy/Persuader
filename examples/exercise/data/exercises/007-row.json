@@ -1,0 +1,10 @@
+{
+  "data": {
+    "name": "Barbell Row",
+    "category": "Compound Pull",
+    "equipment": "Barbell",
+    "primaryMuscles": ["Latissimus Dorsi", "Rhomboids", "Middle Trapezius"],
+    "difficulty": "Intermediate",
+    "movementPattern": "Horizontal Pull"
+  }
+}

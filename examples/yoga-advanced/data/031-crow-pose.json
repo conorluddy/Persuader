@@ -1,0 +1,53 @@
+{
+  "context": "Analyze this arm balance pose and identify comprehensive transition relationships. Crow Pose (Bakasana) Arm balance with knees on upper arms. Consider the Upper body strength, core strength, fear transformation. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Crow Pose",
+      "sanskritName": "Bakasana",
+      "variation": "Arm Balance - Difficulty 4",
+      "practitioner": {
+        "position": "Arm balance with knees on upper arms",
+        "primaryFocus": "Upper body strength, core strength, fear transformation",
+        "categoryType": "Arm Balance",
+        "skillLevel": "Advanced"
+      },
+      "breathingPattern": {
+        "type": "Controlled, powerful breath",
+        "pace": "Controlled and powerful",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Build strength and confidence",
+      "difficulty": "Advanced"
+    },
+    "environmentalFactors": {
+      "space": "Mat space with clear fall zone",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Blocks or props for safety",
+      "surface": "Non-slip mat essential"
+    },
+    "practitionerProfile": {
+      "experience": "Advanced practitioners",
+      "physicalConsiderations": "Wrist sensitivity, upper body strength",
+      "specificNeeds": [
+        "Upper body strength, core strength, fear transformation"
+      ],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Upper body", "Core", "Shoulder stabilizers"],
+      "jointActions": ["Multi-joint coordination"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Squat pose",
+      "Chaturanga",
+      "Forward fold",
+      "Jump back to chaturanga"
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "data": {
+    "name": "Bench Press",
+    "category": "Compound Push",
+    "equipment": "Barbell, Bench",
+    "primaryMuscles": ["Pectorals", "Anterior Deltoids", "Triceps"],
+    "difficulty": "Intermediate",
+    "movementPattern": "Horizontal Push"
+  }
+}

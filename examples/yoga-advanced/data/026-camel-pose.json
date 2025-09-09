@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this prone backbend pose and identify comprehensive transition relationships. Camel Pose (Ustrasana) Kneeling backbend reaching for heels. Consider the Heart opening, hip flexor stretch, courage building. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Camel Pose",
+      "sanskritName": "Ustrasana",
+      "variation": "Prone Backbend - Difficulty 4",
+      "practitioner": {
+        "position": "Kneeling backbend reaching for heels",
+        "primaryFocus": "Heart opening, hip flexor stretch, courage building",
+        "categoryType": "Prone Backbend",
+        "skillLevel": "Advanced"
+      },
+      "breathingPattern": {
+        "type": "Deep heart-opening breath",
+        "pace": "Controlled and powerful",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Open heart and build courage",
+      "difficulty": "Advanced"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Blocks, strap for modifications",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "Advanced practitioners",
+      "physicalConsiderations": "Lower back sensitivity, neck issues",
+      "specificNeeds": ["Heart opening, hip flexor stretch, courage building"],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Erector spinae", "Heart opening muscles", "Glutes"],
+      "jointActions": ["Spinal extension", "Hip extension", "Shoulder opening"],
+      "breathingMuscles": ["Chest expansion", "Heart opening"],
+      "energeticEffect": "Heart opening and energizing"
+    },
+    "transitionOpportunities": [
+      "Hero pose",
+      "Child's pose",
+      "Table top",
+      "Fish pose"
+    ]
+  }
+}

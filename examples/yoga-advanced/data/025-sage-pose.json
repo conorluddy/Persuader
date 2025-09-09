@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this seated twist pose and identify comprehensive transition relationships. Sage Pose (Bharadvajasana) Deep seated twist with legs to one side. Consider the Spinal rotation, hip asymmetry, shoulder mobility. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Sage Pose",
+      "sanskritName": "Bharadvajasana",
+      "variation": "Seated Twist - Difficulty 3",
+      "practitioner": {
+        "position": "Deep seated twist with legs to one side",
+        "primaryFocus": "Spinal rotation, hip asymmetry, shoulder mobility",
+        "categoryType": "Seated Twist",
+        "skillLevel": "Intermediate"
+      },
+      "breathingPattern": {
+        "type": "Natural breath",
+        "pace": "Steady and even",
+        "awareness": "Internal cleansing and mobility"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Build strength and flexibility",
+      "difficulty": "Intermediate"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Props for comfort and alignment",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "Intermediate practitioners",
+      "physicalConsiderations": "Spinal injuries, pregnancy modifications",
+      "specificNeeds": ["Spinal rotation, hip asymmetry, shoulder mobility"],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Full body integration"],
+      "jointActions": ["Spinal rotation", "Hip stability", "Shoulder mobility"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Simple seated twist",
+      "Side-lying position",
+      "Table top",
+      "Easy pose"
+    ]
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this arm balance pose and identify comprehensive transition relationships. Side Plank (Vasisthasana) Side body balance on one arm. Consider the Core strength, shoulder stability, balance. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Side Plank",
+      "sanskritName": "Vasisthasana",
+      "variation": "Arm Balance - Difficulty 3",
+      "practitioner": {
+        "position": "Side body balance on one arm",
+        "primaryFocus": "Core strength, shoulder stability, balance",
+        "categoryType": "Arm Balance",
+        "skillLevel": "Intermediate"
+      },
+      "breathingPattern": {
+        "type": "Controlled, powerful breath",
+        "pace": "Steady and even",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Build strength and confidence",
+      "difficulty": "Intermediate"
+    },
+    "environmentalFactors": {
+      "space": "Mat space with clear fall zone",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Props for comfort and alignment",
+      "surface": "Non-slip mat essential"
+    },
+    "practitionerProfile": {
+      "experience": "Intermediate practitioners",
+      "physicalConsiderations": "Wrist sensitivity, upper body strength",
+      "specificNeeds": ["Core strength, shoulder stability, balance"],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Upper body", "Core", "Shoulder stabilizers"],
+      "jointActions": ["Multi-joint coordination"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Plank pose",
+      "Wild thing",
+      "Extended side angle",
+      "Forearm side plank"
+    ]
+  }
+}

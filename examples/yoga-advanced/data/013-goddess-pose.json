@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this standing pose and identify comprehensive transition relationships. Goddess Pose (Utkata Konasana) Wide-legged squat with arms in various positions. Consider the Hip opening, leg strength, pelvic floor engagement. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Goddess Pose",
+      "sanskritName": "Utkata Konasana",
+      "variation": "Standing - Difficulty 2",
+      "practitioner": {
+        "position": "Wide-legged squat with arms in various positions",
+        "primaryFocus": "Hip opening, leg strength, pelvic floor engagement",
+        "categoryType": "Standing",
+        "skillLevel": "Beginner-Intermediate"
+      },
+      "breathingPattern": {
+        "type": "Strong ujjayi breath",
+        "pace": "Steady and even",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Standing sequence foundation",
+      "energyState": "Grounding and strengthening",
+      "intention": "Build strength and flexibility",
+      "difficulty": "Beginner-Intermediate"
+    },
+    "environmentalFactors": {
+      "space": "Full yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Props for comfort and alignment",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "Beginner to intermediate",
+      "physicalConsiderations": "General physical limitations",
+      "specificNeeds": ["Hip opening, leg strength, pelvic floor engagement"],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Leg stabilizers", "Core muscles", "Postural muscles"],
+      "jointActions": ["Hip stability", "Spinal alignment", "Ankle stability"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Grounding and strengthening"
+    },
+    "transitionOpportunities": [
+      "Star pose",
+      "Wide-legged forward fold",
+      "Twisted goddess",
+      "Standing straddle"
+    ]
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this supine backbend pose and identify comprehensive transition relationships. Bridge Pose (Setu Bandha Sarvangasana) Backbend lying on back with feet on ground. Consider the Glute strength, heart opening, hip flexor stretch. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Bridge Pose",
+      "sanskritName": "Setu Bandha Sarvangasana",
+      "variation": "Supine Backbend - Difficulty 2",
+      "practitioner": {
+        "position": "Backbend lying on back with feet on ground",
+        "primaryFocus": "Glute strength, heart opening, hip flexor stretch",
+        "categoryType": "Supine Backbend",
+        "skillLevel": "Beginner-Intermediate"
+      },
+      "breathingPattern": {
+        "type": "Expansive chest breathing",
+        "pace": "Steady and even",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Heart opening and strength",
+      "difficulty": "Beginner-Intermediate"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Props for comfort and alignment",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "Beginner to intermediate",
+      "physicalConsiderations": "Shoulder flexibility, neck alignment",
+      "specificNeeds": ["Glute strength, heart opening, hip flexor stretch"],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Full body integration"],
+      "jointActions": ["Spinal extension", "Shoulder flexion", "Hip opening"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Wheel pose",
+      "Fish pose",
+      "Happy baby",
+      "Supine twist"
+    ]
+  }
+}

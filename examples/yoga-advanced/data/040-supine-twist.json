@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this supine twist pose and identify comprehensive transition relationships. Supine Spinal Twist (Supta Matsyendrasana) Lying twist with knees to one side. Consider the Spinal mobility, relaxation, digestive health. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Supine Spinal Twist",
+      "sanskritName": "Supta Matsyendrasana",
+      "variation": "Supine Twist - Difficulty 1",
+      "practitioner": {
+        "position": "Lying twist with knees to one side",
+        "primaryFocus": "Spinal mobility, relaxation, digestive health",
+        "categoryType": "Supine Twist",
+        "skillLevel": "Beginner"
+      },
+      "breathingPattern": {
+        "type": "Natural breath",
+        "pace": "Slow and calming",
+        "awareness": "Full body integration"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Build strength and flexibility",
+      "difficulty": "Beginner"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Props for comfort and alignment",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "All levels with modifications",
+      "physicalConsiderations": "General physical limitations",
+      "specificNeeds": ["Spinal mobility, relaxation, digestive health"],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Full body integration"],
+      "jointActions": ["Multi-joint coordination"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Happy baby",
+      "Savasana",
+      "Bridge pose",
+      "Knee to chest"
+    ]
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "context": "Analyze this seated twist pose and identify comprehensive transition relationships. Compass Pose (Parivrtta Surya Yantrasana) Seated pose with leg extended and twisted. Consider the Extreme flexibility, balance, spinal rotation. Analyze transitions that flow naturally from this pose and evaluate both immediate possibilities and progressive developments. Factor in modifications for different ability levels and the pose's role in creating balanced sequences.",
+  "data": {
+    "currentPose": {
+      "name": "Compass Pose",
+      "sanskritName": "Parivrtta Surya Yantrasana",
+      "variation": "Seated Twist - Difficulty 5",
+      "practitioner": {
+        "position": "Seated pose with leg extended and twisted",
+        "primaryFocus": "Extreme flexibility, balance, spinal rotation",
+        "categoryType": "Seated Twist",
+        "skillLevel": "Expert"
+      },
+      "breathingPattern": {
+        "type": "Natural breath",
+        "pace": "Controlled and powerful",
+        "awareness": "Internal cleansing and mobility"
+      }
+    },
+    "practiceContext": {
+      "sequencePhase": "Main practice phase",
+      "energyState": "Balanced and focused",
+      "intention": "Build strength and flexibility",
+      "difficulty": "Expert"
+    },
+    "environmentalFactors": {
+      "space": "Standard yoga mat space",
+      "temperature": "Room temperature to slightly warm",
+      "props": "Blocks or props for safety",
+      "surface": "Non-slip yoga mat"
+    },
+    "practitionerProfile": {
+      "experience": "Expert level only",
+      "physicalConsiderations": "Spinal injuries, pregnancy modifications",
+      "specificNeeds": ["Extreme flexibility, balance, spinal rotation"],
+      "practiceStyle": "All styles with appropriate modifications"
+    },
+    "anatomicalFocus": {
+      "primaryMuscles": ["Full body integration"],
+      "jointActions": ["Spinal rotation", "Hip stability", "Shoulder mobility"],
+      "breathingMuscles": ["Diaphragmatic breathing"],
+      "energeticEffect": "Balancing and integrating"
+    },
+    "transitionOpportunities": [
+      "Seated wide-legged fold",
+      "Side body stretch",
+      "Lotus prep",
+      "Staff pose"
+    ]
+  }
+}

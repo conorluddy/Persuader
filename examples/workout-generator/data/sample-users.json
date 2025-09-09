@@ -1,0 +1,47 @@
+[
+  {
+    "name": "Sarah - Beginner",
+    "age": 28,
+    "experience": "Complete beginner. I've never really exercised regularly but I want to start building healthy habits. I can do a few push-ups (on knees) and basic bodyweight movements.",
+    "goals": "I want to build strength gradually, improve my energy levels, and create a sustainable fitness routine that I can stick with long-term.",
+    "equipment": "I have a yoga mat, light resistance bands, and 5-15lb dumbbells at home. I prefer working out at home for now.",
+    "timeAvailable": "I can do 30-40 minutes, 3 times per week. I want to start small and build up gradually.",
+    "limitations": "No major injuries, but I get winded easily and want to avoid anything too intense while I'm building my base fitness."
+  },
+  {
+    "name": "Mike - Intermediate",
+    "age": 35,
+    "experience": "I've been lifting weights for about 3 years, mostly doing random workouts I find online. I can bench press my bodyweight and do 10+ pull-ups.",
+    "goals": "I want to get significantly stronger, add more muscle mass, and follow a proper structured program instead of random workouts.",
+    "equipment": "Full home gym: Olympic barbell, plates up to 315lbs, power rack, pull-up bar, dumbbells 10-75lbs, bench. Plus gym access on weekends.",
+    "timeAvailable": "60-75 minutes per workout, 4-5 times per week. I'm really motivated to see serious results.",
+    "limitations": "Minor shoulder impingement from years of overhead pressing. Need to be careful with overhead movements and prioritize mobility."
+  },
+  {
+    "name": "Jennifer - Busy Parent",
+    "age": 42,
+    "experience": "Used to be very active in my 20s with running and yoga, but haven't had a consistent routine in years due to kids and work. Basic fitness but out of practice.",
+    "goals": "Get back in shape, improve my energy for chasing kids around, and feel strong and confident again. Weight loss would be nice but not the main focus.",
+    "equipment": "Minimal setup - just dumbbells (8-25lbs), resistance bands, and a yoga mat. Need workouts I can do at home during naptime or early morning.",
+    "timeAvailable": "30-45 minutes max, 3-4 times per week. Schedule is unpredictable so I need flexibility.",
+    "limitations": "Some knee sensitivity from old running injuries, and my core is weak from pregnancies. Need modifications for high-impact movements."
+  },
+  {
+    "name": "Alex - Advanced Athlete",
+    "age": 24,
+    "experience": "Competitive powerlifter for 4 years. Current maxes: 350lb squat, 275lb bench, 425lb deadlift at 165lb bodyweight. Looking to branch out.",
+    "goals": "Maintain strength while adding athletic performance, mobility, and conditioning. Want to become more well-rounded beyond just powerlifting.",
+    "equipment": "Elite home gym setup plus commercial gym access. Full power rack, specialty bars, tons of plates, cardio equipment, everything.",
+    "timeAvailable": "90-120 minutes per session, 5-6 times per week. Training is a major priority and hobby.",
+    "limitations": "Chronic hip tightness from years of heavy squatting. Some lower back fatigue. Need to balance heavy lifting with mobility and recovery work."
+  },
+  {
+    "name": "Robert - Senior Fitness",
+    "age": 67,
+    "experience": "Was active in my youth but sedentary for the last 20 years. Doctor recommended I start exercising for bone density and cardiovascular health.",
+    "goals": "Improve balance, maintain independence as I age, build some strength, and follow my doctor's advice for healthy aging.",
+    "equipment": "Basic setup recommended by physical therapist: light dumbbells (2-20lbs), resistance bands, stability ball, walking access.",
+    "timeAvailable": "30-45 minutes, 3 times per week. Want to be consistent but not overdo it.",
+    "limitations": "Mild arthritis in knees and hands, some balance issues, previous heart event (cleared for exercise). Need low-impact, joint-friendly movements."
+  }
+]
