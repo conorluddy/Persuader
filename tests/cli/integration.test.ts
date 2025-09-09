@@ -50,7 +50,7 @@ describe('CLI Integration', () => {
       fileCount: 1,
       totalBytes: 100,
     });
-    mockRunner.runPersuader.mockResolvedValue({
+    mockRunner.persuade.mockResolvedValue({
       ok: true,
       value: { result: 'success' },
       attempts: 1,
@@ -86,7 +86,7 @@ describe('CLI Integration', () => {
       flattenArrays: true,
       allowEmpty: false,
     });
-    expect(mockRunner.runPersuader).toHaveBeenCalled();
+    expect(mockRunner.persuade).toHaveBeenCalled();
     expect(mockFileIo.writeOutput).toHaveBeenCalled();
   });
 
@@ -120,7 +120,7 @@ describe('CLI Integration', () => {
 
     await runCommand(args);
 
-    expect(mockRunner.runPersuader).toHaveBeenCalledTimes(2);
+    expect(mockRunner.persuade).toHaveBeenCalledTimes(2);
     expect(mockFileIo.writeOutput).toHaveBeenCalledTimes(2);
   });
 
@@ -136,7 +136,7 @@ describe('CLI Integration', () => {
 
     await runCommand(args);
 
-    expect(mockRunner.runPersuader).toHaveBeenCalledWith(
+    expect(mockRunner.persuade).toHaveBeenCalledWith(
       expect.objectContaining({
         context: 'Background info',
         lens: 'Focus on accuracy',
@@ -156,7 +156,7 @@ describe('CLI Integration', () => {
 
     await runCommand(args);
 
-    expect(mockRunner.runPersuader).not.toHaveBeenCalled();
+    expect(mockRunner.persuade).not.toHaveBeenCalled();
     expect(mockFileIo.writeOutput).not.toHaveBeenCalled();
   });
 
@@ -170,7 +170,7 @@ describe('CLI Integration', () => {
 
     await runCommand(args);
 
-    expect(mockRunner.runPersuader).toHaveBeenCalledWith(
+    expect(mockRunner.persuade).toHaveBeenCalledWith(
       expect.objectContaining({
         retries: 5,
       }),
@@ -179,7 +179,7 @@ describe('CLI Integration', () => {
   });
 
   it('handles processing failures gracefully', async () => {
-    mockRunner.runPersuader.mockResolvedValue({
+    mockRunner.persuade.mockResolvedValue({
       ok: false,
       error: { message: 'Processing failed', type: 'validation' },
       attempts: 1,
@@ -248,7 +248,7 @@ describe('CLI Integration', () => {
       flattenArrays: true,
       allowEmpty: false,
     });
-    expect(mockRunner.runPersuader).toHaveBeenCalledTimes(2);
+    expect(mockRunner.persuade).toHaveBeenCalledTimes(2);
   });
 
   it('creates output directory if needed', async () => {

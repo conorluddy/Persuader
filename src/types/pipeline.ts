@@ -62,7 +62,7 @@ export interface Options<T = unknown> {
    *
    * @example
    * ```typescript
-   * const result = await runPersuader({
+   * const result = await persuade({
    *   schema: z.object({
    *     rating: z.enum(['good', 'bad']),
    *     score: z.number().min(1).max(10)

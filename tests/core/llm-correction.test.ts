@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { runPersuader } from '../../src/core/runner.js';
+import { persuade } from '../../src/core/runner.js';
 import type { ProviderAdapter } from '../../src/types/provider.js';
 
 describe('LLM Correction and Retry Mechanism', () => {
@@ -42,7 +42,7 @@ describe('LLM Correction and Retry Mechanism', () => {
         model: 'mock',
       });
 
-    const result = await runPersuader(
+    const result = await persuade(
       {
         input: 'Generate user data',
         schema,
@@ -92,7 +92,7 @@ describe('LLM Correction and Retry Mechanism', () => {
         model: 'mock',
       });
 
-    const result = await runPersuader(
+    const result = await persuade(
       {
         input: 'Generate complete user data',
         schema,
@@ -132,7 +132,7 @@ describe('LLM Correction and Retry Mechanism', () => {
         model: 'mock',
       });
 
-    const result = await runPersuader(
+    const result = await persuade(
       {
         input: 'Generate user with correct types',
         schema,
@@ -172,7 +172,7 @@ describe('LLM Correction and Retry Mechanism', () => {
         model: 'mock',
       });
 
-    const result = await runPersuader(
+    const result = await persuade(
       {
         input: 'Generate user within constraints',
         schema,
@@ -197,7 +197,7 @@ describe('LLM Correction and Retry Mechanism', () => {
       model: 'mock',
     });
 
-    const result = await runPersuader(
+    const result = await persuade(
       {
         input: 'Generate user data',
         schema,
@@ -249,7 +249,7 @@ describe('LLM Correction and Retry Mechanism', () => {
         model: 'mock',
       });
 
-    const result = await runPersuader(
+    const result = await persuade(
       {
         input: 'Generate nested user data',
         schema: nestedSchema,
@@ -289,7 +289,7 @@ describe('LLM Correction and Retry Mechanism', () => {
         model: 'mock',
       });
 
-    const result = await runPersuader(
+    const result = await persuade(
       {
         input: 'Generate data with error accumulation',
         schema,

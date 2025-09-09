@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { runPersuader } from '../../src/core/runner.js';
+import { persuade } from '../../src/core/runner.js';
 
-describe('runPersuader - simple tests', () => {
+describe('persuade - simple tests', () => {
   const mockProvider = {
     name: 'mock',
     supportsSession: false,
@@ -19,7 +19,7 @@ describe('runPersuader - simple tests', () => {
       model: 'mock',
     });
 
-    const result = await runPersuader(
+    const result = await persuade(
       {
         input: 'Test',
         schema,
@@ -36,7 +36,7 @@ describe('runPersuader - simple tests', () => {
   it('handles provider errors', async () => {
     mockProvider.sendPrompt.mockRejectedValue(new Error('Provider error'));
 
-    const result = await runPersuader(
+    const result = await persuade(
       {
         input: 'Test',
         schema,

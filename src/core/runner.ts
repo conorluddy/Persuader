@@ -54,7 +54,7 @@ import { formatValidationErrorFeedback, validateJson } from './validation.js';
  * @param provider - LLM provider adapter to use for generation: Default to claudeCli
  * @returns Promise resolving to Result with validated data or error information
  */
-export async function runPersuader<T>(
+export async function persuade<T>(
   options: Options<T>,
   provider: ProviderAdapter = createClaudeCLIAdapter()
 ): Promise<Result<T>> {
@@ -628,7 +628,7 @@ export function createMockProvider(
 /**
  * Get runner execution statistics
  *
- * @param result - Result from runPersuader execution
+ * @param result - Result from persuade execution
  * @returns Execution statistics for monitoring and debugging
  */
 export function getExecutionStats<T>(result: Result<T>): {

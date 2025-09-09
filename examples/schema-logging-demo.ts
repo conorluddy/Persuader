@@ -12,7 +12,7 @@ import {
   createClaudeCLIAdapter,
   extractSchemaInfo,
   getSchemaDescription,
-  runPersuader,
+  persuade,
 } from '../src/index.js';
 
 // Simple demo schemas of varying complexity
@@ -165,7 +165,7 @@ async function demonstrateSchemaLogging() {
       return;
     }
 
-    const result = await runPersuader(
+    const result = await persuade(
       {
         schema: DemoSchema,
         input: 'This is a great day!',

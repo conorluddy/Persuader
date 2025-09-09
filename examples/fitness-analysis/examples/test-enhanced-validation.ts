@@ -5,7 +5,7 @@
  * features to verify they improve LLM output reliability.
  */
 
-import { runPersuader } from '../../../src/index.js';
+import { persuade } from '../../../src/index.js';
 import { BASE_CONTEXT } from '../prompts/base-context.js';
 import { EXAMPLE_ANALYSIS } from '../prompts/example-output.js';
 import { STRENGTH_COACH_LENS } from '../prompts/strength-coach-lens.js';
@@ -40,7 +40,7 @@ async function testEnhancedValidation() {
   console.log('-'.repeat(40));
 
   try {
-    const result1 = await runPersuader({
+    const result1 = await persuade({
       schema: WorkoutProgramAnalysisSchema,
       input: JSON.stringify(testProgram, null, 2),
       context: BASE_CONTEXT,
@@ -68,7 +68,7 @@ async function testEnhancedValidation() {
   console.log('-'.repeat(40));
 
   try {
-    const result2 = await runPersuader({
+    const result2 = await persuade({
       schema: WorkoutProgramAnalysisSchema,
       input: JSON.stringify(testProgram, null, 2),
       context: BASE_CONTEXT,
@@ -108,7 +108,7 @@ async function testEnhancedValidation() {
       // Missing required fields...
     };
 
-    const result3 = await runPersuader({
+    const result3 = await persuade({
       schema: WorkoutProgramAnalysisSchema,
       input: JSON.stringify(testProgram, null, 2),
       context: BASE_CONTEXT,

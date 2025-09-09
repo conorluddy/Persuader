@@ -20,6 +20,16 @@ Persuader provides a robust TypeScript framework for processing data with Large 
 - **Comprehensive Testing**: 200+ tests with Vitest, full TypeScript coverage
 - **Production Ready**: Error handling, logging, progress indicators, and metadata tracking
 
+### 📖 Code Philosophy
+
+**This project follows strict human-centric coding principles. See [CODESTYLE.md](./CODESTYLE.md) for our complete philosophy and guidelines.**
+
+Key principles we follow:
+- **Jackson's Law**: Small deficiencies compound exponentially in complex systems
+- **Cognitive Load Management**: Code for humans with limited working memory (~7 items)
+- **The Middle Way**: Avoid extremism - balance simplicity, functionality, and perfection
+- **Fail Fast, Fix Early**: Validate inputs immediately with actionable error messages
+
 ## 🚀 Core Patterns
 
 ### 1. Schema-First Validation with Retry Logic
@@ -28,7 +38,7 @@ Persuader uses Zod schemas to ensure LLM outputs match your expected structure, 
 
 ```typescript
 import { z } from 'zod';
-import { runPersuader, createClaudeCLIAdapter } from 'persuader';
+import { persuade, createClaudeCLIAdapter } from 'persuader';
 
 const UserSchema = z.object({
   name: z.string().min(1),
@@ -36,7 +46,7 @@ const UserSchema = z.object({
   age: z.number().min(0).max(150)
 });
 
-const result = await runPersuader({
+const result = await persuade({
   schema: UserSchema,
   input: rawUserData,
   retries: 5,
@@ -80,7 +90,7 @@ const session = await sessionManager.createSession(provider, {
 
 // Process multiple items with shared context
 for (const item of items) {
-  const result = await runPersuader({
+  const result = await persuade({
     schema: MySchema,
     input: item,
     sessionId: session.id
@@ -171,9 +181,9 @@ persuader run --schema ./schema.ts --input ./data.json
 
 3. **Or use programmatically**:
 ```typescript
-import { runPersuader, createClaudeCLIAdapter } from 'persuader';
+import { persuade, createClaudeCLIAdapter } from 'persuader';
 
-const result = await runPersuader({
+const result = await persuade({
   schema: UserSchema,
   input: rawData,
   context: "Extract user information",
@@ -245,12 +255,12 @@ src/
 
 ## 🎨 API Reference
 
-### Core `runPersuader` Function
+### Core `persuade` Function
 
 The main entry point for processing data with validation and retry logic:
 
 ```typescript
-import { runPersuader, createClaudeCLIAdapter } from 'persuader';
+import { persuade, createClaudeCLIAdapter } from 'persuader';
 import { z } from 'zod';
 
 const UserSchema = z.object({
@@ -259,7 +269,7 @@ const UserSchema = z.object({
   age: z.number().min(0).max(150)
 });
 
-const result = await runPersuader({
+const result = await persuade({
   schema: UserSchema,
   input: rawUserData,
   retries: 5,
@@ -314,7 +324,7 @@ const session = await sessionManager.createSession(provider, {
 
 // Process multiple items with shared session
 for (const item of items) {
-  const result = await runPersuader({
+  const result = await persuade({
     schema: MySchema,
     input: item,
     sessionId: session.id
@@ -406,7 +416,7 @@ persuader run \
 ### Basic Data Processing
 
 ```typescript
-import { runPersuader, createClaudeCLIAdapter } from 'persuader';
+import { persuade, createClaudeCLIAdapter } from 'persuader';
 import { z } from 'zod';
 
 const PersonSchema = z.object({
@@ -416,7 +426,7 @@ const PersonSchema = z.object({
   location: z.string()
 });
 
-const result = await runPersuader({
+const result = await persuade({
   schema: PersonSchema,
   input: "John Doe is 30 years old, lives in San Francisco, email john@example.com",
   context: "Extract person information from text",
@@ -458,7 +468,7 @@ const session = await sessionManager.createSession(provider, {
 // Process multiple surveys with shared context
 const results = [];
 for (const survey of surveyResponses) {
-  const result = await runPersuader({
+  const result = await persuade({
     schema: SurveyInsightSchema,
     input: survey,
     sessionId: session.id, // Reuse context
@@ -526,6 +536,17 @@ for (const survey of surveyResponses) {
 
 Persuader is a TypeScript framework for reliable LLM orchestration with schema validation. We welcome contributions that enhance the core patterns of validation-driven retry logic and session-based processing.
 
+### 📋 Code Style & Philosophy
+
+**All contributors must read and follow [CODESTYLE.md](./CODESTYLE.md) before submitting code.**
+
+Our codebase prioritizes:
+- **Human readability** over clever optimizations
+- **Explicit behavior** over implicit magic
+- **Small, focused modules** over monolithic files
+- **Clear error messages** over generic failures
+- **Progressive complexity** - simple interfaces hiding complex implementations
+
 ### Development Setup
 
 ```bash
@@ -559,6 +580,17 @@ npm run lint             # Lint code
 npm run test:legacy      # Jest (if needed)
 npm run lint:legacy      # ESLint (disabled in favor of Biome)
 ```
+
+### Code Review Checklist
+
+Before submitting a PR, ensure your code meets our standards (from [CODESTYLE.md](./CODESTYLE.md#code-review-checklist)):
+- [ ] Does it solve the stated problem without over-engineering?
+- [ ] Is the cognitive load reasonable (≤7 items to track)?
+- [ ] Are errors handled with actionable messages?
+- [ ] Is naming clear and self-documenting?
+- [ ] Would a tired developer at 3 AM understand this?
+- [ ] Are there tests for critical paths?
+- [ ] Does it follow the Middle Way (no extremism)?
 
 ### Project Structure
 

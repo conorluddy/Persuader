@@ -11,7 +11,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { glob } from 'glob';
-import { runPersuader } from '../../src/index.js';
+import { persuade } from '../../src/index.js';
 import {
   AdvancedYogaRelationshipSchema,
   type AdvancedYogaRelationships,
@@ -114,7 +114,7 @@ async function processAdvancedPose(
     specificNeeds: pose.practitionerProfile?.specificNeeds || [],
   };
 
-  const result = await runPersuader({
+  const result = await persuade({
     schema: AdvancedYogaRelationshipSchema,
     input: richInput,
     context: sessionId

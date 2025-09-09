@@ -28,7 +28,7 @@
  * ```typescript
  * import { EXAMPLE_ANALYSIS } from '../prompts/example-output.js';
  *
- * const result = await runPersuader({
+ * const result = await persuade({
  *   schema: WorkoutProgramAnalysisSchema,
  *   input: programData,
  *   context: BASE_CONTEXT,

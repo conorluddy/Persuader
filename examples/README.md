@@ -212,7 +212,7 @@ Examples demonstrate different session usage patterns:
 // Simple: Context reuse
 const sessionContext = createSessionContext(allPoses);
 for (const pose of poses) {
-  await runPersuader({ context: sessionContext, sessionId });
+  await persuade({ context: sessionContext, sessionId });
 }
 
 // Advanced: Context evolution across stages

@@ -7,7 +7,7 @@
 
 import { promises as fs, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { runPersuader } from '../../../src/index.js';
+import { persuade } from '../../../src/index.js';
 import { BASE_CONTEXT } from '../prompts/base-context.js';
 import { BODYBUILDER_LENS } from '../prompts/bodybuilder-lens.js';
 import { ENDURANCE_COACH_LENS } from '../prompts/endurance-coach-lens.js';
@@ -56,7 +56,7 @@ async function compareAllPerspectives(
     console.log(`\n${lens.emoji} Analyzing from ${lens.name} perspective...`);
 
     try {
-      const result = await runPersuader({
+      const result = await persuade({
         schema: WorkoutProgramAnalysisSchema,
         input: JSON.stringify(programData, null, 2),
         context: BASE_CONTEXT,
