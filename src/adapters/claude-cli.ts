@@ -17,6 +17,11 @@ import {
   CLAUDE_CLI_MAX_BUFFER,
   DEFAULT_MODEL,
   DEFAULT_REQUEST_TIMEOUT_MS,
+  HTTP_BAD_GATEWAY,
+  HTTP_GATEWAY_TIMEOUT,
+  HTTP_SERVICE_UNAVAILABLE,
+  HTTP_TOO_MANY_REQUESTS,
+  HTTP_UNAUTHORIZED,
 } from '../shared/constants/index.js';
 import type {
   ProviderAdapter,
@@ -453,10 +458,10 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
     return (
       message.includes('timeout') ||
       message.includes('rate limit') ||
-      message.includes('429') ||
-      message.includes('502') ||
-      message.includes('503') ||
-      message.includes('504') ||
+      message.includes(HTTP_TOO_MANY_REQUESTS.toString()) ||
+      message.includes(HTTP_BAD_GATEWAY.toString()) ||
+      message.includes(HTTP_SERVICE_UNAVAILABLE.toString()) ||
+      message.includes(HTTP_GATEWAY_TIMEOUT.toString()) ||
       message.includes('econnreset') ||
       message.includes('enotfound')
     );
@@ -487,7 +492,7 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
 
     if (
       originalMessage.includes('rate limit') ||
-      originalMessage.includes('429')
+      originalMessage.includes(HTTP_TOO_MANY_REQUESTS.toString())
     ) {
       return new Error(
         `${context}: Claude API rate limit exceeded. Please wait and try again.`
@@ -497,7 +502,7 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
     if (
       originalMessage.includes('unauthorized') ||
       originalMessage.includes('authentication') ||
-      originalMessage.includes('401')
+      originalMessage.includes(HTTP_UNAUTHORIZED.toString())
     ) {
       return new Error(
         `${context}: Claude CLI authentication failed. Please run: claude auth login`

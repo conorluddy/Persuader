@@ -7,6 +7,7 @@
 
 import {
   BASE_RETRY_DELAY_MS,
+  isRetryableHttpStatus,
   MAX_RETRY_DELAY_MS,
   RETRY_DELAY_MULTIPLIER,
 } from '../shared/constants/index.js';
@@ -278,10 +279,8 @@ function isErrorRetryable(error: unknown): boolean {
           // Provider errors depend on specific conditions
           if ('statusCode' in error) {
             const statusCode = error.statusCode as number;
-            // Retry on 5xx errors, timeout, or rate limit
-            return (
-              statusCode >= 500 || statusCode === 429 || statusCode === 408
-            );
+            // Retry on server errors (5xx), timeouts, or rate limits
+            return isRetryableHttpStatus(statusCode);
           }
           return true; // Default to retryable for provider errors
         case 'session':
