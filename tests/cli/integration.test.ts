@@ -90,39 +90,6 @@ describe('CLI Integration', () => {
     expect(mockFileIo.writeOutput).toHaveBeenCalled();
   });
 
-  it.skip('processes multiple files in batch', async () => {
-    mockFileIo.readInputs.mockResolvedValue({
-      data: [{ id: 1 }, { id: 2 }],
-      files: [
-        {
-          filePath: 'file1.json',
-          format: '.json',
-          size: 100,
-          lastModified: new Date(),
-        },
-        {
-          filePath: 'file2.json',
-          format: '.json',
-          size: 100,
-          lastModified: new Date(),
-        },
-      ],
-      fileCount: 2,
-      totalBytes: 200,
-    });
-
-    const args = {
-      input: '*.json',
-      schema: 'schema.ts',
-      output: 'output',
-      retries: '3',
-    };
-
-    await runCommand(args);
-
-    expect(mockRunner.persuade).toHaveBeenCalledTimes(2);
-    expect(mockFileIo.writeOutput).toHaveBeenCalledTimes(2);
-  });
 
   it('includes context and lens in processing', async () => {
     const args = {
@@ -202,54 +169,6 @@ describe('CLI Integration', () => {
     expect(mockFileIo.writeOutput).toHaveBeenCalled();
   });
 
-  it.skip('validates required arguments', async () => {
-    const args = {
-      input: 'test.json',
-      // Missing required schema
-      output: 'output',
-      retries: '3',
-    };
-
-    await runCommand(args);
-    expect(mockExit).toHaveBeenCalledWith(1);
-  });
-
-  it.skip('handles glob patterns for input files', async () => {
-    mockFileIo.readInputs.mockResolvedValue({
-      data: [{ data: 1 }, { data: 2 }],
-      files: [
-        {
-          filePath: 'dir/file1.yaml',
-          format: '.yaml',
-          size: 100,
-          lastModified: new Date(),
-        },
-        {
-          filePath: 'dir/file2.yaml',
-          format: '.yaml',
-          size: 100,
-          lastModified: new Date(),
-        },
-      ],
-      fileCount: 2,
-      totalBytes: 200,
-    });
-
-    const args = {
-      input: 'dir/*.yaml',
-      schema: 'schema.ts',
-      output: 'output',
-      retries: '3',
-    };
-
-    await runCommand(args);
-
-    expect(mockFileIo.readInputs).toHaveBeenCalledWith('dir/*.yaml', {
-      flattenArrays: true,
-      allowEmpty: false,
-    });
-    expect(mockRunner.persuade).toHaveBeenCalledTimes(2);
-  });
 
   it('creates output directory if needed', async () => {
     mockFs.mkdir.mockResolvedValue(undefined);
