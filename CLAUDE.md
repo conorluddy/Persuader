@@ -180,3 +180,4 @@ When refactoring, follow the priorities in [CODESTYLE.md](./CODESTYLE.md#refacto
 2. Reduce cognitive load (split large functions/files)
 3. Improve clarity (naming, types, explicit behavior)
 4. Optimize structure (single responsibility, clear interfaces)
+- Use @CODESTYLE.md as a coding style guide
