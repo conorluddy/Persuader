@@ -41,22 +41,9 @@ describe('validateJson', () => {
 });
 
 describe('formatValidationErrorFeedback', () => {
-  const schema = z.object({
+  const _schema = z.object({
     email: z.string().email(),
     count: z.number().positive(),
-  });
-
-  it.skip('formats validation errors for LLM', () => {
-    const invalidData = { email: 'not-an-email', count: -1 };
-    const result = validateJson(schema, JSON.stringify(invalidData));
-
-    if (!result.success) {
-      const feedback = formatValidationErrorFeedback(result.error, schema);
-      expect(feedback).toContain('Schema Validation Failed');
-      expect(feedback).toContain('email');
-      expect(feedback).toContain('count');
-      expect(feedback).toContain('Expected format');
-    }
   });
 
   it('provides helpful schema hints', () => {
