@@ -4,6 +4,7 @@
 [![Node.js Version](https://img.shields.io/node/v/persuader)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7%2B-blue)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Devin DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/conorluddy/Residents)
 
 **Session-based LLM orchestration with validation-driven retry loops and guaranteed schema-adhering output.**
 
