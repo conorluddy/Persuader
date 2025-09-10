@@ -500,14 +500,21 @@ export class WorkflowOrchestrator {
         );
       }
 
+      const dryRunConfig = {
+        schemaName: schemaResult.schemaName,
+        schemaPath: schemaResult.filePath,
+        retries: parseInt(String(options.retries || '3'), 10),
+      };
+
+      if (options.model) {
+        (dryRunConfig as { model?: string }).model = options.model as string;
+      }
+      if (options.sessionId) {
+        (dryRunConfig as { sessionId?: string }).sessionId = options.sessionId as string;
+      }
+
       reportDryRunSummary(
-        {
-          schemaName: schemaResult.schemaName,
-          schemaPath: schemaResult.filePath,
-          retries: parseInt(String(options.retries || '3'), 10),
-          model: options.model as string | undefined,
-          sessionId: options.sessionId as string | undefined,
-        },
+        dryRunConfig,
         {
           fileCount: inputResult.fileCount,
           itemCount: inputResult.data.length,
@@ -575,11 +582,11 @@ export class WorkflowOrchestrator {
       success: !hasFailures,
       totalExecutionTime,
       stepResults: this._stepResults,
-      pipelineResult,
-      schemaResult,
-      inputResult,
-      configResult,
-      error,
+      ...(pipelineResult && { pipelineResult }),
+      ...(schemaResult && { schemaResult }),
+      ...(inputResult && { inputResult }),
+      ...(configResult && { configResult }),
+      ...(error && { error }),
     };
 
     return summary;
@@ -657,7 +664,7 @@ export async function executeRunWorkflow(
 
     // Execute result saving (save both successful and failed results)
     if (pipelineResult.data) {
-      const saveResult = await orchestrator.executeResultSaving(
+      await orchestrator.executeResultSaving(
         pipelineResult.data,
         options.output as string
       );

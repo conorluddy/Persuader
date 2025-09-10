@@ -133,10 +133,17 @@ function reportSuccess(
     llmTimeMs: result.metadata.executionTimeMs,
     attempts: result.attempts,
     provider: result.metadata.provider,
-    model: result.metadata.model,
-    sessionId: result.sessionId,
-    tokenUsage: result.metadata.tokenUsage,
   };
+
+  if (result.metadata.model) {
+    (metrics as { model?: string }).model = result.metadata.model;
+  }
+  if (result.sessionId) {
+    (metrics as { sessionId?: string }).sessionId = result.sessionId;
+  }
+  if (result.metadata.tokenUsage) {
+    (metrics as { tokenUsage?: ExecutionMetrics['tokenUsage'] }).tokenUsage = result.metadata.tokenUsage as ExecutionMetrics['tokenUsage'];
+  }
 
   reportExecutionMetrics(metrics, options.verbose);
 }

@@ -144,11 +144,20 @@ export async function validatePipelineConfig(
         typeof rawOptions.retries === 'string'
           ? parseInt(rawOptions.retries, 10)
           : (rawOptions.retries as number) || DEFAULT_RETRIES,
-      context: rawOptions.context as string | undefined,
-      lens: rawOptions.lens as string | undefined,
-      sessionId: rawOptions.sessionId as string | undefined,
-      model: rawOptions.model as string | undefined,
     };
+
+    if (rawOptions.context) {
+      (pipelineOptions as { context?: string }).context = rawOptions.context as string;
+    }
+    if (rawOptions.lens) {
+      (pipelineOptions as { lens?: string }).lens = rawOptions.lens as string;
+    }
+    if (rawOptions.sessionId) {
+      (pipelineOptions as { sessionId?: string }).sessionId = rawOptions.sessionId as string;
+    }
+    if (rawOptions.model) {
+      (pipelineOptions as { model?: string }).model = rawOptions.model as string;
+    }
 
     // Use the existing validateRunnerOptions function
     const validation = validateRunnerOptions(pipelineOptions);
@@ -173,7 +182,7 @@ export async function validatePipelineConfig(
       valid: errors.length === 0,
       errors,
       warnings,
-      config: validation.valid ? pipelineOptions : undefined,
+      ...(validation.valid && { config: pipelineOptions }),
     };
 
     return result;
@@ -438,7 +447,7 @@ export async function validateCompleteConfiguration(options: {
       errors: allErrors,
       warnings: allWarnings,
       schemaResult,
-      inputResult: inputValidation.inputResult,
+      ...(inputValidation.inputResult && { inputResult: inputValidation.inputResult }),
       configResult,
     };
 
@@ -636,7 +645,7 @@ export async function validateInputFiles(
         fileCount: inputResult.fileCount,
         itemCount: inputResult.data.length,
       },
-      inputResult: errors.length === 0 ? inputResult : undefined,
+      ...(errors.length === 0 && { inputResult }),
     };
 
     return result;
