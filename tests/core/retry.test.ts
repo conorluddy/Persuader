@@ -22,8 +22,28 @@ describe('retryWithFeedback', () => {
   it('retries on failure and eventually succeeds', async () => {
     const operation = vi
       .fn()
-      .mockResolvedValueOnce({ success: false, error: { type: 'validation', code: 'test', message: 'First failure', timestamp: new Date(), retryable: true, details: {} } })
-      .mockResolvedValueOnce({ success: false, error: { type: 'validation', code: 'test', message: 'Second failure', timestamp: new Date(), retryable: true, details: {} } })
+      .mockResolvedValueOnce({
+        success: false,
+        error: {
+          type: 'validation',
+          code: 'test',
+          message: 'First failure',
+          timestamp: new Date(),
+          retryable: true,
+          details: {},
+        },
+      })
+      .mockResolvedValueOnce({
+        success: false,
+        error: {
+          type: 'validation',
+          code: 'test',
+          message: 'Second failure',
+          timestamp: new Date(),
+          retryable: true,
+          details: {},
+        },
+      })
       .mockResolvedValue({ success: true, value: 'success' });
 
     const result = await retryWithFeedback({
@@ -38,9 +58,18 @@ describe('retryWithFeedback', () => {
   });
 
   it('fails after max retries', async () => {
-    const operation = vi
-      .fn()
-      .mockResolvedValue({ success: false, error: { type: 'provider', code: 'test', message: 'Persistent failure', provider: 'test', timestamp: new Date(), retryable: true, details: {} } });
+    const operation = vi.fn().mockResolvedValue({
+      success: false,
+      error: {
+        type: 'provider',
+        code: 'test',
+        message: 'Persistent failure',
+        provider: 'test',
+        timestamp: new Date(),
+        retryable: true,
+        details: {},
+      },
+    });
 
     const result = await retryWithFeedback({
       operation,
@@ -54,7 +83,14 @@ describe('retryWithFeedback', () => {
   });
 
   it('includes feedback in retry attempts', async () => {
-    const firstError = { type: 'validation', code: 'test', message: 'Validation error', timestamp: new Date(), retryable: true, details: {} };
+    const firstError = {
+      type: 'validation',
+      code: 'test',
+      message: 'Validation error',
+      timestamp: new Date(),
+      retryable: true,
+      details: {},
+    };
     const operation = vi
       .fn()
       .mockResolvedValueOnce({ success: false, error: firstError })
@@ -76,7 +112,17 @@ describe('retryWithFeedback', () => {
     const errors = ['Error 1', 'Error 2', 'Error 3'];
     const operation = vi.fn();
     errors.forEach(err => {
-      operation.mockResolvedValueOnce({ success: false, error: { type: 'validation', code: 'test', message: err, timestamp: new Date(), retryable: true, details: {} } });
+      operation.mockResolvedValueOnce({
+        success: false,
+        error: {
+          type: 'validation',
+          code: 'test',
+          message: err,
+          timestamp: new Date(),
+          retryable: true,
+          details: {},
+        },
+      });
     });
 
     const result = await retryWithFeedback({

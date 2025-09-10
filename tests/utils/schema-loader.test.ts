@@ -1,7 +1,6 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { z } from 'zod';
 import { loadSchema } from '../../src/utils/schema-loader.js';
 
 vi.mock('node:fs/promises');
@@ -16,13 +15,15 @@ describe('loadSchema', () => {
     mockPath.resolve.mockImplementation(p => p as string);
     mockPath.extname.mockImplementation(p => {
       const parts = p.split('.');
-      return parts.length > 1 ? '.' + parts[parts.length - 1] : '';
+      return parts.length > 1 ? `.${parts[parts.length - 1]}` : '';
     });
   });
 
   it('throws error for TypeScript schema files', async () => {
     mockFs.access.mockResolvedValue(undefined);
-    mockFs.stat.mockResolvedValue({ isFile: () => true, size: 100 } as any);
+    mockFs.stat.mockResolvedValue({ isFile: () => true, size: 100 } as Awaited<
+      ReturnType<typeof fs.stat>
+    >);
 
     await expect(loadSchema('/test/schema.ts')).rejects.toThrow(
       'TypeScript schemas are no longer supported'
@@ -39,7 +40,9 @@ describe('loadSchema', () => {
 
   it('throws error for unsupported file extensions', async () => {
     mockFs.access.mockResolvedValue(undefined);
-    mockFs.stat.mockResolvedValue({ isFile: () => true, size: 100 } as any);
+    mockFs.stat.mockResolvedValue({ isFile: () => true, size: 100 } as Awaited<
+      ReturnType<typeof fs.stat>
+    >);
 
     await expect(loadSchema('/schema.txt')).rejects.toThrow(
       'Unsupported schema file extension'

@@ -69,8 +69,11 @@ describe('file-io utilities', () => {
       mockFs.readFile
         .mockResolvedValueOnce(JSON.stringify({ id: 1 }))
         .mockResolvedValueOnce(JSON.stringify({ id: 2 }));
-      mockFs.stat
-        .mockResolvedValue({ isFile: () => true, size: 100, mtime: new Date() } as any);
+      mockFs.stat.mockResolvedValue({
+        isFile: () => true,
+        size: 100,
+        mtime: new Date(),
+      } as Awaited<ReturnType<typeof fs.stat>>);
 
       const results = await readInputs('*.json');
 
