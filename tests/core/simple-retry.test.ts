@@ -17,10 +17,10 @@ describe('retryWithFeedback - simple tests', () => {
     expect(operation).toHaveBeenCalledTimes(1);
   });
 
-  it.skip('retries on failure', async () => {
+  it('retries on failure', async () => {
     const operation = vi
       .fn()
-      .mockRejectedValueOnce(new Error('Fail'))
+      .mockResolvedValueOnce({ success: false, error: { type: 'validation', code: 'test', message: 'Fail', timestamp: new Date(), retryable: true, details: {} } })
       .mockResolvedValue({ success: true, value: 'success' });
 
     const result = await retryWithFeedback({
@@ -33,8 +33,8 @@ describe('retryWithFeedback - simple tests', () => {
     expect(operation).toHaveBeenCalledTimes(2);
   });
 
-  it.skip('stops after max retries', async () => {
-    const operation = vi.fn().mockRejectedValue(new Error('Always fails'));
+  it('stops after max retries', async () => {
+    const operation = vi.fn().mockResolvedValue({ success: false, error: { type: 'provider', code: 'test', message: 'Always fails', provider: 'test', timestamp: new Date(), retryable: true, details: {} } });
 
     const result = await retryWithFeedback({
       operation,
