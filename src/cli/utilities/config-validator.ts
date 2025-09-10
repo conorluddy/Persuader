@@ -144,21 +144,11 @@ export async function validatePipelineConfig(
         typeof rawOptions.retries === 'string'
           ? parseInt(rawOptions.retries, 10)
           : (rawOptions.retries as number) || DEFAULT_RETRIES,
+      context: rawOptions.context as string | undefined,
+      lens: rawOptions.lens as string | undefined,
+      sessionId: rawOptions.sessionId as string | undefined,
+      model: rawOptions.model as string | undefined,
     };
-
-    // Add optional properties only if they exist
-    if (rawOptions.context) {
-      (pipelineOptions as any).context = rawOptions.context as string;
-    }
-    if (rawOptions.lens) {
-      (pipelineOptions as any).lens = rawOptions.lens as string;
-    }
-    if (rawOptions.sessionId) {
-      (pipelineOptions as any).sessionId = rawOptions.sessionId as string;
-    }
-    if (rawOptions.model) {
-      (pipelineOptions as any).model = rawOptions.model as string;
-    }
 
     // Use the existing validateRunnerOptions function
     const validation = validateRunnerOptions(pipelineOptions);
@@ -173,7 +163,7 @@ export async function validatePipelineConfig(
       warnings.push('High retry count may result in longer execution times');
     }
 
-    if (!(pipelineOptions as any).context && !(pipelineOptions as any).lens) {
+    if (!pipelineOptions.context && !pipelineOptions.lens) {
       warnings.push(
         'No context or lens provided - consider adding guidance for better results'
       );
@@ -183,11 +173,8 @@ export async function validatePipelineConfig(
       valid: errors.length === 0,
       errors,
       warnings,
+      config: validation.valid ? pipelineOptions : undefined,
     };
-
-    if (validation.valid) {
-      (result as any).config = pipelineOptions;
-    }
 
     return result;
   } catch (error) {
@@ -399,7 +386,7 @@ export async function validateCompleteConfiguration(options: {
         valid: false,
         errors: allErrors,
         warnings: allWarnings,
-      } as any;
+      };
     }
 
     // Step 2: Load and validate schema
@@ -416,7 +403,7 @@ export async function validateCompleteConfiguration(options: {
         valid: false,
         errors: allErrors,
         warnings: allWarnings,
-      } as any;
+      };
     }
 
     // Step 3: Validate input files
@@ -450,13 +437,10 @@ export async function validateCompleteConfiguration(options: {
       valid: allErrors.length === 0,
       errors: allErrors,
       warnings: allWarnings,
-    } as any;
-
-    finalResult.schemaResult = schemaResult;
-    if (inputValidation.inputResult) {
-      finalResult.inputResult = inputValidation.inputResult;
-    }
-    finalResult.configResult = configResult;
+      schemaResult,
+      inputResult: inputValidation.inputResult,
+      configResult,
+    };
 
     return finalResult;
   } catch (error) {
@@ -497,26 +481,26 @@ export function generateConfigSummary(
     `Retries: ${config.retries}`,
   ];
 
-  if ((config as any).model) {
-    summary.push(`Model: ${(config as any).model}`);
+  if (config.model) {
+    summary.push(`Model: ${config.model}`);
   }
 
-  if ((config as any).context) {
-    const context = (config as any).context;
+  if (config.context) {
+    const context = config.context;
     summary.push(
       `Context: ${context.substring(0, 50)}${context.length > 50 ? '...' : ''}`
     );
   }
 
-  if ((config as any).lens) {
-    const lens = (config as any).lens;
+  if (config.lens) {
+    const lens = config.lens;
     summary.push(
       `Lens: ${lens.substring(0, 50)}${lens.length > 50 ? '...' : ''}`
     );
   }
 
-  if ((config as any).sessionId) {
-    summary.push(`Session ID: ${(config as any).sessionId}`);
+  if (config.sessionId) {
+    summary.push(`Session ID: ${config.sessionId}`);
   }
 
   const warnings: string[] = [];
@@ -527,7 +511,7 @@ export function generateConfigSummary(
     warnings.push('High retry count may result in longer execution times');
   }
 
-  if (!(config as any).context && !(config as any).lens) {
+  if (!config.context && !config.lens) {
     warnings.push(
       'No context or lens provided - consider adding guidance for better results'
     );
@@ -652,11 +636,8 @@ export async function validateInputFiles(
         fileCount: inputResult.fileCount,
         itemCount: inputResult.data.length,
       },
+      inputResult: errors.length === 0 ? inputResult : undefined,
     };
-
-    if (errors.length === 0) {
-      (result as any).inputResult = inputResult;
-    }
 
     return result;
   } catch (error) {

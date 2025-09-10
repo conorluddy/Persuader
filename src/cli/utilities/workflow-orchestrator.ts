@@ -345,17 +345,19 @@ export class WorkflowOrchestrator {
       const { persuade } = await import('../../core/runner.js');
       const result = await persuade(options, provider);
 
-      if (!result.ok) {
-        throw new Error(result.error?.message || 'Pipeline execution failed');
+      if (result.ok) {
+        this._context.progressReporter.completeStep(
+          'Pipeline completed successfully'
+        );
+      } else {
+        this._context.progressReporter.failStep(
+          new Error(result.error?.message || 'Pipeline execution failed')
+        );
       }
-
-      this._context.progressReporter.completeStep(
-        'Pipeline completed successfully'
-      );
 
       const executionTime = Date.now() - stepStart;
       const stepResult: WorkflowStepResult<Result<unknown>> = {
-        success: true,
+        success: result.ok,
         data: result,
         executionTime,
         warnings,
@@ -499,20 +501,13 @@ export class WorkflowOrchestrator {
       }
 
       reportDryRunSummary(
-        (() => {
-          const dryRunConfig = {
-            schemaName: schemaResult.schemaName,
-            schemaPath: schemaResult.filePath,
-            retries: parseInt(String(options.retries || '3'), 10),
-          };
-          if (options.model) {
-            (dryRunConfig as any).model = options.model as string;
-          }
-          if (options.sessionId) {
-            (dryRunConfig as any).sessionId = options.sessionId as string;
-          }
-          return dryRunConfig;
-        })(),
+        {
+          schemaName: schemaResult.schemaName,
+          schemaPath: schemaResult.filePath,
+          retries: parseInt(String(options.retries || '3'), 10),
+          model: options.model as string | undefined,
+          sessionId: options.sessionId as string | undefined,
+        },
         {
           fileCount: inputResult.fileCount,
           itemCount: inputResult.data.length,
@@ -560,47 +555,32 @@ export class WorkflowOrchestrator {
       result => !result.success
     );
 
+    const pipelineResult = this._stepResults['pipeline-execution']?.data as
+      | Result<unknown>
+      | undefined;
+    const schemaResult = this._stepResults['schema-loading']?.data as
+      | SchemaLoadResult
+      | undefined;
+    const inputResult = this._stepResults['input-processing']?.data as
+      | FileProcessorResult
+      | undefined;
+    const configResult = this._stepResults['config-validation']?.data as
+      | ConfigValidationResult
+      | undefined;
+    const error = hasFailures
+      ? Object.values(this._stepResults).find(result => result.error)?.error
+      : undefined;
+
     const summary: WorkflowExecutionResult = {
       success: !hasFailures,
       totalExecutionTime,
       stepResults: this._stepResults,
+      pipelineResult,
+      schemaResult,
+      inputResult,
+      configResult,
+      error,
     };
-
-    // Add optional properties only if they exist
-    const pipelineResult = this._stepResults['pipeline-execution']?.data as
-      | Result<unknown>
-      | undefined;
-    if (pipelineResult) {
-      (summary as any).pipelineResult = pipelineResult;
-    }
-
-    const schemaResult = this._stepResults['schema-loading']?.data as
-      | SchemaLoadResult
-      | undefined;
-    if (schemaResult) {
-      (summary as any).schemaResult = schemaResult;
-    }
-
-    const inputResult = this._stepResults['input-processing']?.data as
-      | FileProcessorResult
-      | undefined;
-    if (inputResult) {
-      (summary as any).inputResult = inputResult;
-    }
-
-    const configResult = this._stepResults['config-validation']?.data as
-      | ConfigValidationResult
-      | undefined;
-    if (configResult) {
-      (summary as any).configResult = configResult;
-    }
-
-    const error = hasFailures
-      ? Object.values(this._stepResults).find(result => result.error)?.error
-      : undefined;
-    if (error) {
-      (summary as any).error = error;
-    }
 
     return summary;
   }
@@ -674,21 +654,18 @@ export async function executeRunWorkflow(
       configResult.data.config,
       providerResult.data
     );
-    if (!pipelineResult.success) {
-      return orchestrator.getExecutionSummary();
+
+    // Execute result saving (save both successful and failed results)
+    if (pipelineResult.data) {
+      const saveResult = await orchestrator.executeResultSaving(
+        pipelineResult.data,
+        options.output as string
+      );
+      // Continue execution even if save fails to ensure we return the summary
     }
 
-    // Execute result saving
-    if (!pipelineResult.data) {
-      throw new Error('Pipeline result is missing required data');
-    }
-    const saveResult = await orchestrator.executeResultSaving(
-      pipelineResult.data,
-      options.output as string
-    );
-    if (!saveResult.success) {
-      return orchestrator.getExecutionSummary();
-    }
+    // Return workflow summary regardless of pipeline success/failure
+    // The summary will indicate the overall workflow status
 
     return orchestrator.getExecutionSummary();
   } catch (error) {

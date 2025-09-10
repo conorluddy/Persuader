@@ -147,6 +147,7 @@ describe('CLI Integration', () => {
   it('handles processing failures gracefully', async () => {
     mockRunner.persuade.mockResolvedValue({
       ok: false,
+      value: undefined,
       error: { message: 'Processing failed', type: 'validation' },
       attempts: 1,
       metadata: {

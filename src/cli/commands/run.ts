@@ -133,17 +133,10 @@ function reportSuccess(
     llmTimeMs: result.metadata.executionTimeMs,
     attempts: result.attempts,
     provider: result.metadata.provider,
+    model: result.metadata.model,
+    sessionId: result.sessionId,
+    tokenUsage: result.metadata.tokenUsage,
   };
-
-  if (result.metadata.model) {
-    (metrics as any).model = result.metadata.model;
-  }
-  if (result.sessionId) {
-    (metrics as any).sessionId = result.sessionId;
-  }
-  if (result.metadata.tokenUsage) {
-    (metrics as any).tokenUsage = result.metadata.tokenUsage;
-  }
 
   reportExecutionMetrics(metrics, options.verbose);
 }
