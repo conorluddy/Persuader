@@ -12,7 +12,7 @@
 
 ```typescript
 import { z } from 'zod';
-import { persuade, createClaudeCLIAdapter } from 'persuader';
+import { persuade } from 'persuader';
 
 // Define your schema
 const UserSchema = z.object({
@@ -26,7 +26,7 @@ const result = await persuade({
   schema: UserSchema,
   context: "Extract user information accurately",
   input: "John Doe is 30 years old, email: john@example.com"
-}, createClaudeCLIAdapter());
+});
 
 // Get guaranteed structured output
 if (result.ok) {
