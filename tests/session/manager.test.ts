@@ -36,160 +36,127 @@ describe('SessionManager', () => {
     expect(defaultSessionManager).toBeInstanceOf(SessionManager);
   });
 
-  it.skip('creates new session when none exists', async () => {
-    const sessionId = await manager.getOrCreateSession(
-      'test-key',
+  it('creates new session when none exists', async () => {
+    const session = await manager.createSession(
       'test-context',
-      mockProvider
+      { provider: 'mock-provider' }
     );
 
-    expect(sessionId).toBe('session-123');
-    expect(mockProvider.createSession).toHaveBeenCalledWith('test-context');
+    expect(session.id).toBeDefined();
+    expect(session.context).toBe('test-context');
+    expect(session.metadata.provider).toBe('mock-provider');
   });
 
-  it.skip('reuses existing session for same key', async () => {
-    const sessionId1 = await manager.getOrCreateSession(
-      'test-key',
+  it('retrieves existing session by ID', async () => {
+    const session1 = await manager.createSession(
       'context',
-      mockProvider
+      { provider: 'mock-provider' }
     );
 
-    const sessionId2 = await manager.getOrCreateSession(
-      'test-key',
+    const retrievedSession = await manager.getSession(session1.id);
+
+    expect(retrievedSession).not.toBeNull();
+    expect(retrievedSession?.id).toBe(session1.id);
+    expect(retrievedSession?.context).toBe('context');
+  });
+
+  it('creates different sessions with unique IDs', async () => {
+    const session1 = await manager.createSession(
+      'context-1',
+      { provider: 'mock-provider' }
+    );
+
+    const session2 = await manager.createSession(
+      'context-2',
+      { provider: 'mock-provider' }
+    );
+
+    expect(session1.id).not.toBe(session2.id);
+    expect(session1.context).toBe('context-1');
+    expect(session2.context).toBe('context-2');
+  });
+
+  it('handles sessions without specific provider support', async () => {
+    const session = await manager.createSession(
       'context',
-      mockProvider
+      { provider: 'no-session' }
     );
 
-    expect(sessionId1).toBe(sessionId2);
-    expect(mockProvider.createSession).toHaveBeenCalledTimes(1);
+    expect(session.id).toBeDefined();
+    expect(session.metadata.provider).toBe('no-session');
   });
 
-  it.skip('creates different sessions for different keys', async () => {
-    vi.mocked(mockProvider.createSession)
-      .mockResolvedValueOnce('session-1')
-      .mockResolvedValueOnce('session-2');
+  it('cleans up expired sessions', async () => {
+    // Create a session
+    const session = await manager.createSession('context', { provider: 'mock-provider' });
+    
+    // Verify session exists
+    const retrievedSession = await manager.getSession(session.id);
+    expect(retrievedSession).not.toBeNull();
 
-    const sessionId1 = await manager.getOrCreateSession(
-      'key-1',
-      'context',
-      mockProvider
-    );
-
-    const sessionId2 = await manager.getOrCreateSession(
-      'key-2',
-      'context',
-      mockProvider
-    );
-
-    expect(sessionId1).toBe('session-1');
-    expect(sessionId2).toBe('session-2');
-    expect(mockProvider.createSession).toHaveBeenCalledTimes(2);
+    // Manually clean up with very short max age (1ms)
+    const deletedCount = await manager.cleanup(1);
+    
+    expect(deletedCount).toBeGreaterThan(0);
   });
 
-  it.skip('handles provider without session support', async () => {
-    const noSessionProvider: ProviderAdapter = {
-      name: 'no-session',
-      supportsSession: false,
-      sendPrompt: vi.fn(),
-    };
+  it('can list created sessions', async () => {
+    const session1 = await manager.createSession('context1', { provider: 'provider1' });
+    const session2 = await manager.createSession('context2', { provider: 'provider2' });
 
-    const sessionId = await manager.getOrCreateSession(
-      'test-key',
-      'context',
-      noSessionProvider
-    );
+    const sessions = await manager.listSessions();
 
-    expect(sessionId).toBeNull();
+    expect(sessions.length).toBeGreaterThanOrEqual(2);
+    const sessionIds = sessions.map(s => s.id);
+    expect(sessionIds).toContain(session1.id);
+    expect(sessionIds).toContain(session2.id);
   });
 
-  it.skip('cleans up expired sessions', async () => {
-    await manager.getOrCreateSession('test-key', 'context', mockProvider);
+  it('can update existing sessions', async () => {
+    const session = await manager.createSession('original-context', { provider: 'test-provider' });
+    
+    const updatedSession = await manager.updateSession(session.id, {
+      context: 'updated-context',
+      metadata: { ...session.metadata, promptCount: 5 }
+    });
 
-    expect(manager.hasSession('test-key')).toBe(true);
-
-    // Fast-forward past cleanup timeout
-    vi.advanceTimersByTime(31 * 60 * 1000); // 31 minutes
-
-    expect(manager.hasSession('test-key')).toBe(false);
+    expect(updatedSession.id).toBe(session.id);
+    expect(updatedSession.context).toBe('updated-context');
+    expect(updatedSession.metadata.promptCount).toBe(5);
+    expect(updatedSession.updatedAt.getTime()).toBeGreaterThanOrEqual(session.updatedAt.getTime());
   });
 
-  it.skip('persists sessions to file', async () => {
-    mockFs.mkdir.mockResolvedValue(undefined);
-    mockFs.writeFile.mockResolvedValue(undefined);
-
-    await manager.getOrCreateSession('test-key', 'context', mockProvider);
-    await manager.persistSessions();
-
-    expect(mockFs.writeFile).toHaveBeenCalled();
-    const writeCall = mockFs.writeFile.mock.calls[0];
-    expect(writeCall[0]).toContain('session-state.json');
-
-    const writtenData = JSON.parse(writeCall[1] as string);
-    expect(writtenData).toHaveProperty('sessions');
-    expect(writtenData.sessions).toHaveProperty('test-key');
-  });
-
-  it.skip('loads sessions from file', async () => {
-    const savedSessions = {
-      sessions: {
-        'saved-key': {
-          sessionId: 'saved-session',
-          providerName: 'mock-provider',
-          context: 'saved-context',
-          createdAt: new Date().toISOString(),
-        },
-      },
-    };
-
-    mockFs.readFile.mockResolvedValue(JSON.stringify(savedSessions));
-
-    await manager.loadSessions();
-
-    expect(manager.hasSession('saved-key')).toBe(true);
-    const sessionId = await manager.getOrCreateSession(
-      'saved-key',
-      'saved-context',
-      mockProvider
-    );
-    expect(sessionId).toBe('saved-session');
-    expect(mockProvider.createSession).not.toHaveBeenCalled();
-  });
-
-  it.skip('handles file read errors gracefully', async () => {
+  it('handles file read errors gracefully', async () => {
     mockFs.readFile.mockRejectedValue(new Error('File not found'));
 
-    await expect(manager.loadSessions()).resolves.not.toThrow();
+    const session = await manager.getSession('non-existent-id');
+    expect(session).toBeNull();
   });
 
-  it.skip('clears all sessions', () => {
-    manager.sessions.set('key1', {
-      sessionId: 'session1',
-      providerName: 'provider1',
-      context: 'context1',
-      createdAt: new Date(),
-    });
-    manager.sessions.set('key2', {
-      sessionId: 'session2',
-      providerName: 'provider2',
-      context: 'context2',
-      createdAt: new Date(),
-    });
+  it('deletes sessions individually', async () => {
+    const session1 = await manager.createSession('context1', { provider: 'provider1' });
+    const session2 = await manager.createSession('context2', { provider: 'provider2' });
 
-    expect(manager.hasSession('key1')).toBe(true);
-    expect(manager.hasSession('key2')).toBe(true);
+    // Verify sessions exist
+    expect(await manager.getSession(session1.id)).not.toBeNull();
+    expect(await manager.getSession(session2.id)).not.toBeNull();
 
-    manager.clearAllSessions();
+    // Delete sessions
+    await manager.deleteSession(session1.id);
+    await manager.deleteSession(session2.id);
 
-    expect(manager.hasSession('key1')).toBe(false);
-    expect(manager.hasSession('key2')).toBe(false);
+    // Verify sessions are deleted
+    expect(await manager.getSession(session1.id)).toBeNull();
+    expect(await manager.getSession(session2.id)).toBeNull();
   });
 
-  it.skip('generates consistent session keys', () => {
-    const key1 = manager.generateSessionKey('context', 'provider');
-    const key2 = manager.generateSessionKey('context', 'provider');
-    const key3 = manager.generateSessionKey('different', 'provider');
+  it('generates unique session IDs', async () => {
+    const session1 = await manager.createSession('context', 'provider');
+    const session2 = await manager.createSession('context', 'provider');
+    const session3 = await manager.createSession('different', 'provider');
 
-    expect(key1).toBe(key2);
-    expect(key1).not.toBe(key3);
+    expect(session1.id).not.toBe(session2.id);
+    expect(session1.id).not.toBe(session3.id);
+    expect(session2.id).not.toBe(session3.id);
   });
 });
