@@ -64,30 +64,10 @@ jobs:
         id: version
         run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
       
-      - name: Publish to NPM - persuader (primary)
+      - name: Publish to NPM
         if: ${{ github.event_name == 'release' || github.event.inputs.dry_run == 'false' }}
         run: |
           echo "Publishing persuader@${{ steps.version.outputs.version }}"
-          npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      
-      - name: Publish to NPM - xcmcp (alias)
-        if: ${{ github.event_name == 'release' || github.event.inputs.dry_run == 'false' }}
-        run: |
-          echo "Publishing xcmcp@${{ steps.version.outputs.version }}"
-          # Update package name for alias publish
-          npm pkg set name=xcmcp
-          npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      
-      - name: Publish to NPM - xcode-mcp (alias)
-        if: ${{ github.event_name == 'release' || github.event.inputs.dry_run == 'false' }}
-        run: |
-          echo "Publishing xcode-mcp@${{ steps.version.outputs.version }}"
-          # Update package name for alias publish
-          npm pkg set name=xcode-mcp
           npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -97,5 +77,3 @@ jobs:
         run: |
           echo "🚀 Dry run complete! Would have published:"
           echo "  - persuader@${{ steps.version.outputs.version }}"
-          echo "  - xcmcp@${{ steps.version.outputs.version }}"
-          echo "  - xcode-mcp@${{ steps.version.outputs.version }}"
