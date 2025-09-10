@@ -147,16 +147,19 @@ export async function validatePipelineConfig(
     };
 
     if (rawOptions.context) {
-      (pipelineOptions as { context?: string }).context = rawOptions.context as string;
+      (pipelineOptions as { context?: string }).context =
+        rawOptions.context as string;
     }
     if (rawOptions.lens) {
       (pipelineOptions as { lens?: string }).lens = rawOptions.lens as string;
     }
     if (rawOptions.sessionId) {
-      (pipelineOptions as { sessionId?: string }).sessionId = rawOptions.sessionId as string;
+      (pipelineOptions as { sessionId?: string }).sessionId =
+        rawOptions.sessionId as string;
     }
     if (rawOptions.model) {
-      (pipelineOptions as { model?: string }).model = rawOptions.model as string;
+      (pipelineOptions as { model?: string }).model =
+        rawOptions.model as string;
     }
 
     // Use the existing validateRunnerOptions function
@@ -447,7 +450,9 @@ export async function validateCompleteConfiguration(options: {
       errors: allErrors,
       warnings: allWarnings,
       schemaResult,
-      ...(inputValidation.inputResult && { inputResult: inputValidation.inputResult }),
+      ...(inputValidation.inputResult && {
+        inputResult: inputValidation.inputResult,
+      }),
       configResult,
     };
 

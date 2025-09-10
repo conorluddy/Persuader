@@ -510,7 +510,8 @@ export class WorkflowOrchestrator {
         (dryRunConfig as { model?: string }).model = options.model as string;
       }
       if (options.sessionId) {
-        (dryRunConfig as { sessionId?: string }).sessionId = options.sessionId as string;
+        (dryRunConfig as { sessionId?: string }).sessionId =
+          options.sessionId as string;
       }
 
       reportDryRunSummary(

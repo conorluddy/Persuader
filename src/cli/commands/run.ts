@@ -142,7 +142,8 @@ function reportSuccess(
     (metrics as { sessionId?: string }).sessionId = result.sessionId;
   }
   if (result.metadata.tokenUsage) {
-    (metrics as { tokenUsage?: ExecutionMetrics['tokenUsage'] }).tokenUsage = result.metadata.tokenUsage as ExecutionMetrics['tokenUsage'];
+    (metrics as { tokenUsage?: ExecutionMetrics['tokenUsage'] }).tokenUsage =
+      result.metadata.tokenUsage as ExecutionMetrics['tokenUsage'];
   }
 
   reportExecutionMetrics(metrics, options.verbose);
