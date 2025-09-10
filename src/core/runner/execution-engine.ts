@@ -1,0 +1,401 @@
+/**
+ * Execution Engine for Runner Pipeline
+ *
+ * Coordinates the core execution logic with intelligent retry mechanisms.
+ * Handles prompt building, provider calls, validation, and progressive
+ * refinement through retry loops. Manages the core LLM interaction cycle.
+ */
+
+import type {
+  ProviderAdapter,
+  ProviderError,
+  ValidationError,
+} from '../../types/index.js';
+import { debug, info, error as logError, warn } from '../../utils/logger.js';
+import {
+  augmentPromptWithErrors,
+  buildPrompt,
+  combinePromptParts,
+  type PromptParts,
+} from '../prompt.js';
+import { retryWithFeedback } from '../retry.js';
+import { formatValidationErrorFeedback, validateJson } from '../validation.js';
+import type { ProcessedConfiguration } from './configuration-manager.js';
+
+/**
+ * Execution result from the retry engine
+ */
+export interface ExecutionResult<T> {
+  readonly success: boolean;
+  readonly value?: T | undefined;
+  readonly error?: ValidationError | ProviderError | undefined;
+  readonly attempts: number;
+}
+
+/**
+ * Executes the pipeline with intelligent retry logic
+ *
+ * This function coordinates the core execution flow: prompt building,
+ * provider calls, validation, and progressive refinement through retries.
+ * It maintains state across retry attempts and provides detailed logging
+ * for debugging complex interaction patterns.
+ *
+ * @template T The expected output type
+ * @param config Processed pipeline configuration
+ * @param provider Provider adapter for LLM calls
+ * @param sessionId Optional session ID for context reuse
+ * @returns Execution result with validated data or error information
+ */
+export async function executeWithRetry<T>(
+  config: ProcessedConfiguration<T>,
+  provider: ProviderAdapter,
+  sessionId?: string
+): Promise<ExecutionResult<T>> {
+  // Build initial prompt from configuration
+  const initialPromptParts = await buildInitialPrompt(config);
+
+  debug('Initial prompt built for execution', {
+    promptPartsKeys: Object.keys(initialPromptParts),
+    hasContext: Boolean(config.context),
+    hasLens: Boolean(config.lens),
+    hasExampleOutput: Boolean(config.exampleOutput),
+  });
+
+  // Execute with retry logic
+  const retryResult = await retryWithFeedback<T>({
+    maxAttempts: config.retries + 1,
+    operation: async (attemptNumber, previousError) => {
+      debug(
+        `Starting execution attempt ${attemptNumber}/${config.retries + 1}`,
+        {
+          attemptNumber,
+          maxAttempts: config.retries + 1,
+          hasPreviousError: Boolean(previousError),
+          previousErrorType: previousError?.type,
+        }
+      );
+
+      const attemptResult = await executeAttempt(
+        config,
+        provider,
+        sessionId,
+        initialPromptParts,
+        attemptNumber,
+        previousError
+      );
+
+      if (attemptResult.success) {
+        return {
+          success: true,
+          value: attemptResult.value as T,
+        };
+      } else {
+        return {
+          success: false,
+          error: attemptResult.error || {
+            type: 'validation' as const,
+            code: 'unknown_error',
+            message: 'Unknown validation error occurred',
+            timestamp: new Date(),
+            retryable: false,
+            issues: [],
+            rawValue: undefined,
+            suggestions: [],
+            failureMode: 'context_confusion',
+            retryStrategy: 'session_reset',
+            structuredFeedback: {
+              problemSummary: 'Unknown validation error occurred',
+              specificIssues: [],
+              correctionInstructions: [],
+            },
+          },
+        };
+      }
+    },
+  });
+
+  return {
+    success: retryResult.success,
+    value: retryResult.value,
+    error: retryResult.error,
+    attempts: retryResult.attempts,
+  };
+}
+
+/**
+ * Builds the initial prompt from configuration
+ *
+ * @template T The expected output type
+ * @param config Processed pipeline configuration
+ * @returns Promise resolving to prompt parts
+ */
+async function buildInitialPrompt<T>(
+  config: ProcessedConfiguration<T>
+): Promise<PromptParts> {
+  try {
+    debug('Building initial prompt from configuration', {
+      hasSchema: Boolean(config.schema),
+      hasInput: Boolean(config.input),
+      hasContext: Boolean(config.context),
+      hasLens: Boolean(config.lens),
+      hasExampleOutput: Boolean(config.exampleOutput),
+    });
+
+    const promptParts = buildPrompt({
+      schema: config.schema,
+      input: config.input,
+      ...(config.context && { context: config.context }),
+      ...(config.lens && { lens: config.lens }),
+      ...(config.exampleOutput && { exampleOutput: config.exampleOutput }),
+    });
+
+    info('Initial prompt built successfully', {
+      promptPartsKeys: Object.keys(promptParts),
+      contextLength: config.context?.length || 0,
+      lensLength: config.lens?.length || 0,
+    });
+
+    return promptParts;
+  } catch (promptError) {
+    logError('Failed to build initial prompt', {
+      errorMessage:
+        promptError instanceof Error ? promptError.message : 'Unknown error',
+      errorType:
+        promptError instanceof Error ? promptError.constructor.name : 'Unknown',
+    });
+    throw promptError;
+  }
+}
+
+/**
+ * Executes a single attempt with progressive prompt refinement
+ *
+ * @template T The expected output type
+ * @param config Processed pipeline configuration
+ * @param provider Provider adapter for LLM calls
+ * @param sessionId Optional session ID
+ * @param initialPromptParts Base prompt parts
+ * @param attemptNumber Current attempt number (1-indexed)
+ * @param previousError Error from previous attempt (if any)
+ * @returns Promise resolving to attempt result
+ */
+async function executeAttempt<T>(
+  config: ProcessedConfiguration<T>,
+  provider: ProviderAdapter,
+  sessionId: string | undefined,
+  initialPromptParts: PromptParts,
+  attemptNumber: number,
+  previousError?: ValidationError | ProviderError
+): Promise<{
+  success: boolean;
+  value?: T;
+  error?: ValidationError | ProviderError;
+}> {
+  try {
+    // Build progressive prompt with attempt-specific enhancements
+    const finalPromptParts = buildProgressivePrompt(
+      config,
+      initialPromptParts,
+      attemptNumber,
+      previousError
+    );
+
+    // Combine prompt parts into final prompt
+    const finalPrompt = combinePromptParts(finalPromptParts);
+
+    debug('Final prompt prepared for provider', {
+      promptLength: finalPrompt.length,
+      attemptNumber,
+      hasErrorFeedback: Boolean(previousError),
+    });
+
+    // Call provider with the prompt
+    const providerResponse = await callProvider(
+      provider,
+      sessionId,
+      finalPrompt,
+      config,
+      attemptNumber
+    );
+
+    debug('Received provider response', {
+      responseLength: providerResponse.content?.length || 0,
+      hasTokenUsage: Boolean(providerResponse.tokenUsage),
+      tokenUsage: providerResponse.tokenUsage,
+      attemptNumber,
+    });
+
+    // Validate response against schema
+    const validationResult = validateProviderResponse(
+      config,
+      providerResponse.content || '',
+      attemptNumber
+    );
+
+    return validationResult;
+  } catch (attemptError) {
+    logError(`Attempt ${attemptNumber} failed with provider error`, {
+      attemptNumber,
+      errorMessage:
+        attemptError instanceof Error ? attemptError.message : 'Unknown error',
+      errorType:
+        attemptError instanceof Error
+          ? attemptError.constructor.name
+          : 'Unknown',
+      provider: provider.name,
+    });
+
+    // Convert to provider error
+    const providerError: ProviderError = {
+      type: 'provider',
+      code: 'provider_call_failed',
+      message: `Provider call failed on attempt ${attemptNumber}: ${attemptError instanceof Error ? attemptError.message : 'Unknown error'}`,
+      provider: provider.name,
+      timestamp: new Date(),
+      retryable: true,
+      details: {
+        originalError: attemptError,
+        attemptNumber,
+      },
+    };
+
+    return {
+      success: false,
+      error: providerError,
+    };
+  }
+}
+
+/**
+ * Builds progressive prompt with attempt-specific enhancements
+ *
+ * @template T The expected output type
+ * @param config Processed configuration
+ * @param initialPromptParts Base prompt parts
+ * @param attemptNumber Current attempt number
+ * @param previousError Error from previous attempt
+ * @returns Enhanced prompt parts
+ */
+function buildProgressivePrompt<T>(
+  config: ProcessedConfiguration<T>,
+  initialPromptParts: PromptParts,
+  attemptNumber: number,
+  previousError?: ValidationError | ProviderError
+): PromptParts {
+  let finalPromptParts = initialPromptParts;
+
+  if (attemptNumber > 1) {
+    // Rebuild the base prompt with attempt-specific urgency
+    const progressivePromptParts = buildPrompt({
+      schema: config.schema,
+      input: config.input,
+      ...(config.context && { context: config.context }),
+      ...(config.lens && { lens: config.lens }),
+      ...(config.exampleOutput && { exampleOutput: config.exampleOutput }),
+      attemptNumber,
+    });
+
+    // Add error feedback if retrying
+    finalPromptParts = previousError
+      ? augmentPromptWithErrors(
+          progressivePromptParts,
+          formatValidationErrorFeedback(
+            previousError as ValidationError,
+            attemptNumber
+          )
+        )
+      : progressivePromptParts;
+
+    debug('Built progressive prompt with error feedback', {
+      attemptNumber,
+      errorType: previousError?.type,
+      errorCode: previousError?.code,
+      hasErrorFeedback: Boolean(previousError),
+    });
+  }
+
+  return finalPromptParts;
+}
+
+/**
+ * Calls the provider with comprehensive error handling
+ *
+ * @template T The expected output type
+ * @param provider Provider adapter
+ * @param sessionId Optional session ID
+ * @param prompt Final prompt to send
+ * @param config Pipeline configuration
+ * @param attemptNumber Current attempt number
+ * @returns Provider response
+ */
+async function callProvider<T>(
+  provider: ProviderAdapter,
+  sessionId: string | undefined,
+  prompt: string,
+  config: ProcessedConfiguration<T>,
+  attemptNumber: number
+) {
+  debug('Calling provider with final prompt', {
+    provider: provider.name,
+    model: config.model,
+    maxTokens: config.providerOptions.maxTokens,
+    temperature: config.providerOptions.temperature,
+    sessionId: sessionId || null,
+    attemptNumber,
+  });
+
+  return await provider.sendPrompt(sessionId || null, prompt, {
+    ...config.providerOptions,
+    model: config.model,
+    maxTokens: config.providerOptions.maxTokens,
+    temperature: config.providerOptions.temperature,
+  });
+}
+
+/**
+ * Validates provider response against schema
+ *
+ * @template T The expected output type
+ * @param config Pipeline configuration
+ * @param responseContent Provider response content
+ * @param attemptNumber Current attempt number
+ * @returns Validation result
+ */
+function validateProviderResponse<T>(
+  config: ProcessedConfiguration<T>,
+  responseContent: string,
+  attemptNumber: number
+): { success: boolean; value?: T; error?: ValidationError } {
+  debug('Validating response against schema', {
+    contentLength: responseContent.length,
+    attemptNumber,
+  });
+
+  const validationResult = validateJson(config.schema, responseContent);
+
+  if (validationResult.success) {
+    info(`Attempt ${attemptNumber} succeeded - validation passed`, {
+      attemptNumber,
+      resultType: typeof validationResult.value,
+      hasValue: Boolean(validationResult.value),
+    });
+
+    return {
+      success: true,
+      value: validationResult.value,
+    };
+  } else {
+    warn(`Attempt ${attemptNumber} failed validation`, {
+      attemptNumber,
+      errorType: validationResult.error.type,
+      errorCode: validationResult.error.code,
+      errorMessage: validationResult.error.message,
+      issues: validationResult.error.issues?.length || 0,
+    });
+
+    return {
+      success: false,
+      error: validationResult.error,
+    };
+  }
+}

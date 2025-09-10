@@ -1,15 +1,10 @@
 import * as fs from 'node:fs/promises';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { z } from 'zod';
 import { runCommand } from '../../src/cli/commands/run.js';
-import * as runner from '../../src/core/runner.js';
-import * as fileIo from '../../src/utils/file-io.js';
-import * as schemaLoader from '../../src/utils/schema-loader.js';
+import * as workflowOrchestrator from '../../src/cli/utilities/workflow-orchestrator.js';
 
 vi.mock('node:fs/promises');
-vi.mock('../../src/utils/file-io.js');
-vi.mock('../../src/utils/schema-loader.js');
-vi.mock('../../src/core/runner.js');
+vi.mock('../../src/cli/utilities/workflow-orchestrator.js');
 
 // Mock process.exit to prevent tests from actually exiting
 const mockExit = vi.fn();
@@ -17,56 +12,30 @@ vi.stubGlobal('process', { ...process, exit: mockExit });
 
 describe('CLI Integration', () => {
   const mockFs = vi.mocked(fs);
-  const mockFileIo = vi.mocked(fileIo);
-  const mockSchemaLoader = vi.mocked(schemaLoader);
-  const mockRunner = vi.mocked(runner);
-
-  const testSchema = z.object({
-    result: z.string(),
-  });
+  const mockWorkflowOrchestrator = vi.mocked(workflowOrchestrator);
 
   beforeEach(() => {
     vi.clearAllMocks();
     mockExit.mockClear();
 
-    // Setup default mocks
-    mockSchemaLoader.loadSchema.mockResolvedValue({
-      schema: testSchema,
-      exportName: 'testSchema',
-      filePath: '/test/schema.ts',
-      format: 'zod',
-      loadTimeMs: 10,
-    });
-    mockFileIo.readInputs.mockResolvedValue({
-      data: [{ input: 'test' }],
-      files: [
-        {
-          filePath: 'test.json',
-          format: '.json',
-          size: 100,
-          lastModified: new Date(),
+    // Mock the workflow orchestrator to return successful workflow result
+    mockWorkflowOrchestrator.executeRunWorkflow.mockResolvedValue({
+      success: true,
+      pipelineResult: {
+        ok: true,
+        value: { result: 'success' },
+        attempts: 1,
+        metadata: {
+          executionTimeMs: 100,
+          startedAt: new Date(),
+          completedAt: new Date(),
+          provider: 'mock',
+          model: 'test-model',
         },
-      ],
-      fileCount: 1,
-      totalBytes: 100,
-    });
-    mockRunner.persuade.mockResolvedValue({
-      ok: true,
-      value: { result: 'success' },
-      attempts: 1,
-      metadata: {
-        executionTimeMs: 100,
-        startedAt: new Date(),
-        completedAt: new Date(),
-        provider: 'mock',
-        model: 'test-model',
       },
+      totalExecutionTime: 100,
+      stepResults: {},
     });
-    mockRunner.validateRunnerOptions.mockReturnValue({
-      valid: true,
-      errors: [],
-    });
-    mockFileIo.writeOutput.mockResolvedValue();
   });
 
   it('processes single file with schema', async () => {
@@ -79,15 +48,9 @@ describe('CLI Integration', () => {
 
     await runCommand(args);
 
-    expect(mockSchemaLoader.loadSchema).toHaveBeenCalledWith('schema.ts', {
-      verbose: false,
-    });
-    expect(mockFileIo.readInputs).toHaveBeenCalledWith('test.json', {
-      flattenArrays: true,
-      allowEmpty: false,
-    });
-    expect(mockRunner.persuade).toHaveBeenCalled();
-    expect(mockFileIo.writeOutput).toHaveBeenCalled();
+    expect(mockWorkflowOrchestrator.executeRunWorkflow).toHaveBeenCalledWith(
+      args
+    );
   });
 
   it('includes context and lens in processing', async () => {
@@ -102,16 +65,30 @@ describe('CLI Integration', () => {
 
     await runCommand(args);
 
-    expect(mockRunner.persuade).toHaveBeenCalledWith(
-      expect.objectContaining({
-        context: 'Background info',
-        lens: 'Focus on accuracy',
-      }),
-      expect.any(Object)
-    );
+    expect(mockWorkflowOrchestrator.executeRunWorkflow).toHaveBeenCalledWith({
+      input: 'test.json',
+      schema: 'schema.ts',
+      output: 'output',
+      retries: '3',
+      context: 'Background info',
+      lens: 'Focus on accuracy',
+    });
   });
 
   it('handles dry run mode', async () => {
+    // Mock dry run result (no pipeline execution)
+    mockWorkflowOrchestrator.executeRunWorkflow.mockResolvedValue({
+      success: true,
+      totalExecutionTime: 50,
+      stepResults: {
+        'dry-run': {
+          success: true,
+          executionTime: 50,
+          warnings: [],
+        },
+      },
+    });
+
     const args = {
       input: 'test.json',
       schema: 'schema.ts',
@@ -122,8 +99,9 @@ describe('CLI Integration', () => {
 
     await runCommand(args);
 
-    expect(mockRunner.persuade).not.toHaveBeenCalled();
-    expect(mockFileIo.writeOutput).not.toHaveBeenCalled();
+    expect(mockWorkflowOrchestrator.executeRunWorkflow).toHaveBeenCalledWith(
+      args
+    );
   });
 
   it('respects max retries configuration', async () => {
@@ -136,24 +114,26 @@ describe('CLI Integration', () => {
 
     await runCommand(args);
 
-    expect(mockRunner.persuade).toHaveBeenCalledWith(
-      expect.objectContaining({
-        retries: 5,
-      }),
-      expect.any(Object)
-    );
+    expect(mockWorkflowOrchestrator.executeRunWorkflow).toHaveBeenCalledWith({
+      input: 'test.json',
+      schema: 'schema.ts',
+      output: 'output',
+      retries: '5',
+    });
   });
 
   it('handles processing failures gracefully', async () => {
-    mockRunner.persuade.mockResolvedValue({
-      ok: false,
-      error: { message: 'Processing failed', type: 'validation' },
-      attempts: 1,
-      metadata: {
-        executionTimeMs: 100,
-        startedAt: new Date(),
-        completedAt: new Date(),
-        provider: 'mock',
+    mockWorkflowOrchestrator.executeRunWorkflow.mockResolvedValue({
+      success: false,
+      error: new Error('Processing failed'),
+      totalExecutionTime: 100,
+      stepResults: {
+        'pipeline-execution': {
+          success: false,
+          error: new Error('Processing failed'),
+          executionTime: 100,
+          warnings: [],
+        },
       },
     });
 
@@ -165,7 +145,9 @@ describe('CLI Integration', () => {
     };
 
     await expect(runCommand(args)).resolves.not.toThrow();
-    expect(mockFileIo.writeOutput).toHaveBeenCalled();
+    expect(mockWorkflowOrchestrator.executeRunWorkflow).toHaveBeenCalledWith(
+      args
+    );
   });
 
   it('creates output directory if needed', async () => {
@@ -180,10 +162,11 @@ describe('CLI Integration', () => {
 
     await runCommand(args);
 
-    expect(mockFileIo.writeOutput).toHaveBeenCalledWith(
-      expect.any(Object),
-      expect.stringContaining('new/dir/output'),
-      expect.any(Object)
-    );
+    expect(mockWorkflowOrchestrator.executeRunWorkflow).toHaveBeenCalledWith({
+      input: 'test.json',
+      schema: 'schema.ts',
+      output: 'new/dir/output',
+      retries: '3',
+    });
   });
 });

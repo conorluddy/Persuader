@@ -7,24 +7,41 @@
 
 import { z } from 'zod';
 
-// Export adapters
-export * from './adapters/claude-cli.js';
-// Export constants
-export * from './constants.js';
-export * from './core/prompt.js';
-// Export retry functionality with explicit naming to avoid conflicts
+// Provider adapters
 export {
-  formatRetryError,
-  getRetryStats,
-  retryOperation,
+  type ClaudeCLIAdapterConfig,
+  createClaudeCLIAdapter,
+  createProviderAdapter,
+  getAvailableProviders,
+  isProviderTypeSupported,
+  type ProviderAdapter,
+  type ProviderResponse,
+  type ProviderType,
+} from './adapters/index.js';
+// Constants and shared values
+export * from './constants.js';
+// Core pipeline API - Main entry point
+export {
+  buildPrompt,
+  createMockProvider,
+  type ExecutionMetadata,
+  formatResultMetadata,
+  getExecutionStats,
+  isCoreModuleReady,
+  type Options,
+  type PromptBuildOptions,
+  type PromptParts,
+  persuade,
+  type Result,
+  type RetryResult,
+  type RetryWithFeedbackOptions,
   retryWithFeedback,
-} from './core/retry.js';
-// Export core modules
-export * from './core/runner.js';
-export * from './core/validation.js';
-// Export schemas
+  type ValidationResult,
+  validateJson,
+} from './core/index.js';
+// Schemas for validation
 export * from './schemas/claude-cli-response.js';
-// Export session management - explicit exports to avoid conflicts
+// Session management
 export {
   createProviderSessionManager,
   createSessionManager,
@@ -33,15 +50,23 @@ export {
   SessionManager,
   SessionUtils,
 } from './session/index.js';
-
-// Export all comprehensive types
-export * from './types/index.js';
-
-// Export logging utilities
-export * from './utils/logger.js';
-
-// Export schema analysis utilities
-export * from './utils/schema-analyzer.js';
+// Essential types (focused on public API)
+export type {
+  ProviderError as CoreProviderError,
+  ProviderPromptOptions,
+  SessionConfig,
+  ValidationError,
+} from './types/index.js';
+// Utilities (selective exports)
+export {
+  debug,
+  error,
+  extractSchemaInfo,
+  info,
+  type LogContext,
+  type SchemaInfo,
+  warn,
+} from './utils/index.js';
 
 // Legacy types for backward compatibility
 export interface PersuaderConfig {
