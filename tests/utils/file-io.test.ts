@@ -1,6 +1,6 @@
 import * as fs from 'node:fs/promises';
 import * as glob from 'fast-glob';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   fileExists,
   parseFileContent,
@@ -11,7 +11,7 @@ import {
 vi.mock('node:fs/promises');
 vi.mock('fast-glob');
 
-describe.skip('file-io utilities', () => {
+describe('file-io utilities', () => {
   const mockFs = vi.mocked(fs);
   const mockGlob = vi.mocked(glob);
 
@@ -40,23 +40,23 @@ describe.skip('file-io utilities', () => {
   describe('parseFileContent', () => {
     it('parses JSON content', () => {
       const content = '{"key": "value"}';
-      const result = parseFileContent(content, '.json');
+      const result = parseFileContent(content, 'json');
 
       expect(result.data).toEqual({ key: 'value' });
       expect(result.wasParsed).toBe(true);
     });
 
-    it('parses YAML content', () => {
+    it('parses text content as raw', () => {
       const content = 'key: value\ncount: 42';
-      const result = parseFileContent(content, '.yaml');
+      const result = parseFileContent(content, 'text');
 
-      expect(result.data).toEqual({ key: 'value', count: 42 });
-      expect(result.wasParsed).toBe(true);
+      expect(result.data).toBe('key: value\ncount: 42');
+      expect(result.wasParsed).toBe(false);
     });
 
     it('returns raw content for unknown formats', () => {
       const content = 'plain text';
-      const result = parseFileContent(content, '.txt');
+      const result = parseFileContent(content, 'unknown');
 
       expect(result.data).toBe('plain text');
       expect(result.wasParsed).toBe(false);
@@ -69,20 +69,22 @@ describe.skip('file-io utilities', () => {
       mockFs.readFile
         .mockResolvedValueOnce(JSON.stringify({ id: 1 }))
         .mockResolvedValueOnce(JSON.stringify({ id: 2 }));
+      mockFs.stat
+        .mockResolvedValue({ isFile: () => true, size: 100, mtime: new Date() } as any);
 
-      const results = await readInputs(['*.json']);
+      const results = await readInputs('*.json');
 
-      expect(results).toHaveLength(2);
-      expect(results[0].content).toEqual({ id: 1 });
-      expect(results[1].content).toEqual({ id: 2 });
+      expect(results.data).toHaveLength(2);
+      expect(results.data[0]).toEqual({ id: 1 });
+      expect(results.data[1]).toEqual({ id: 2 });
     });
 
     it('handles empty glob results', async () => {
       mockGlob.default.mockResolvedValue([]);
 
-      const results = await readInputs(['*.nonexistent']);
+      const results = await readInputs('*.nonexistent', { allowEmpty: true });
 
-      expect(results).toHaveLength(0);
+      expect(results.data).toHaveLength(0);
     });
   });
 
@@ -90,12 +92,14 @@ describe.skip('file-io utilities', () => {
     it('writes JSON output', async () => {
       const data = { result: 'success' };
       mockFs.writeFile.mockResolvedValue();
+      mockFs.mkdir.mockResolvedValue();
 
-      await writeOutput('/output.json', data, '.json');
+      await writeOutput(data, '/output.json');
 
       expect(mockFs.writeFile).toHaveBeenCalledWith(
         '/output.json',
-        JSON.stringify(data, null, 2)
+        JSON.stringify(data),
+        'utf-8'
       );
     });
 
@@ -103,7 +107,7 @@ describe.skip('file-io utilities', () => {
       mockFs.mkdir.mockResolvedValue();
       mockFs.writeFile.mockResolvedValue();
 
-      await writeOutput('/new/dir/output.json', {}, '.json');
+      await writeOutput({}, '/new/dir/output.json');
 
       expect(mockFs.mkdir).toHaveBeenCalled();
     });
