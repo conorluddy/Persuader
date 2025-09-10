@@ -1,61 +1,48 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import { loadSchema } from '../../src/utils/schema-loader.js';
 
 vi.mock('node:fs/promises');
 vi.mock('node:path');
 
-describe.skip('loadSchema', () => {
+describe('loadSchema', () => {
   const mockFs = vi.mocked(fs);
   const mockPath = vi.mocked(path);
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockPath.resolve.mockImplementation(p => p);
-  });
-
-  it('loads TypeScript schema file', async () => {
-    const schemaContent = `
-      import { z } from 'zod';
-      export const schema = z.object({
-        id: z.string(),
-        value: z.number(),
-      });
-    `;
-
-    mockFs.readFile.mockResolvedValue(schemaContent);
-
-    // Mock dynamic import
-    const mockSchema = z.object({
-      id: z.string(),
-      value: z.number(),
+    mockPath.resolve.mockImplementation(p => p as string);
+    mockPath.extname.mockImplementation(p => {
+      const parts = p.split('.');
+      return parts.length > 1 ? '.' + parts[parts.length - 1] : '';
     });
-
-    vi.mock('/test/schema.ts', () => ({
-      schema: mockSchema,
-      default: mockSchema,
-    }));
-
-    // For this test, we'll just verify the file reading logic
-    await expect(loadSchema('/test/schema.ts')).rejects.toThrow();
-
-    expect(mockFs.readFile).toHaveBeenCalledWith('/test/schema.ts', 'utf-8');
   });
 
-  it('handles missing schema file', async () => {
-    mockFs.readFile.mockRejectedValue(new Error('File not found'));
+  it('throws error for TypeScript schema files', async () => {
+    mockFs.access.mockResolvedValue(undefined);
+    mockFs.stat.mockResolvedValue({ isFile: () => true, size: 100 } as any);
 
-    await expect(loadSchema('/nonexistent.ts')).rejects.toThrow(
-      'File not found'
+    await expect(loadSchema('/test/schema.ts')).rejects.toThrow(
+      'TypeScript schemas are no longer supported'
     );
   });
 
-  it('validates schema is Zod object', async () => {
-    const invalidSchema = 'not a schema';
-    mockFs.readFile.mockResolvedValue(invalidSchema);
+  it('handles missing schema file', async () => {
+    mockFs.access.mockRejectedValue(new Error('ENOENT: no such file'));
 
-    await expect(loadSchema('/invalid.ts')).rejects.toThrow();
+    await expect(loadSchema('/nonexistent.js')).rejects.toThrow(
+      'Schema file not found or not accessible'
+    );
+  });
+
+  it('throws error for unsupported file extensions', async () => {
+    mockFs.access.mockResolvedValue(undefined);
+    mockFs.stat.mockResolvedValue({ isFile: () => true, size: 100 } as any);
+
+    await expect(loadSchema('/schema.txt')).rejects.toThrow(
+      'Unsupported schema file extension'
+    );
   });
 });
