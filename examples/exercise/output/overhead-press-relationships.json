@@ -1,7 +1,15 @@
 {
   "exercise": "Overhead Press",
-  "similarMuscles": ["Bench Press", "Push-up", "Dip"],
+  "similarMuscles": [
+    "Push-up",
+    "Bench Press",
+    "Dip"
+  ],
   "variationOf": [],
-  "progressionFrom": ["Push-up"],
-  "substitutableFor": ["Bench Press", "Dip"]
+  "progressionFrom": [
+    "Push-up"
+  ],
+  "substitutableFor": [
+    "Bench Press"
+  ]
 }

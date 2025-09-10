@@ -1,7 +1,16 @@
 {
   "exercise": "Deadlift",
-  "similarMuscles": ["Squat", "Barbell Row", "Pull-up"],
+  "similarMuscles": [
+    "Squat",
+    "Pull-up",
+    "Barbell Row"
+  ],
   "variationOf": [],
-  "progressionFrom": ["Pull-up"],
-  "substitutableFor": ["Barbell Row", "Pull-up"]
+  "progressionFrom": [
+    "Pull-up"
+  ],
+  "substitutableFor": [
+    "Barbell Row",
+    "Pull-up"
+  ]
 }

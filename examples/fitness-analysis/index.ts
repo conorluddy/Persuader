@@ -71,10 +71,10 @@ Return a JSON object with these exact fields and data types:
       console.log(JSON.stringify(result.value, null, 2));
 
       // Create output directory if it doesn't exist
-      await fs.mkdir('output', { recursive: true });
+      await fs.mkdir('./output', { recursive: true });
 
       // Save results to file
-      const outputFile = 'output/simple-demo-analysis.json';
+      const outputFile = './output/simple-demo-analysis.json';
       await fs.writeFile(
         outputFile,
         JSON.stringify(

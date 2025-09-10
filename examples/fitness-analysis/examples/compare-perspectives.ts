@@ -161,12 +161,12 @@ async function compareAllPerspectives(
   // Save comparative results to file if requested
   if (saveToFile) {
     // Create output directory if it doesn't exist
-    await fs.mkdir('output', { recursive: true });
+    await fs.mkdir('../output', { recursive: true });
 
     const programName = programData.program_name
       .toLowerCase()
       .replace(/\s+/g, '-');
-    const outputFile = `output/${programName}-multi-perspective-comparison.json`;
+    const outputFile = `../output/${programName}-multi-perspective-comparison.json`;
 
     await fs.writeFile(
       outputFile,
