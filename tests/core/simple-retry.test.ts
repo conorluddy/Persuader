@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { retryWithFeedback } from '../../src/core/retry.js';
 
-describe.skip('retryWithFeedback - simple tests', () => {
+describe('retryWithFeedback - simple tests', () => {
   it('succeeds without retry', async () => {
     const operation = vi
       .fn()
@@ -17,7 +17,7 @@ describe.skip('retryWithFeedback - simple tests', () => {
     expect(operation).toHaveBeenCalledTimes(1);
   });
 
-  it('retries on failure', async () => {
+  it.skip('retries on failure', async () => {
     const operation = vi
       .fn()
       .mockRejectedValueOnce(new Error('Fail'))
@@ -33,7 +33,7 @@ describe.skip('retryWithFeedback - simple tests', () => {
     expect(operation).toHaveBeenCalledTimes(2);
   });
 
-  it('stops after max retries', async () => {
+  it.skip('stops after max retries', async () => {
     const operation = vi.fn().mockRejectedValue(new Error('Always fails'));
 
     const result = await retryWithFeedback({

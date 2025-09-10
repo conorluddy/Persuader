@@ -8,7 +8,7 @@ import type { ProviderAdapter } from '../../src/types/provider.js';
 
 vi.mock('node:fs/promises');
 
-describe.skip('SessionManager', () => {
+describe('SessionManager', () => {
   let manager: SessionManager;
   const mockProvider: ProviderAdapter = {
     name: 'mock-provider',
@@ -36,7 +36,7 @@ describe.skip('SessionManager', () => {
     expect(defaultSessionManager).toBeInstanceOf(SessionManager);
   });
 
-  it('creates new session when none exists', async () => {
+  it.skip('creates new session when none exists', async () => {
     const sessionId = await manager.getOrCreateSession(
       'test-key',
       'test-context',
@@ -47,7 +47,7 @@ describe.skip('SessionManager', () => {
     expect(mockProvider.createSession).toHaveBeenCalledWith('test-context');
   });
 
-  it('reuses existing session for same key', async () => {
+  it.skip('reuses existing session for same key', async () => {
     const sessionId1 = await manager.getOrCreateSession(
       'test-key',
       'context',
@@ -64,7 +64,7 @@ describe.skip('SessionManager', () => {
     expect(mockProvider.createSession).toHaveBeenCalledTimes(1);
   });
 
-  it('creates different sessions for different keys', async () => {
+  it.skip('creates different sessions for different keys', async () => {
     vi.mocked(mockProvider.createSession)
       .mockResolvedValueOnce('session-1')
       .mockResolvedValueOnce('session-2');
@@ -86,7 +86,7 @@ describe.skip('SessionManager', () => {
     expect(mockProvider.createSession).toHaveBeenCalledTimes(2);
   });
 
-  it('handles provider without session support', async () => {
+  it.skip('handles provider without session support', async () => {
     const noSessionProvider: ProviderAdapter = {
       name: 'no-session',
       supportsSession: false,
@@ -102,7 +102,7 @@ describe.skip('SessionManager', () => {
     expect(sessionId).toBeNull();
   });
 
-  it('cleans up expired sessions', async () => {
+  it.skip('cleans up expired sessions', async () => {
     await manager.getOrCreateSession('test-key', 'context', mockProvider);
 
     expect(manager.hasSession('test-key')).toBe(true);
@@ -113,7 +113,7 @@ describe.skip('SessionManager', () => {
     expect(manager.hasSession('test-key')).toBe(false);
   });
 
-  it('persists sessions to file', async () => {
+  it.skip('persists sessions to file', async () => {
     mockFs.mkdir.mockResolvedValue(undefined);
     mockFs.writeFile.mockResolvedValue(undefined);
 
@@ -129,7 +129,7 @@ describe.skip('SessionManager', () => {
     expect(writtenData.sessions).toHaveProperty('test-key');
   });
 
-  it('loads sessions from file', async () => {
+  it.skip('loads sessions from file', async () => {
     const savedSessions = {
       sessions: {
         'saved-key': {
@@ -155,13 +155,13 @@ describe.skip('SessionManager', () => {
     expect(mockProvider.createSession).not.toHaveBeenCalled();
   });
 
-  it('handles file read errors gracefully', async () => {
+  it.skip('handles file read errors gracefully', async () => {
     mockFs.readFile.mockRejectedValue(new Error('File not found'));
 
     await expect(manager.loadSessions()).resolves.not.toThrow();
   });
 
-  it('clears all sessions', () => {
+  it.skip('clears all sessions', () => {
     manager.sessions.set('key1', {
       sessionId: 'session1',
       providerName: 'provider1',
@@ -184,7 +184,7 @@ describe.skip('SessionManager', () => {
     expect(manager.hasSession('key2')).toBe(false);
   });
 
-  it('generates consistent session keys', () => {
+  it.skip('generates consistent session keys', () => {
     const key1 = manager.generateSessionKey('context', 'provider');
     const key2 = manager.generateSessionKey('context', 'provider');
     const key3 = manager.generateSessionKey('different', 'provider');

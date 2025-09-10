@@ -14,7 +14,7 @@ vi.mock('node:util', () => ({
   promisify: () => mockExecAsync,
 }));
 
-describe.skip('ClaudeCliAdapter', () => {
+describe('ClaudeCliAdapter', () => {
   let adapter: ReturnType<typeof createClaudeCLIAdapter>;
 
   beforeEach(() => {
@@ -22,7 +22,7 @@ describe.skip('ClaudeCliAdapter', () => {
     adapter = createClaudeCLIAdapter();
   });
 
-  it('sends prompt and parses JSON response', async () => {
+  it.skip('sends prompt and parses JSON response', async () => {
     mockExecAsync.mockResolvedValue({
       stdout: JSON.stringify({
         content: 'Test response',
@@ -49,7 +49,7 @@ describe.skip('ClaudeCliAdapter', () => {
     ).rejects.toThrow();
   });
 
-  it('handles non-JSON responses', async () => {
+  it.skip('handles non-JSON responses', async () => {
     mockExecAsync.mockResolvedValue({
       stdout: 'Plain text response',
       stderr: '',
@@ -62,7 +62,7 @@ describe.skip('ClaudeCliAdapter', () => {
     expect(result.content).toBe('Plain text response');
   });
 
-  it('includes model in options', async () => {
+  it.skip('includes model in options', async () => {
     mockExecAsync.mockResolvedValue({
       stdout: JSON.stringify({ content: 'Test response' }),
       stderr: '',

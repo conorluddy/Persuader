@@ -14,11 +14,9 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { persuade } from '../../src/index.js';
-import { createSession } from '../../src/session/index.js';
 import {
   ExerciseDetailsSchema,
   ExerciseNamesSchema,
-  type OptimizedProgramSchema,
   SimpleProfileSchema,
   SimpleProgressionSchema,
   SimpleRecoverySchema,
@@ -29,7 +27,11 @@ import {
 /**
  * Save stage output incrementally
  */
-function saveStageOutput(stage: string, data: any, outputDir: string): void {
+function saveStageOutput(
+  stage: string,
+  data: unknown,
+  outputDir: string
+): void {
   const filepath = join(outputDir, `${stage}.json`);
   writeFileSync(filepath, JSON.stringify(data, null, 2));
   console.log(`💾 Saved: ${stage}.json`);
@@ -38,7 +40,7 @@ function saveStageOutput(stage: string, data: any, outputDir: string): void {
 /**
  * Stage 1: Assess fitness profile (simplified)
  */
-async function assessProfile(input: any, sessionId?: string) {
+async function assessProfile(input: unknown, sessionId?: string) {
   console.log('📋 Stage 1: Assessing profile...');
 
   const result = await persuade({
@@ -66,7 +68,7 @@ User input: ${JSON.stringify(input)}`,
   });
 
   if (result.ok) {
-    const profile = result.value as any;
+    const profile = result.value as unknown;
     console.log(`✅ Profile: ${profile.level}, ${profile.daysPerWeek}x/week\n`);
     return { profile, sessionId: result.sessionId };
   }
@@ -78,7 +80,7 @@ User input: ${JSON.stringify(input)}`,
 /**
  * Stage 2a: Select exercise names (simplified)
  */
-async function selectExerciseNames(profile: any, sessionId: string) {
+async function selectExerciseNames(profile: unknown, sessionId: string) {
   console.log('🏋️ Stage 2a: Selecting exercises...');
 
   const result = await persuade({
@@ -135,8 +137,8 @@ Example:
  * Stage 3a: Create weekly split
  */
 async function createWeeklySplit(
-  profile: any,
-  exercises: any,
+  profile: unknown,
+  exercises: unknown,
   sessionId: string
 ) {
   console.log('📅 Stage 3a: Creating weekly split...');
@@ -173,7 +175,7 @@ Example for 4 days:
 /**
  * Stage 3b: Define training principles (parallel with 3a)
  */
-async function defineTrainingPrinciples(profile: any, sessionId: string) {
+async function defineTrainingPrinciples(profile: unknown, sessionId: string) {
   console.log('📊 Stage 3b: Defining training principles...');
 
   const result = await persuade({
@@ -201,7 +203,7 @@ Example:
 /**
  * Stage 4: Create progression plan
  */
-async function createProgression(profile: any, sessionId: string) {
+async function createProgression(profile: unknown, sessionId: string) {
   console.log('📈 Stage 4: Creating 4-week progression...');
 
   const result = await persuade({
@@ -230,7 +232,7 @@ Example:
 /**
  * Stage 5: Add recovery guidelines
  */
-async function addRecovery(profile: any, sessionId: string) {
+async function addRecovery(profile: unknown, sessionId: string) {
   console.log('🧘 Stage 5: Adding recovery guidelines...');
 
   const result = await persuade({
@@ -258,7 +260,7 @@ Example:
 /**
  * Main optimized orchestration
  */
-export async function generateOptimizedWorkout(userInput: any) {
+export async function generateOptimizedWorkout(userInput: unknown) {
   console.log('🚀 Optimized Workout Generator (Session-Based)\n');
 
   // Setup output directory

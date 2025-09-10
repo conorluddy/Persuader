@@ -166,7 +166,7 @@ The `persuader run` command supports:
 
 ## Code Quality Standards
 
-### Before Committing
+### Important! Before Committing (PR will fail CI/CD if ignored)
 Always run these checks (as per CODESTYLE.md):
 ```bash
 npm run typecheck        # Must pass - TypeScript validation
