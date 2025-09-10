@@ -6,7 +6,7 @@
  * all pipeline operations while remaining stateless and testable.
  */
 
-import { createClaudeCLIAdapter } from '@/index.js';
+import { createClaudeCLIAdapter } from '../adapters/claude-cli.js';
 import {
   DEFAULT_MAX_TOKENS,
   DEFAULT_MODEL,
