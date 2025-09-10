@@ -8,6 +8,32 @@
 
 **Session-based LLM orchestration with validation-driven retry loops and guaranteed schema-adhering output.**
 
+## ⚡ Basic Usage
+
+```typescript
+import { z } from 'zod';
+import { persuade, createClaudeCLIAdapter } from 'persuader';
+
+// Define your schema
+const UserSchema = z.object({
+  name: z.string(),
+  age: z.number(),
+  email: z.string().email()
+});
+
+// Process data with validation
+const result = await persuade({
+  schema: UserSchema,
+  context: "Extract user information accurately",
+  input: "John Doe is 30 years old, email: john@example.com"
+}, createClaudeCLIAdapter());
+
+// Get guaranteed structured output
+if (result.ok) {
+  console.log(result.value); // { name: "John Doe", age: 30, email: "john@example.com" }
+}
+```
+
 ## 🎯 Problems This Solves
 
 ### **"I need structured data from LLMs, but they keep giving me garbage"**
