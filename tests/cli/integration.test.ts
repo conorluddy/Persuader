@@ -90,7 +90,6 @@ describe('CLI Integration', () => {
     expect(mockFileIo.writeOutput).toHaveBeenCalled();
   });
 
-
   it('includes context and lens in processing', async () => {
     const args = {
       input: 'test.json',
@@ -168,7 +167,6 @@ describe('CLI Integration', () => {
     await expect(runCommand(args)).resolves.not.toThrow();
     expect(mockFileIo.writeOutput).toHaveBeenCalled();
   });
-
 
   it('creates output directory if needed', async () => {
     mockFs.mkdir.mockResolvedValue(undefined);

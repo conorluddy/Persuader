@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createClaudeCLIAdapter, _setExecAsync, _resetExecAsync } from '../../src/adapters/claude-cli.js';
+import {
+  _resetExecAsync,
+  _setExecAsync,
+  createClaudeCLIAdapter,
+} from '../../src/adapters/claude-cli.js';
 
 // Mock child process module first
 vi.mock('node:child_process', () => ({
@@ -9,11 +13,16 @@ vi.mock('node:child_process', () => ({
 
 // Import the mocked functions after the mock
 import { spawn } from 'node:child_process';
+
 const mockSpawn = vi.mocked(spawn);
 const mockExecAsync = vi.fn();
 
 // Helper to create a mock child process
-const createMockChildProcess = (stdout: string, stderr: string = '', exitCode: number = 0) => {
+const createMockChildProcess = (
+  stdout: string,
+  stderr: string = '',
+  exitCode: number = 0
+) => {
   const mockChild = {
     stdout: {
       on: vi.fn((event, callback) => {
@@ -75,8 +84,10 @@ describe('ClaudeCliAdapter', () => {
       },
       uuid: 'test-uuid-123',
     };
-    
-    mockSpawn.mockReturnValue(createMockChildProcess(JSON.stringify(mockResponseData)));
+
+    mockSpawn.mockReturnValue(
+      createMockChildProcess(JSON.stringify(mockResponseData))
+    );
 
     const result = await adapter.sendPrompt(null, 'Test prompt', {
       model: 'claude-3-haiku',
@@ -125,8 +136,10 @@ describe('ClaudeCliAdapter', () => {
       },
       uuid: 'test-uuid-456',
     };
-    
-    mockSpawn.mockReturnValue(createMockChildProcess(JSON.stringify(mockResponseData)));
+
+    mockSpawn.mockReturnValue(
+      createMockChildProcess(JSON.stringify(mockResponseData))
+    );
 
     await adapter.sendPrompt(null, 'Test prompt', { model: 'claude-3-sonnet' });
 

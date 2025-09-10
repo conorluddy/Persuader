@@ -10,7 +10,7 @@ vi.mock('node:fs/promises');
 
 describe('SessionManager', () => {
   let manager: SessionManager;
-  const mockProvider: ProviderAdapter = {
+  const _mockProvider: ProviderAdapter = {
     name: 'mock-provider',
     supportsSession: true,
     sendPrompt: vi.fn(),
@@ -37,10 +37,9 @@ describe('SessionManager', () => {
   });
 
   it('creates new session when none exists', async () => {
-    const session = await manager.createSession(
-      'test-context',
-      { provider: 'mock-provider' }
-    );
+    const session = await manager.createSession('test-context', {
+      provider: 'mock-provider',
+    });
 
     expect(session.id).toBeDefined();
     expect(session.context).toBe('test-context');
@@ -48,10 +47,9 @@ describe('SessionManager', () => {
   });
 
   it('retrieves existing session by ID', async () => {
-    const session1 = await manager.createSession(
-      'context',
-      { provider: 'mock-provider' }
-    );
+    const session1 = await manager.createSession('context', {
+      provider: 'mock-provider',
+    });
 
     const retrievedSession = await manager.getSession(session1.id);
 
@@ -61,15 +59,13 @@ describe('SessionManager', () => {
   });
 
   it('creates different sessions with unique IDs', async () => {
-    const session1 = await manager.createSession(
-      'context-1',
-      { provider: 'mock-provider' }
-    );
+    const session1 = await manager.createSession('context-1', {
+      provider: 'mock-provider',
+    });
 
-    const session2 = await manager.createSession(
-      'context-2',
-      { provider: 'mock-provider' }
-    );
+    const session2 = await manager.createSession('context-2', {
+      provider: 'mock-provider',
+    });
 
     expect(session1.id).not.toBe(session2.id);
     expect(session1.context).toBe('context-1');
@@ -77,10 +73,9 @@ describe('SessionManager', () => {
   });
 
   it('handles sessions without specific provider support', async () => {
-    const session = await manager.createSession(
-      'context',
-      { provider: 'no-session' }
-    );
+    const session = await manager.createSession('context', {
+      provider: 'no-session',
+    });
 
     expect(session.id).toBeDefined();
     expect(session.metadata.provider).toBe('no-session');
@@ -88,21 +83,27 @@ describe('SessionManager', () => {
 
   it('cleans up expired sessions', async () => {
     // Create a session
-    const session = await manager.createSession('context', { provider: 'mock-provider' });
-    
+    const session = await manager.createSession('context', {
+      provider: 'mock-provider',
+    });
+
     // Verify session exists
     const retrievedSession = await manager.getSession(session.id);
     expect(retrievedSession).not.toBeNull();
 
     // Manually clean up with very short max age (1ms)
     const deletedCount = await manager.cleanup(1);
-    
+
     expect(deletedCount).toBeGreaterThan(0);
   });
 
   it('can list created sessions', async () => {
-    const session1 = await manager.createSession('context1', { provider: 'provider1' });
-    const session2 = await manager.createSession('context2', { provider: 'provider2' });
+    const session1 = await manager.createSession('context1', {
+      provider: 'provider1',
+    });
+    const session2 = await manager.createSession('context2', {
+      provider: 'provider2',
+    });
 
     const sessions = await manager.listSessions();
 
@@ -113,17 +114,21 @@ describe('SessionManager', () => {
   });
 
   it('can update existing sessions', async () => {
-    const session = await manager.createSession('original-context', { provider: 'test-provider' });
-    
+    const session = await manager.createSession('original-context', {
+      provider: 'test-provider',
+    });
+
     const updatedSession = await manager.updateSession(session.id, {
       context: 'updated-context',
-      metadata: { ...session.metadata, promptCount: 5 }
+      metadata: { ...session.metadata, promptCount: 5 },
     });
 
     expect(updatedSession.id).toBe(session.id);
     expect(updatedSession.context).toBe('updated-context');
     expect(updatedSession.metadata.promptCount).toBe(5);
-    expect(updatedSession.updatedAt.getTime()).toBeGreaterThanOrEqual(session.updatedAt.getTime());
+    expect(updatedSession.updatedAt.getTime()).toBeGreaterThanOrEqual(
+      session.updatedAt.getTime()
+    );
   });
 
   it('handles file read errors gracefully', async () => {
@@ -134,8 +139,12 @@ describe('SessionManager', () => {
   });
 
   it('deletes sessions individually', async () => {
-    const session1 = await manager.createSession('context1', { provider: 'provider1' });
-    const session2 = await manager.createSession('context2', { provider: 'provider2' });
+    const session1 = await manager.createSession('context1', {
+      provider: 'provider1',
+    });
+    const session2 = await manager.createSession('context2', {
+      provider: 'provider2',
+    });
 
     // Verify sessions exist
     expect(await manager.getSession(session1.id)).not.toBeNull();

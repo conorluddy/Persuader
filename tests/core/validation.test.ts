@@ -41,11 +41,10 @@ describe('validateJson', () => {
 });
 
 describe('formatValidationErrorFeedback', () => {
-  const schema = z.object({
+  const _schema = z.object({
     email: z.string().email(),
     count: z.number().positive(),
   });
-
 
   it('provides helpful schema hints', () => {
     const schema = z.object({
