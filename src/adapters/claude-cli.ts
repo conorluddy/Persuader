@@ -6,6 +6,7 @@
  */
 
 import { exec, spawn } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import { promisify } from 'node:util';
 import {
   extractContentFromResponse,
@@ -28,6 +29,7 @@ import type {
   ProviderHealth,
   ProviderPromptOptions,
   ProviderResponse,
+  ProviderSessionOptions,
 } from '../types/index.js';
 import {
   debug,
@@ -73,7 +75,7 @@ export interface ClaudeCLIAdapterConfig {
 export class ClaudeCLIAdapter implements ProviderAdapter {
   readonly name = 'claude-cli';
   readonly version = '2.0.0';
-  readonly supportsSession = false; // Simplified - Claude CLI manages sessions automatically
+  readonly supportsSession = true; // Claude CLI has full session support with --session-id
   readonly supportedModels = [
     'claude-3-5-sonnet-20241022',
     'claude-3-5-haiku-20241022',
@@ -175,7 +177,106 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
     }
   }
 
-  // No createSession method - Claude CLI manages sessions automatically
+  /**
+   * Create a new session with Claude CLI using a specific session ID
+   *
+   * Establishes a conversation context that can be reused across multiple
+   * sendPrompt calls, enabling efficient retry loops and context preservation.
+   *
+   * @param context - Initial context/system prompt for the session
+   * @param options - Session configuration options
+   * @returns Promise resolving to session ID for use in subsequent calls
+   */
+  async createSession(
+    context: string,
+    options: ProviderSessionOptions = {}
+  ): Promise<string> {
+    const sessionId = randomUUID();
+    const startTime = Date.now();
+
+    debug('Creating Claude CLI session', {
+      sessionId,
+      contextLength: context.length,
+      model: options.model,
+      temperature: options.temperature,
+    });
+
+    try {
+      const args: string[] = [];
+
+      // Use JSON output for structured parsing
+      args.push('--output-format', 'json');
+
+      // Set session ID for this conversation
+      args.push('--session-id', sessionId);
+
+      // Add model if specified
+      if (options.model) {
+        args.push('--model', options.model);
+      }
+
+      // Add temperature via system prompt appendage if specified
+      let contextWithOptions = context;
+      if (options.temperature !== undefined) {
+        contextWithOptions += `\n\nPlease use a temperature of ${options.temperature} for your responses.`;
+      }
+
+      // Initialize session with context
+      const { stdout, stderr } = await this.spawnWithStdin(
+        args,
+        contextWithOptions
+      );
+
+      const sessionDuration = Date.now() - startTime;
+
+      debug('Claude CLI session created successfully', {
+        sessionId,
+        stdoutLength: stdout?.length || 0,
+        stderrLength: stderr?.length || 0,
+        sessionDurationMs: sessionDuration,
+      });
+
+      // Handle warnings but not errors
+      if (stderr && !this.isWarning(stderr)) {
+        warn('Claude CLI session creation stderr output', {
+          sessionId,
+          stderr,
+        });
+      } else if (stderr) {
+        debug('Claude CLI session creation warning output', {
+          sessionId,
+          stderr,
+        });
+      }
+
+      // Parse the response to ensure session was established
+      const claudeResponse = parseClaudeCLIResponse(stdout);
+
+      info('Claude CLI session established', {
+        sessionId,
+        cost: claudeResponse.total_cost_usd,
+        contextLength: context.length,
+        durationMs: sessionDuration,
+        model: options.model || DEFAULT_MODEL,
+      });
+
+      return sessionId;
+    } catch (error) {
+      const errorDuration = Date.now() - startTime;
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+
+      logError('Claude CLI session creation failed', {
+        sessionId,
+        errorMessage,
+        errorType: error instanceof Error ? error.constructor.name : 'Unknown',
+        contextLength: context.length,
+        failureDurationMs: errorDuration,
+      });
+
+      throw this.enhanceError(error, 'Failed to create Claude CLI session');
+    }
+  }
 
   /**
    * Execute Claude CLI with stdin for prompt input to avoid shell argument length limits
@@ -259,7 +360,7 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
    * Send a prompt to Claude CLI using documented API
    */
   async sendPrompt(
-    _sessionId: string | null, // Ignored - Claude manages sessions automatically
+    sessionId: string | null, // Use session ID for conversation continuity
     prompt: string,
     options: ProviderPromptOptions
   ): Promise<ProviderResponse> {
@@ -273,7 +374,7 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
       prompt,
       temperature: options.temperature ?? undefined,
       maxTokens: options.maxTokens ?? undefined,
-      sessionId: _sessionId,
+      sessionId: sessionId,
       requestId,
     });
 
@@ -283,7 +384,8 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
       model: options.model,
       maxTokens: options.maxTokens,
       temperature: options.temperature,
-      sessionId: _sessionId,
+      sessionId: sessionId,
+      usingSession: Boolean(sessionId),
     });
 
     try {
@@ -292,8 +394,13 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
       // Always use JSON output for structured parsing
       args.push('--output-format', 'json');
 
-      // Add model if specified
-      if (options.model) {
+      // Add session ID if provided (for conversation continuity)
+      if (sessionId) {
+        args.push('--session-id', sessionId);
+      }
+
+      // Add model if specified (only for new sessions)
+      if (options.model && !sessionId) {
         args.push('--model', options.model);
       }
 
@@ -426,12 +533,27 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
   }
 
   /**
-   * Destroy a Claude CLI session (optional - CLI manages sessions internally)
+   * Destroy a Claude CLI session to clean up resources
+   *
+   * While Claude CLI doesn't have an explicit session destroy command,
+   * this method provides logging and potential future cleanup capabilities.
+   *
+   * @param sessionId - Session ID to clean up
    */
-  async destroySession(_sessionId: string): Promise<void> {
-    // Claude CLI doesn't have an explicit session destroy command
-    // Sessions are managed automatically by the CLI
-    // This is a no-op but kept for interface compliance
+  async destroySession(sessionId: string): Promise<void> {
+    debug('Destroying Claude CLI session', { sessionId });
+
+    // Note: Claude CLI automatically manages session lifecycle
+    // Sessions expire naturally or can be manually cleaned up in the CLI
+    // This method is primarily for logging and future extensibility
+
+    info('Claude CLI session destroyed', {
+      sessionId,
+      note: 'Session will expire naturally in Claude CLI',
+    });
+
+    // Future enhancement: Could potentially use claude config or other CLI commands
+    // to explicitly clean up sessions if such functionality becomes available
   }
 
   // Helper methods removed - using schema-based parsing instead

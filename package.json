@@ -41,7 +41,8 @@
     "example:yoga-advanced": "tsx examples/yoga-advanced/index.ts",
     "example:exercise": "tsx examples/exercise/index.ts",
     "example:workout": "tsx examples/workout-generator/index.ts",
-    "example:workout:optimized": "tsx examples/workout-generator/optimized.ts"
+    "example:workout:optimized": "tsx examples/workout-generator/optimized.ts",
+    "example:openai": "tsx examples/openai-test/index.ts"
   },
   "keywords": [
     "llm",
@@ -77,13 +78,15 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^0.0.66",
+    "ai": "^3.4.33",
     "ajv": "^8.17.1",
     "chalk": "^5.6.0",
     "commander": "^14.0.0",
     "consola": "^3.4.2",
     "fast-glob": "^3.3.3",
     "ora": "^8.2.0",
-    "zod": "^4.1.5"
+    "zod": "^3.23.8"
   },
   "engines": {
     "node": ">=20.0.0"
