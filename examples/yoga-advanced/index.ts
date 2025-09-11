@@ -317,9 +317,12 @@ async function runAdvancedYogaDemo(): Promise<void> {
     const result = await processAdvancedPose(pose, sessionContext, sessionId);
 
     // WORKAROUND: Add small delay between sequential session calls to prevent Claude CLI conflicts
-    if (index < demoPoses.length - 1) { // Don't delay after last pose
+    if (index < demoPoses.length - 1) {
+      // Don't delay after last pose
       const sequentialDelayMs = 1000; // 1 second between calls
-      console.log(`⏳ SEQUENTIAL_DELAY: Waiting ${sequentialDelayMs}ms before next pose...`);
+      console.log(
+        `⏳ SEQUENTIAL_DELAY: Waiting ${sequentialDelayMs}ms before next pose...`
+      );
       await new Promise(resolve => setTimeout(resolve, sequentialDelayMs));
     }
 
