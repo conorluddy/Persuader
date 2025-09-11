@@ -105,8 +105,28 @@ export function generateValidationSuggestions(
         let receivedType = 'received' in issue ? issue.received : 'unknown';
         if (!receivedType || receivedType === 'unknown') {
           const match = issue.message.match(/received (\w+)/);
-          if (match) {
-            receivedType = match[1];
+          if (match?.[1]) {
+            receivedType = match[1] as
+              | 'string'
+              | 'number'
+              | 'bigint'
+              | 'boolean'
+              | 'symbol'
+              | 'undefined'
+              | 'object'
+              | 'function'
+              | 'map'
+              | 'nan'
+              | 'integer'
+              | 'float'
+              | 'date'
+              | 'null'
+              | 'array'
+              | 'unknown'
+              | 'promise'
+              | 'void'
+              | 'never'
+              | 'set';
           }
         }
         suggestions.push(
@@ -153,9 +173,9 @@ export function generateValidationSuggestions(
         break;
       }
 
-      case 'invalid_value': {
+      case 'invalid_enum_value': {
         const options =
-          (issue as { values?: string[] }).values?.join(', ') ||
+          (issue as { options?: string[] }).options?.join(', ') ||
           'allowed values';
         suggestions.push(`Field "${path}": Must be one of: ${options}.`);
         break;

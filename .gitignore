@@ -90,3 +90,11 @@ lerna-debug.log*
 # Testing
 /coverage
 /.jest
+
+# Example outputs
+examples/**/output/
+examples/**/outputs/
+examples/**/results/
+examples/**/*.json
+!examples/**/schemas/*.json
+!examples/**/data/*.json

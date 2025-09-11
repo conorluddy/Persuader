@@ -13,6 +13,7 @@ import {
   type ClaudeCLIAdapterConfig,
   createClaudeCLIAdapter,
 } from './claude-cli.js';
+import { createOpenAIAdapter, type OpenAIAdapterConfig } from './openai.js';
 
 // Provider types and utilities
 export type {
@@ -27,6 +28,13 @@ export {
   createClaudeCLIAdapter,
   isClaudeCLIAdapter,
 } from './claude-cli.js';
+
+// OpenAI Adapter - Provider adapter for OpenAI API via AI SDK
+export {
+  createOpenAIAdapter,
+  isOpenAIAdapter,
+  type OpenAIAdapterConfig,
+} from './openai.js';
 
 /**
  * Available provider types for adapter creation
@@ -52,15 +60,17 @@ export function createProviderAdapter(
       return createClaudeCLIAdapter(options as ClaudeCLIAdapterConfig);
 
     case 'openai':
+      return createOpenAIAdapter(options as OpenAIAdapterConfig);
+
     case 'anthropic-sdk':
     case 'local':
       throw new Error(
-        `Provider type '${type}' is not yet implemented. Currently supported: claude-cli`
+        `Provider type '${type}' is not yet implemented. Currently supported: claude-cli, openai`
       );
 
     default:
       throw new Error(
-        `Unknown provider type: ${type}. Supported types: claude-cli`
+        `Unknown provider type: ${type}. Supported types: claude-cli, openai`
       );
   }
 }
@@ -71,7 +81,7 @@ export function createProviderAdapter(
  * @returns Array of supported provider types
  */
 export function getAvailableProviders(): ProviderType[] {
-  return ['claude-cli'];
+  return ['claude-cli', 'openai'];
 }
 
 /**

@@ -133,11 +133,11 @@ function demonstrateSchemaAnalysis() {
 }
 
 /**
- * Demonstrate schema logging in action with a simple Persuader run
+ * Demonstrate schema logging in action with session-based Persuader runs
  */
 async function demonstrateSchemaLogging() {
   console.log(
-    `${colors.bold}${colors.cyan}=== Schema Logging in Persuader Pipeline ===${colors.reset}\n`
+    `${colors.bold}${colors.cyan}=== Schema Logging in Persuader Pipeline with Sessions ===${colors.reset}\n`
   );
 
   try {
@@ -149,10 +149,10 @@ async function demonstrateSchemaLogging() {
     });
 
     console.log(
-      `${colors.green}Running Persuader with demo schema...${colors.reset}`
+      `${colors.green}Running multiple Persuader calls with session reuse...${colors.reset}`
     );
     console.log(
-      `${colors.yellow}Watch the logs to see schema analysis and validation logging!${colors.reset}\n`
+      `${colors.yellow}Watch the logs to see schema analysis, session management, and validation logging!${colors.reset}\n`
     );
 
     const adapter = createClaudeCLIAdapter();
@@ -165,28 +165,75 @@ async function demonstrateSchemaLogging() {
       return;
     }
 
-    const result = await persuade(
-      {
-        schema: DemoSchema,
-        input: 'This is a great day!',
-        context:
-          'You are a sentiment analyzer. Analyze the input text and return the sentiment, confidence score, and the original message.',
-        model: 'haiku',
-        retries: 1,
-        logLevel: 'debug', // Enable debug logging to see schema information
-      },
-      adapter
+    // Demo texts to analyze
+    const demoTexts = [
+      'This is a great day!',
+      'I am feeling really frustrated.',
+      'The weather is okay today.',
+    ];
+
+    const sessionContext =
+      'You are a sentiment analyzer. For each input text, analyze the sentiment and return the sentiment classification, confidence score, and the original message. Maintain consistency in your analysis approach across multiple texts.';
+
+    let sessionId: string | undefined;
+
+    console.log(
+      `${colors.cyan}Starting session-based sentiment analysis...${colors.reset}\n`
     );
 
-    if (result.ok) {
+    for (const [index, text] of demoTexts.entries()) {
       console.log(
-        `${colors.green}✅ Success!${colors.reset} Result:`,
-        result.value
+        `${colors.blue}Analysis ${index + 1}/3:${colors.reset} "${text}"`
       );
-    } else {
+
+      const result = await persuade(
+        {
+          schema: DemoSchema,
+          input: text,
+          context: sessionId
+            ? `Analyze this text for sentiment: "${text}"` // Shorter context for session reuse
+            : sessionContext, // Full context for first call
+          model: 'haiku',
+          retries: 1,
+          sessionId, // Reuse session if we have one
+          logLevel: 'info', // Show session management logs
+        },
+        adapter
+      );
+
+      if (result.ok) {
+        console.log(
+          `${colors.green}✅ Success!${colors.reset} Result:`,
+          result.value
+        );
+
+        // Capture session for reuse
+        if (result.sessionId && !sessionId) {
+          sessionId = result.sessionId;
+          console.log(
+            `${colors.magenta}🔗 Session established: ${sessionId.substring(0, 8)}...${colors.reset}`
+          );
+        } else if (result.sessionId && sessionId) {
+          console.log(
+            `${colors.magenta}🔗 Session reused: ${result.sessionId.substring(0, 8)}...${colors.reset}`
+          );
+        }
+      } else {
+        console.log(
+          `${colors.yellow}⚠️  Pipeline failed:${colors.reset}`,
+          result.error.message
+        );
+      }
+
+      console.log(); // Add spacing
+    }
+
+    if (sessionId) {
       console.log(
-        `${colors.yellow}⚠️  Pipeline failed:${colors.reset}`,
-        result.error.message
+        `${colors.green}✅ Session-based processing completed!${colors.reset}`
+      );
+      console.log(
+        `${colors.cyan}Total session calls: 3 (1 creation + 2 reuses)${colors.reset}`
       );
     }
   } catch (error) {

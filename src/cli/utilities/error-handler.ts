@@ -92,7 +92,7 @@ export function convertPipelineError(
       );
       if (error.provider === 'claude-cli') {
         suggestions.push(
-          'Ensure Claude CLI is installed: pip install claude-cli'
+          'Ensure ClaudeCode is installed: npm install -g @anthropic-ai/claude-code'
         );
         suggestions.push('Verify authentication with: claude --version');
       }
@@ -346,11 +346,13 @@ export function convertProviderError(
   // Add provider-specific guidance
   switch (providerName) {
     case 'claude-cli':
-      suggestions.push('Ensure Claude CLI is installed and authenticated');
-      suggestions.push('Install with: pip install claude-cli');
+      suggestions.push('Ensure ClaudeCode is installed and authenticated');
+      suggestions.push(
+        'Install with: npm install -g @anthropic-ai/claude-code'
+      );
       suggestions.push('Authenticate and test with: claude --version');
       suggestions.push('Check your internet connection');
-      helpCommands.push('pip install claude-cli');
+      helpCommands.push('npm install -g @anthropic-ai/claude-code');
       helpCommands.push('claude --version');
       helpCommands.push('claude --help');
       break;

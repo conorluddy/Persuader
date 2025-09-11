@@ -11,6 +11,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { glob } from 'glob';
+import { createClaudeCLIAdapter } from '../../src/adapters/claude-cli.js';
 import { persuade } from '../../src/index.js';
 import {
   AdvancedYogaRelationshipSchema,
@@ -94,10 +95,32 @@ async function processAdvancedPose(
   relationships?: AdvancedYogaRelationships;
   newSessionId?: string;
 }> {
-  console.log(`🧘‍♀️ Analyzing: ${pose.name} (${pose.sanskritName})`);
+  console.log(`\n🧘‍♀️ Analyzing: ${pose.name} (${pose.sanskritName})`);
   console.log(
     `   Difficulty: ${pose.practiceContext?.difficulty || 'Unknown'} | Energy: ${pose.practiceContext?.energyState || 'Unknown'}`
   );
+  console.log(
+    `🔗 SESSION_DEBUG: ${sessionId ? `Reusing session ${sessionId.substring(0, 8)}...` : 'Creating new session'}`
+  );
+
+  // CONSISTENCY FIX: Always provide rich context with current pose information
+  // Sessions maintain their context, so we can be more specific without losing domain knowledge
+  const contextToUse = sessionId
+    ? `Using your established yoga expertise, analyze advanced relationships for the current pose: ${pose.name} (${pose.sanskritName}).
+       
+       This pose has:
+       - Difficulty: ${pose.practiceContext?.difficulty || 'Unknown'}
+       - Energy State: ${pose.practiceContext?.energyState || 'Unknown'} 
+       - Primary Muscles: ${pose.anatomicalFocus?.primaryMuscles?.join(', ') || 'Unknown'}
+       - Physical Considerations: ${pose.practitionerProfile?.physicalConsiderations || 'None specified'}
+       
+       Analyze the 6 relationship dimensions as established in our session context.`
+    : sessionContext;
+
+  console.log(
+    `📝 CONTEXT_STRATEGY: ${sessionId ? 'Rich contextual prompt for session reuse' : 'Full session establishment context'}`
+  );
+  console.log(`📏 CONTEXT_LENGTH: ${contextToUse.length} characters`);
 
   // Create rich input with comprehensive pose details (using optional chaining for safety)
   const richInput = {
@@ -114,14 +137,23 @@ async function processAdvancedPose(
     specificNeeds: pose.practitionerProfile?.specificNeeds || [],
   };
 
+  const startTime = Date.now();
+  console.log(
+    `⏱️  TIMING_DEBUG: Starting persuade call at ${new Date().toISOString()}`
+  );
+
   const result = await persuade({
     schema: AdvancedYogaRelationshipSchema,
     input: richInput,
-    context: sessionId
-      ? `Analyze advanced relationships for: ${pose.name}`
-      : sessionContext,
+    context: contextToUse,
     sessionId,
   });
+
+  const callDuration = Date.now() - startTime;
+  console.log(`⏱️  TIMING_DEBUG: Persuade call completed in ${callDuration}ms`);
+  console.log(
+    `🔗 SESSION_RESULT: ${result.sessionId ? `Session ${result.sessionId.substring(0, 8)}... returned` : 'No session returned'}`
+  );
 
   if (result.ok) {
     const relationships = result.value as AdvancedYogaRelationships;
@@ -158,7 +190,10 @@ async function processAdvancedPose(
       newSessionId: result.sessionId,
     };
   } else {
-    console.log(`❌ Failed: ${result.error?.message}\n`);
+    console.log(`❌ Failed: ${result.error?.message}`);
+    console.log(
+      `🔗 SESSION_FAILURE: ${result.sessionId ? `Session ${result.sessionId.substring(0, 8)}... present on failure` : 'No session on failure'}\n`
+    );
     return {};
   }
 }
@@ -196,18 +231,100 @@ async function runAdvancedYogaDemo(): Promise<void> {
   // Step 3: Create advanced session context
   const sessionContext = createAdvancedSessionContext(allPoses);
 
-  // Step 4: Process each pose for advanced analysis
+  // Step 4: Initialize session upfront for better reuse
+  console.log(
+    `🔗 SESSION_INITIALIZATION: Creating session with full context upfront`
+  );
+
+  // Create an initial simple prompt to establish the session
   let sessionId: string | undefined;
+  try {
+    const initResult = await persuade({
+      schema: AdvancedYogaRelationshipSchema,
+      input: {
+        currentPose: 'Session Initialization',
+        sanskritName: 'N/A',
+        difficulty: 'Beginner',
+        energyState: 'Centering',
+        sequencePhase: 'Initialization',
+        primaryMuscles: [],
+        jointActions: [],
+        energeticEffect: 'Grounding',
+        physicalConsiderations: 'None',
+        specificNeeds: [],
+      },
+      context: `${sessionContext}\n\nThis is a session initialization call. Simply respond with an empty analysis to establish context.`,
+    });
+
+    if (initResult.ok && initResult.sessionId) {
+      sessionId = initResult.sessionId;
+      console.log(
+        `✅ SESSION_INITIALIZATION: Session ${sessionId.substring(0, 8)}... established successfully`
+      );
+    } else {
+      console.log(
+        `⚠️  SESSION_INITIALIZATION: Failed to create session upfront, will create during processing`
+      );
+    }
+  } catch (error) {
+    console.log(
+      `⚠️  SESSION_INITIALIZATION: Error creating session upfront: ${error}`
+    );
+  }
+
+  // Step 5: Process each pose for advanced analysis
   const allRelationships: AdvancedYogaRelationships[] = [];
 
-  // Process a subset for demo (first 10 poses)
-  const demoPoses = allPoses.slice(0, 10);
+  // Process a subset for demo (first 5 poses for reasonable demo time)
+  const demoPoses = allPoses.slice(0, 5);
   console.log(
     `🎯 Processing first ${demoPoses.length} poses for advanced analysis\n`
   );
 
-  for (const pose of demoPoses) {
+  // Create adapter instance for session validation
+  const adapter = createClaudeCLIAdapter();
+
+  for (const [index, pose] of demoPoses.entries()) {
+    console.log(
+      `\n📊 PROGRESS: Processing pose ${index + 1} of ${demoPoses.length}`
+    );
+    console.log(
+      `🔗 SESSION_STATE: ${sessionId ? `Using established session ${sessionId.substring(0, 8)}...` : 'No session established yet'}`
+    );
+
+    // Validate session health every 5 poses (if we have a session)
+    if (sessionId && index > 0 && index % 5 === 0) {
+      console.log(`🔍 SESSION_HEALTH_CHECK: Validating session health...`);
+      try {
+        const validation = await adapter.validateSession(sessionId);
+        if (validation.valid) {
+          console.log(
+            `✅ SESSION_HEALTH_CHECK: Session is healthy (${validation.responseTime}ms)`
+          );
+        } else {
+          console.log(
+            `⚠️  SESSION_HEALTH_CHECK: Session validation failed: ${validation.error}`
+          );
+          console.log(
+            `🔄 SESSION_RECOVERY: Will attempt to continue with existing session`
+          );
+        }
+      } catch (error) {
+        console.log(`❌ SESSION_HEALTH_CHECK: Validation error: ${error}`);
+      }
+    }
+
     const result = await processAdvancedPose(pose, sessionContext, sessionId);
+
+    // WORKAROUND: Add small delay between sequential session calls to prevent Claude CLI conflicts
+    if (index < demoPoses.length - 1) {
+      // Don't delay after last pose
+      const sequentialDelayMs = 1000; // 1 second between calls
+      console.log(
+        `⏳ SEQUENTIAL_DELAY: Waiting ${sequentialDelayMs}ms before next pose...`
+      );
+      await new Promise(resolve => setTimeout(resolve, sequentialDelayMs));
+    }
 
     // Save successful results
     if (result.relationships) {
@@ -227,16 +344,30 @@ async function runAdvancedYogaDemo(): Promise<void> {
           energeticEffect: pose.anatomicalFocus?.energeticEffect || 'Unknown',
         },
         analysisTimestamp: new Date().toISOString(),
+        sessionId: result.newSessionId,
       };
 
       writeFileSync(filepath, JSON.stringify(richResult, null, 2));
       console.log(`💾 Saved: ${filename}`);
+
+      // Session tracking
+      if (sessionId && result.newSessionId) {
+        if (sessionId === result.newSessionId) {
+          console.log(`✅ SESSION_CONSISTENCY: Session reused successfully`);
+        } else {
+          console.log(
+            `⚠️  SESSION_INCONSISTENCY: Session changed from ${sessionId.substring(0, 8)}... to ${result.newSessionId.substring(0, 8)}...`
+          );
+        }
+      }
     }
 
-    // Capture session ID after first successful call
-    if (!sessionId && result.newSessionId) {
+    // Update session ID if it changed (shouldn't happen with upfront initialization)
+    if (result.newSessionId && result.newSessionId !== sessionId) {
+      console.log(
+        `⚠️  SESSION_CHANGED: Session changed from ${sessionId?.substring(0, 8) || 'none'}... to ${result.newSessionId.substring(0, 8)}...`
+      );
       sessionId = result.newSessionId;
-      console.log(`🔗 Advanced session established for context reuse\n`);
     }
   }
 

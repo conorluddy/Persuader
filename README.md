@@ -354,7 +354,7 @@ const result = await persuade(options, provider);
 
 - **Node.js**: Version 20.0.0 or higher (tested on 20+)
 - **TypeScript**: 5.7.2+ for development
-- **Claude CLI**: Required for LLM calls (`pip install claude-cli`)
+- **ClaudeCode**: Required for LLM calls (`npm install -g @anthropic-ai/claude-code`)
 
 ### Installation
 
@@ -369,11 +369,11 @@ npm install -g persuader
 npm install persuader zod typescript @types/node
 ```
 
-### Setup Claude CLI
+### Setup ClaudeCode
 
 ```bash
-# Install Claude CLI
-pip install claude-cli
+# Install ClaudeCode
+npm install -g @anthropic-ai/claude-code
 
 # Verify installation
 claude --version
@@ -381,6 +381,32 @@ claude --version
 # First-time setup will prompt for API key
 claude "Hello, world!"
 ```
+
+### Environment Configuration
+
+For OpenAI and other provider examples:
+
+```bash
+# Copy environment template
+cp .env.example .env
+
+# Edit .env and add your API keys
+```
+
+Add your API keys to `.env`:
+
+```bash
+# OpenAI (for OpenAI provider examples)
+OPENAI_API_KEY=sk-your-openai-api-key-here
+
+# Anthropic (for future Anthropic SDK integration)
+ANTHROPIC_API_KEY=sk-ant-your-anthropic-api-key-here
+```
+
+**API Key Setup:**
+- **OpenAI**: Get your key from [OpenAI API Keys](https://platform.openai.com/api-keys)
+- **Anthropic**: Get your key from [Anthropic Console](https://console.anthropic.com/)
+- **ClaudeCode**: Uses authentication from `claude auth login` (no `.env` needed)
 
 ### Verification
 
