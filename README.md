@@ -34,6 +34,28 @@ if (result.ok) {
 }
 ```
 
+### 🔌 Multiple Provider Support
+
+```typescript
+import { createMockProvider, createOpenAIAdapter, createAnthropicSDKAdapter, createOllamaAdapter } from 'persuader';
+
+// For testing (fixed in v0.2.1!)
+const mockProvider = createMockProvider(); // Now works without arguments!
+
+// For production with OpenAI
+const openaiProvider = createOpenAIAdapter({ apiKey: 'your-key' });
+
+// For local/private deployment
+const ollamaProvider = createOllamaAdapter({ baseUrl: 'http://localhost:11434' });
+
+// Use any provider with the same interface
+const result = await persuade({
+  provider: mockProvider, // or openaiProvider, ollamaProvider, etc.
+  schema: UserSchema,
+  input: "Your data..."
+});
+```
+
 ## 🎯 Problems This Solves
 
 ### **"I need structured data from LLMs, but they keep giving me garbage"**
@@ -359,14 +381,14 @@ const result = await persuade(options, provider);
 ### Installation
 
 ```bash
-# Production installation
-npm install persuader
+# Production installation (latest v0.2.1)
+npm install persuader@latest
 
 # Global CLI installation  
-npm install -g persuader
+npm install -g persuader@latest
 
 # Development setup with TypeScript
-npm install persuader zod typescript @types/node
+npm install persuader@latest zod typescript @types/node
 ```
 
 ### Setup ClaudeCode
@@ -457,6 +479,12 @@ npm run example:exercise
 
 # Advanced multi-dimensional yoga analysis
 npm run example:yoga-advanced
+
+# Provider-specific examples (NEW in v0.2.0+)
+npm run example:openai          # OpenAI integration demo
+npm run example:ollama          # Local Ollama LLM demo  
+npm run example:gemini          # Google Gemini API demo
+npm run example:anthropic       # Anthropic SDK demo
 ```
 
 ### Example Highlights
@@ -727,7 +755,7 @@ interface ExecutionMetadata {
 
 ## 🛠️ Production-Ready Features
 
-### ✅ Current Release (v0.1.1)
+### ✅ Current Release (v0.2.1)
 
 #### Core Framework
 - **🎯 Schema-First Validation**: Zod integration with intelligent error feedback that guides LLM corrections  
@@ -746,9 +774,14 @@ interface ExecutionMetadata {
 
 #### Provider Integration
 - **🤖 Claude CLI Adapter**: Full integration with session support and metadata tracking
+- **🤖 OpenAI Integration**: Direct API support with Azure OpenAI compatibility
+- **🤖 Anthropic SDK**: Direct Anthropic API integration with streaming support
+- **🤖 Ollama Support**: Local LLM integration for privacy-focused deployments
+- **🤖 Gemini Integration**: Google AI platform support with multimodal capabilities
+- **🧪 Enhanced Mock Provider**: Improved testing with configurable responses (fixed in v0.2.1)
 - **📈 Rich Metadata**: Token usage, cost estimation, timing, and execution statistics
 - **🔧 Health Checks**: Provider availability validation before processing
-- **🎚️ Model Selection**: Support for different Claude models with parameter customization
+- **🎚️ Model Selection**: Support for different models with parameter customization
 
 #### Developer Experience  
 - **🛡️ Robust Error Handling**: Detailed error types, recovery strategies, actionable feedback
@@ -758,11 +791,18 @@ interface ExecutionMetadata {
 
 ### 🚀 Planned Features (Roadmap)
 
-#### v0.2.0 - Multi-Provider Support
-- **OpenAI Integration**: Direct API and Azure OpenAI support
-- **Anthropic SDK**: Direct Anthropic API integration  
-- **Local Models**: Support for Ollama and other local LLM providers
-- **Provider Abstraction**: Unified interface across all providers
+#### ✅ v0.2.1 - Hotfix Release (Current)
+- **🐛 Mock Provider Fix**: Resolved critical bug where `createMockProvider()` required arguments
+- **🔄 Backward Compatibility**: Restored ability to call `createMockProvider()` without parameters
+- **🧪 Enhanced Testing**: Improved default mock responses for better development experience
+
+#### ✅ v0.2.0 - Multi-Provider Support (Released)
+- **✅ OpenAI Integration**: Direct API and Azure OpenAI support
+- **✅ Anthropic SDK**: Direct Anthropic API integration  
+- **✅ Local Models**: Support for Ollama and other local LLM providers
+- **✅ Gemini Integration**: Google AI platform support
+- **✅ Provider Abstraction**: Unified interface across all providers
+- **✅ Enhanced Examples**: Provider-specific demonstrations and best practices
 
 #### v0.3.0 - Advanced Patterns
 - **Multi-Stage Pipelines**: Chain multiple validation steps with dependencies
@@ -1066,12 +1106,12 @@ MIT License - Use freely in your projects, commercial or open source.
 ## 📋 Quick Reference
 
 ```bash
-# Installation
-npm install persuader
+# Installation (Latest v0.2.1)
+npm install persuader@latest
 
 # Basic Usage  
-import { persuade, createClaudeCLIAdapter } from 'persuader';
-const result = await persuade({ schema, input, context }, createClaudeCLIAdapter());
+import { persuade, createMockProvider } from 'persuader';
+const result = await persuade({ schema, input, context, provider: createMockProvider() });
 
 # CLI Usage
 persuader run --schema ./schema.ts --input ./data.json --verbose
