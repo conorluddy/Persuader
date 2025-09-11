@@ -66,16 +66,19 @@ export interface ClaudeCLIAdapterConfig {
  * Claude CLI adapter for Persuader framework
  *
  * Provides integration with Anthropic's Claude CLI tool, supporting:
- * - Session-based conversations for token efficiency
  * - JSON mode for structured output
  * - Proper shell argument escaping
  * - Comprehensive error handling and CLI-specific error messages
  * - Health monitoring and availability checks
+ *
+ * Session reuse is supported via Claude CLI's --resume flag, which allows
+ * continuing conversations using the session_id returned from previous calls.
  */
 export class ClaudeCLIAdapter implements ProviderAdapter {
   readonly name = 'claude-cli';
   readonly version = '2.0.0';
-  readonly supportsSession = true; // Claude CLI has full session support with --session-id
+  // Claude CLI supports session reuse via --resume flag
+  readonly supportsSession = true;
   readonly supportedModels = [
     'claude-3-5-sonnet-20241022',
     'claude-3-5-haiku-20241022',
@@ -194,6 +197,17 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
     const sessionId = randomUUID();
     const startTime = Date.now();
 
+    info('🔗 SESSION_LIFECYCLE: Creating new Claude CLI session', {
+      sessionId,
+      contextLength: context.length,
+      contextPreview:
+        context.substring(0, 200) + (context.length > 200 ? '...' : ''),
+      model: options.model || DEFAULT_MODEL,
+      temperature: options.temperature,
+      provider: this.name,
+      timestamp: new Date().toISOString(),
+    });
+
     debug('Creating Claude CLI session', {
       sessionId,
       contextLength: context.length,
@@ -206,9 +220,6 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
 
       // Use JSON output for structured parsing
       args.push('--output-format', 'json');
-
-      // Set session ID for this conversation
-      args.push('--session-id', sessionId);
 
       // Add model if specified
       if (options.model) {
@@ -252,26 +263,40 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
       // Parse the response to ensure session was established
       const claudeResponse = parseClaudeCLIResponse(stdout);
 
-      info('Claude CLI session established', {
-        sessionId,
-        cost: claudeResponse.total_cost_usd,
-        contextLength: context.length,
-        durationMs: sessionDuration,
-        model: options.model || DEFAULT_MODEL,
+      info(
+        '✅ SESSION_LIFECYCLE: Claude CLI session established successfully',
+        {
+          sessionId,
+          cost: claudeResponse.total_cost_usd,
+          contextLength: context.length,
+          durationMs: sessionDuration,
+          model: options.model || DEFAULT_MODEL,
+          provider: this.name,
+          timestamp: new Date().toISOString(),
+        }
+      );
+
+      info('✅ SESSION_LIFECYCLE: Claude CLI session ready for use', {
+        sessionId: sessionId.substring(0, 8) + '...',
+        readyForUse: true,
+        timestamp: new Date().toISOString(),
       });
 
-      return sessionId;
+      // Return the actual session_id from Claude CLI, not our generated UUID
+      return claudeResponse.session_id;
     } catch (error) {
       const errorDuration = Date.now() - startTime;
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
 
-      logError('Claude CLI session creation failed', {
+      logError('❌ SESSION_LIFECYCLE: Claude CLI session creation failed', {
         sessionId,
         errorMessage,
         errorType: error instanceof Error ? error.constructor.name : 'Unknown',
         contextLength: context.length,
         failureDurationMs: errorDuration,
+        provider: this.name,
+        timestamp: new Date().toISOString(),
       });
 
       throw this.enhanceError(error, 'Failed to create Claude CLI session');
@@ -378,6 +403,19 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
       requestId,
     });
 
+    info('🔗 SESSION_LIFECYCLE: Using Claude CLI session for prompt', {
+      requestId,
+      sessionId: sessionId || 'none',
+      usingSession: Boolean(sessionId),
+      sessionReuse: sessionId ? 'REUSING_EXISTING' : 'NO_SESSION',
+      promptLength: prompt.length,
+      promptPreview:
+        prompt.substring(0, 200) + (prompt.length > 200 ? '...' : ''),
+      model: options.model,
+      provider: this.name,
+      timestamp: new Date().toISOString(),
+    });
+
     debug('Claude CLI sendPrompt called', {
       requestId,
       promptLength: prompt.length,
@@ -394,9 +432,9 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
       // Always use JSON output for structured parsing
       args.push('--output-format', 'json');
 
-      // Add session ID if provided (for conversation continuity)
+      // Resume session if provided (for conversation continuity)
       if (sessionId) {
-        args.push('--session-id', sessionId);
+        args.push('--resume', sessionId);
       }
 
       // Add model if specified (only for new sessions)
@@ -478,6 +516,20 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
         efficiency: `${tokenUsage.totalTokens}/${totalDuration}ms`,
       });
 
+      info('✅ SESSION_LIFECYCLE: Claude CLI prompt completed successfully', {
+        requestId,
+        contentLength: content?.length || 0,
+        sessionId: claudeResponse.session_id,
+        sessionMatches: sessionId === claudeResponse.session_id,
+        cost: claudeResponse.total_cost_usd,
+        tokenUsage,
+        numTurns: claudeResponse.num_turns,
+        durationMs: claudeResponse.duration_ms,
+        totalDurationMs: totalDuration,
+        provider: this.name,
+        timestamp: new Date().toISOString(),
+      });
+
       info('Claude CLI response parsed successfully', {
         requestId,
         contentLength: content?.length || 0,
@@ -529,6 +581,77 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
       });
 
       throw this.enhanceError(error, 'Failed to send prompt to Claude CLI');
+    }
+  }
+
+  /**
+   * Validate that a session is still functional
+   *
+   * Sends a minimal test prompt to verify the session works.
+   * This helps detect session expiration or corruption issues.
+   *
+   * @param sessionId - Session ID to validate
+   * @returns Promise resolving to validation result
+   */
+  async validateSession(sessionId: string): Promise<{
+    valid: boolean;
+    error?: string;
+    responseTime?: number;
+  }> {
+    const startTime = Date.now();
+
+    info('🔍 SESSION_VALIDATION: Testing session health', {
+      sessionId: `${sessionId.substring(0, 8)}...`,
+      provider: this.name,
+      timestamp: new Date().toISOString(),
+    });
+
+    try {
+      const testResponse = await this.sendPrompt(
+        sessionId,
+        'Respond with just "OK" to confirm session is working.',
+        {
+          maxTokens: 10,
+          temperature: 0,
+        }
+      );
+
+      const responseTime = Date.now() - startTime;
+      const isValid = testResponse.content.toLowerCase().includes('ok');
+
+      info(
+        `${isValid ? '✅' : '❌'} SESSION_VALIDATION: Session ${isValid ? 'valid' : 'invalid'}`,
+        {
+          sessionId: `${sessionId.substring(0, 8)}...`,
+          responseTime,
+          response: testResponse.content.substring(0, 50),
+          provider: this.name,
+          timestamp: new Date().toISOString(),
+        }
+      );
+
+      return {
+        valid: isValid,
+        responseTime,
+      };
+    } catch (error) {
+      const responseTime = Date.now() - startTime;
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+
+      logError('❌ SESSION_VALIDATION: Session validation failed', {
+        sessionId: `${sessionId.substring(0, 8)}...`,
+        errorMessage,
+        responseTime,
+        provider: this.name,
+        timestamp: new Date().toISOString(),
+      });
+
+      return {
+        valid: false,
+        error: errorMessage,
+        responseTime,
+      };
     }
   }
 
@@ -586,6 +709,7 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
       message.includes(HTTP_GATEWAY_TIMEOUT.toString()) ||
       message.includes('econnreset') ||
       message.includes('enotfound')
+      // Session-related errors should now be resolved with --resume flag
     );
   }
 
@@ -639,6 +763,8 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
         `${context}: Session expired or not found. A new session will be created automatically.`
       );
     }
+
+    // Session-related errors should no longer occur with --resume flag
 
     if (
       originalMessage.includes('model') &&
