@@ -382,6 +382,32 @@ claude --version
 claude "Hello, world!"
 ```
 
+### Environment Configuration
+
+For OpenAI and other provider examples:
+
+```bash
+# Copy environment template
+cp .env.example .env
+
+# Edit .env and add your API keys
+```
+
+Add your API keys to `.env`:
+
+```bash
+# OpenAI (for OpenAI provider examples)
+OPENAI_API_KEY=sk-your-openai-api-key-here
+
+# Anthropic (for future Anthropic SDK integration)
+ANTHROPIC_API_KEY=sk-ant-your-anthropic-api-key-here
+```
+
+**API Key Setup:**
+- **OpenAI**: Get your key from [OpenAI API Keys](https://platform.openai.com/api-keys)
+- **Anthropic**: Get your key from [Anthropic Console](https://console.anthropic.com/)
+- **Claude CLI**: Uses authentication from `claude auth login` (no `.env` needed)
+
 ### Verification
 
 Create a simple test to verify everything works:

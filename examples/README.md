@@ -2,6 +2,31 @@
 
 This directory contains comprehensive examples demonstrating Persuader's capabilities across different domains and complexity levels. Each example showcases specific features and patterns, progressing from simple validation to complex multi-stage orchestration.
 
+## 🔑 Environment Setup
+
+Before running examples, set up your API keys:
+
+```bash
+# Copy environment template
+cp .env.example .env
+
+# Edit .env and add your API keys:
+# OPENAI_API_KEY=sk-your-openai-api-key-here
+# ANTHROPIC_API_KEY=sk-ant-your-anthropic-api-key-here
+```
+
+### API Key Setup Guide
+
+#### OpenAI (for OpenAI examples)
+1. Visit [OpenAI API Keys](https://platform.openai.com/api-keys)
+2. Create a new API key
+3. Add it to your `.env` file as `OPENAI_API_KEY`
+
+#### Claude CLI (for Claude examples)
+1. Install: `pip install claude-cli`
+2. Authenticate: `claude auth login`
+3. No additional API key needed in `.env`
+
 ## 🚀 Quick Start
 
 All examples can be run using standardized npm scripts from the project root:

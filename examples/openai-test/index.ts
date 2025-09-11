@@ -6,6 +6,7 @@
  * Tests the new OpenAI provider integration with session support
  */
 
+import 'dotenv/config';
 import { z } from 'zod';
 import { createOpenAIAdapter, persuade } from '../../src/index.js';
 
@@ -23,7 +24,8 @@ async function testOpenAIProvider(): Promise<void> {
   // Check if OpenAI API key is configured
   if (!process.env.OPENAI_API_KEY) {
     console.log('❌ OPENAI_API_KEY not found in environment variables');
-    console.log('   Please set your OpenAI API key and try again');
+    console.log('   Please copy .env.example to .env and add your OpenAI API key');
+    console.log('   Get your API key from: https://platform.openai.com/api-keys');
     process.exit(1);
   }
 
