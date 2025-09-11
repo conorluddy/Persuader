@@ -11,6 +11,8 @@ import { z } from 'zod';
 export {
   type ClaudeCLIAdapterConfig,
   createClaudeCLIAdapter,
+  createOpenAIAdapter,
+  type OpenAIAdapterConfig,
   createProviderAdapter,
   getAvailableProviders,
   isProviderTypeSupported,
@@ -62,6 +64,7 @@ export {
   debug,
   error,
   extractSchemaInfo,
+  getSchemaDescription,
   info,
   type LogContext,
   type SchemaInfo,
