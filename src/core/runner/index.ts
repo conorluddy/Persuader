@@ -43,12 +43,16 @@ export {
 /**
  * Create a minimal mock provider for testing
  *
- * @param responses - Array of responses to return in sequence
+ * @param responses - Array of responses to return in sequence (defaults to valid JSON responses)
  * @param name - Provider name for identification
  * @returns Mock provider adapter
  */
 export function createMockProvider(
-  responses: string[],
+  responses: string[] = [
+    '{"message": "Hello from mock provider", "success": true, "timestamp": 1631234567890}',
+    '{"result": "Mock response", "status": "completed", "confidence": 0.95}',
+    '{"data": "Test data", "processed": true, "score": 8.5}',
+  ],
   name: string = 'mock-provider'
 ): ProviderAdapter {
   let callCount = 0;
