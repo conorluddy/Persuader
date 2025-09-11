@@ -17,7 +17,11 @@ vi.mock('@google/genai', () => {
 
 describe('GeminiAdapter', () => {
   let adapter: GeminiAdapter;
-  let mockGenAI: any;
+  let mockGenAI: {
+    getGenerativeModel: () => {
+      generateContent: () => Promise<{ response: { text: () => string } }>;
+    };
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -31,7 +35,7 @@ describe('GeminiAdapter', () => {
     }) as GeminiAdapter;
 
     // Get the mock instance
-    mockGenAI = (adapter as any).genAI;
+    mockGenAI = (adapter as GeminiAdapter & { genAI: typeof mockGenAI }).genAI;
   });
 
   afterEach(() => {
@@ -93,7 +97,8 @@ describe('GeminiAdapter', () => {
 
     it('should return false when API key is missing', async () => {
       const adapterWithoutKey = Object.create(adapter);
-      (adapterWithoutKey as any).apiKey = undefined;
+      (adapterWithoutKey as GeminiAdapter & { apiKey?: string }).apiKey =
+        undefined;
 
       const result = await adapterWithoutKey.isAvailable();
       expect(result).toBe(false);
@@ -128,7 +133,8 @@ describe('GeminiAdapter', () => {
 
     it('should return unhealthy status when API key is missing', async () => {
       const adapterWithoutKey = Object.create(adapter);
-      (adapterWithoutKey as any).apiKey = undefined;
+      (adapterWithoutKey as GeminiAdapter & { apiKey?: string }).apiKey =
+        undefined;
 
       const health = await adapterWithoutKey.getHealth();
 

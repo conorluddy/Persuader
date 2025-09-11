@@ -5,36 +5,49 @@ import {
   createAnthropicSDKAdapter,
 } from '../../src/adapters/anthropic-sdk.js';
 
-// Mock the Anthropic SDK
-const mockMessages = {
-  create: vi.fn(),
-};
-
-vi.mock('@anthropic-ai/sdk', () => ({
-  default: vi.fn().mockImplementation(() => ({
-    messages: mockMessages,
-  })),
-  APIError: class MockAPIError extends Error {
+// Mock setup using vi.hoisted for proper mocking
+const { mockAnthropicInstance, MockAPIError } = vi.hoisted(() => {
+  class MockAPIError extends Error {
     status: number;
     constructor(message: string, status: number) {
       super(message);
       this.status = status;
       this.name = 'APIError';
     }
-  },
-}));
+  }
 
-// Import the mocked constructor
-import Anthropic from '@anthropic-ai/sdk';
+  const mockAnthropicInstance = {
+    messages: {
+      create: vi.fn(),
+    },
+  };
 
-const MockedAnthropic = vi.mocked(Anthropic);
+  return {
+    mockAnthropicInstance,
+    MockAPIError,
+  };
+});
+
+vi.mock('@anthropic-ai/sdk', () => {
+  const MockAnthropicClass = vi
+    .fn()
+    .mockImplementation(() => mockAnthropicInstance);
+
+  // Set up the mock with the proper APIError reference
+  MockAnthropicClass.APIError = MockAPIError;
+
+  return {
+    default: MockAnthropicClass,
+    APIError: MockAPIError,
+  };
+});
 
 describe('AnthropicSDKAdapter', () => {
   let adapter: AnthropicSDKAdapter;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockMessages.create.mockClear();
+    mockAnthropicInstance.messages.create.mockClear();
 
     // Set environment variable for testing
     process.env.ANTHROPIC_API_KEY = 'test-api-key';
@@ -97,7 +110,7 @@ describe('AnthropicSDKAdapter', () => {
 
   describe('isAvailable', () => {
     it('should return true when Anthropic API is available', async () => {
-      mockMessages.create.mockResolvedValueOnce({
+      mockAnthropicInstance.messages.create.mockResolvedValueOnce({
         content: [{ type: 'text', text: 'OK' }],
         usage: { input_tokens: 5, output_tokens: 1 },
       });
@@ -108,21 +121,24 @@ describe('AnthropicSDKAdapter', () => {
 
     it('should return false when API key is missing', async () => {
       const adapterWithoutKey = Object.create(adapter);
-      (adapterWithoutKey as any).apiKey = undefined;
+      (adapterWithoutKey as AnthropicSDKAdapter & { apiKey?: string }).apiKey =
+        undefined;
 
       const result = await adapterWithoutKey.isAvailable();
       expect(result).toBe(false);
     });
 
     it('should return false when API call fails', async () => {
-      mockMessages.create.mockRejectedValueOnce(new Error('API Error'));
+      mockAnthropicInstance.messages.create.mockRejectedValueOnce(
+        new Error('API Error')
+      );
 
       const result = await adapter.isAvailable();
       expect(result).toBe(false);
     });
 
     it('should return false when response content is invalid', async () => {
-      mockMessages.create.mockResolvedValueOnce({
+      mockAnthropicInstance.messages.create.mockResolvedValueOnce({
         content: [],
         usage: { input_tokens: 5, output_tokens: 0 },
       });
@@ -134,7 +150,7 @@ describe('AnthropicSDKAdapter', () => {
 
   describe('getHealth', () => {
     it('should return healthy status when API is available', async () => {
-      mockMessages.create.mockResolvedValueOnce({
+      mockAnthropicInstance.messages.create.mockResolvedValueOnce({
         content: [{ type: 'text', text: 'OK' }],
         usage: { input_tokens: 5, output_tokens: 1 },
       });
@@ -151,7 +167,8 @@ describe('AnthropicSDKAdapter', () => {
 
     it('should return unhealthy status when API key is missing', async () => {
       const adapterWithoutKey = Object.create(adapter);
-      (adapterWithoutKey as any).apiKey = undefined;
+      (adapterWithoutKey as AnthropicSDKAdapter & { apiKey?: string }).apiKey =
+        undefined;
 
       const health = await adapterWithoutKey.getHealth();
 
@@ -160,7 +177,9 @@ describe('AnthropicSDKAdapter', () => {
     });
 
     it('should return unhealthy status when API is not available', async () => {
-      mockMessages.create.mockRejectedValueOnce(new Error('API Error'));
+      mockAnthropicInstance.messages.create.mockRejectedValueOnce(
+        new Error('API Error')
+      );
 
       const health = await adapter.getHealth();
 
@@ -171,7 +190,7 @@ describe('AnthropicSDKAdapter', () => {
     });
 
     it('should include response time in health check', async () => {
-      mockMessages.create.mockResolvedValueOnce({
+      mockAnthropicInstance.messages.create.mockResolvedValueOnce({
         content: [{ type: 'text', text: 'OK' }],
         usage: { input_tokens: 5, output_tokens: 1 },
       });
@@ -202,7 +221,7 @@ describe('AnthropicSDKAdapter', () => {
 
   describe('sendPrompt', () => {
     it('should send prompt successfully', async () => {
-      mockMessages.create.mockResolvedValueOnce({
+      mockAnthropicInstance.messages.create.mockResolvedValueOnce({
         id: 'msg_123',
         content: [{ type: 'text', text: 'Hello! How can I help you?' }],
         usage: {
@@ -227,7 +246,7 @@ describe('AnthropicSDKAdapter', () => {
       });
       expect(response.stopReason).toBe('end_turn');
 
-      expect(mockMessages.create).toHaveBeenCalledWith({
+      expect(mockAnthropicInstance.messages.create).toHaveBeenCalledWith({
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 100,
         messages: [{ role: 'user', content: 'Hello' }],
@@ -236,7 +255,7 @@ describe('AnthropicSDKAdapter', () => {
     });
 
     it('should handle session ID warning (stateless adapter)', async () => {
-      mockMessages.create.mockResolvedValueOnce({
+      mockAnthropicInstance.messages.create.mockResolvedValueOnce({
         id: 'msg_123',
         content: [{ type: 'text', text: 'Response without session' }],
         usage: { input_tokens: 15, output_tokens: 10 },
@@ -251,7 +270,7 @@ describe('AnthropicSDKAdapter', () => {
       expect(response.content).toBe('Response without session');
 
       // Should ignore session ID and work normally
-      expect(mockMessages.create).toHaveBeenCalledWith({
+      expect(mockAnthropicInstance.messages.create).toHaveBeenCalledWith({
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 100,
         messages: [{ role: 'user', content: 'Hello' }],
@@ -259,7 +278,7 @@ describe('AnthropicSDKAdapter', () => {
     });
 
     it('should handle multiple content blocks', async () => {
-      mockMessages.create.mockResolvedValueOnce({
+      mockAnthropicInstance.messages.create.mockResolvedValueOnce({
         id: 'msg_123',
         content: [
           { type: 'text', text: 'First part ' },
@@ -278,7 +297,7 @@ describe('AnthropicSDKAdapter', () => {
     });
 
     it('should handle advanced options', async () => {
-      mockMessages.create.mockResolvedValueOnce({
+      mockAnthropicInstance.messages.create.mockResolvedValueOnce({
         id: 'msg_123',
         content: [{ type: 'text', text: 'Response' }],
         usage: { input_tokens: 10, output_tokens: 5 },
@@ -294,7 +313,7 @@ describe('AnthropicSDKAdapter', () => {
         model: 'claude-3-opus-20240229',
       });
 
-      expect(mockMessages.create).toHaveBeenCalledWith({
+      expect(mockAnthropicInstance.messages.create).toHaveBeenCalledWith({
         model: 'claude-3-opus-20240229',
         max_tokens: 200,
         messages: [{ role: 'user', content: 'Hello' }],
@@ -305,7 +324,7 @@ describe('AnthropicSDKAdapter', () => {
     });
 
     it('should handle max_tokens stop reason', async () => {
-      mockMessages.create.mockResolvedValueOnce({
+      mockAnthropicInstance.messages.create.mockResolvedValueOnce({
         id: 'msg_123',
         content: [{ type: 'text', text: 'Truncated response...' }],
         usage: { input_tokens: 10, output_tokens: 100 },
@@ -322,8 +341,8 @@ describe('AnthropicSDKAdapter', () => {
     });
 
     it('should handle API errors gracefully', async () => {
-      const MockedError = MockedAnthropic.APIError as any;
-      mockMessages.create.mockRejectedValueOnce(
+      const MockedError = MockAPIError;
+      mockAnthropicInstance.messages.create.mockRejectedValueOnce(
         new MockedError('Invalid API key', 401)
       );
 
@@ -333,8 +352,8 @@ describe('AnthropicSDKAdapter', () => {
     });
 
     it('should handle rate limit errors', async () => {
-      const MockedError = MockedAnthropic.APIError as any;
-      mockMessages.create.mockRejectedValueOnce(
+      const MockedError = MockAPIError;
+      mockAnthropicInstance.messages.create.mockRejectedValueOnce(
         new MockedError('Rate limit exceeded', 429)
       );
 
@@ -344,8 +363,8 @@ describe('AnthropicSDKAdapter', () => {
     });
 
     it('should handle server errors', async () => {
-      const MockedError = MockedAnthropic.APIError as any;
-      mockMessages.create.mockRejectedValueOnce(
+      const MockedError = MockAPIError;
+      mockAnthropicInstance.messages.create.mockRejectedValueOnce(
         new MockedError('Internal server error', 500)
       );
 
@@ -355,7 +374,9 @@ describe('AnthropicSDKAdapter', () => {
     });
 
     it('should handle timeout errors', async () => {
-      mockMessages.create.mockRejectedValueOnce(new Error('Request timeout'));
+      mockAnthropicInstance.messages.create.mockRejectedValueOnce(
+        new Error('Request timeout')
+      );
 
       await expect(
         adapter.sendPrompt(null, 'Hello', { maxTokens: 100 })
@@ -373,7 +394,7 @@ describe('AnthropicSDKAdapter', () => {
 
   describe('error handling', () => {
     it('should provide helpful error messages for common API errors', async () => {
-      const MockedError = MockedAnthropic.APIError as any;
+      const MockedError = MockAPIError;
       const testCases = [
         {
           error: new MockedError('Bad request', 400),
@@ -398,7 +419,9 @@ describe('AnthropicSDKAdapter', () => {
       ];
 
       for (const testCase of testCases) {
-        mockMessages.create.mockRejectedValueOnce(testCase.error);
+        mockAnthropicInstance.messages.create.mockRejectedValueOnce(
+          testCase.error
+        );
 
         await expect(
           adapter.sendPrompt(null, 'Hello', { maxTokens: 100 })
@@ -407,7 +430,9 @@ describe('AnthropicSDKAdapter', () => {
     });
 
     it('should handle model not found errors', async () => {
-      mockMessages.create.mockRejectedValueOnce(new Error('model not found'));
+      mockAnthropicInstance.messages.create.mockRejectedValueOnce(
+        new Error('model not found')
+      );
 
       await expect(
         adapter.sendPrompt(null, 'Hello', { maxTokens: 100 })
@@ -415,7 +440,9 @@ describe('AnthropicSDKAdapter', () => {
     });
 
     it('should handle billing/quota errors', async () => {
-      mockMessages.create.mockRejectedValueOnce(new Error('billing issue'));
+      mockAnthropicInstance.messages.create.mockRejectedValueOnce(
+        new Error('billing issue')
+      );
 
       await expect(
         adapter.sendPrompt(null, 'Hello', { maxTokens: 100 })
@@ -425,7 +452,7 @@ describe('AnthropicSDKAdapter', () => {
 
   describe('retryable errors', () => {
     it('should identify retryable errors correctly', async () => {
-      const MockedError = MockedAnthropic.APIError as any;
+      const MockedError = MockAPIError;
       const retryableErrors = [
         new MockedError('Rate limit', 429),
         new MockedError('Server error', 500),
@@ -438,7 +465,7 @@ describe('AnthropicSDKAdapter', () => {
       ];
 
       for (const error of retryableErrors) {
-        mockMessages.create.mockRejectedValueOnce(error);
+        mockAnthropicInstance.messages.create.mockRejectedValueOnce(error);
 
         await expect(
           adapter.sendPrompt(null, 'Hello', { maxTokens: 100 })
@@ -447,7 +474,7 @@ describe('AnthropicSDKAdapter', () => {
     });
 
     it('should identify non-retryable errors correctly', async () => {
-      const MockedError = MockedAnthropic.APIError as any;
+      const MockedError = MockAPIError;
       const nonRetryableErrors = [
         new MockedError('Bad request', 400),
         new MockedError('Unauthorized', 401),
@@ -456,7 +483,7 @@ describe('AnthropicSDKAdapter', () => {
       ];
 
       for (const error of nonRetryableErrors) {
-        mockMessages.create.mockRejectedValueOnce(error);
+        mockAnthropicInstance.messages.create.mockRejectedValueOnce(error);
 
         await expect(
           adapter.sendPrompt(null, 'Hello', { maxTokens: 100 })
@@ -477,7 +504,7 @@ describe('AnthropicSDKAdapter', () => {
       ];
 
       for (const test of stopReasonTests) {
-        mockMessages.create.mockResolvedValueOnce({
+        mockAnthropicInstance.messages.create.mockResolvedValueOnce({
           id: 'msg_123',
           content: [{ type: 'text', text: 'Response' }],
           usage: { input_tokens: 10, output_tokens: 5 },
@@ -524,7 +551,7 @@ describe('AnthropicSDKAdapter', () => {
 
   describe('metadata and logging', () => {
     it('should include comprehensive metadata in response', async () => {
-      mockMessages.create.mockResolvedValueOnce({
+      mockAnthropicInstance.messages.create.mockResolvedValueOnce({
         id: 'msg_123',
         content: [{ type: 'text', text: 'Response' }],
         usage: {
