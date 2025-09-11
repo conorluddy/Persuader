@@ -27,6 +27,21 @@ cp .env.example .env
 2. Authenticate: `claude auth login`
 3. No additional API key needed in `.env`
 
+#### Anthropic SDK (for Anthropic examples)
+1. Visit [Anthropic Console](https://console.anthropic.com/)
+2. Create a new API key
+3. Add it to your `.env` file as `ANTHROPIC_API_KEY`
+
+#### Google Gemini (for Gemini examples)
+1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Create a new API key
+3. Add it to your `.env` file as `GEMINI_API_KEY` or `GOOGLE_API_KEY`
+
+#### Ollama (for local LLM examples)
+1. Install Ollama: [ollama.ai/download](https://ollama.ai/download)
+2. Pull a model: `ollama pull llama3.2` (or another model)
+3. No API key needed - runs locally
+
 ## 🚀 Quick Start
 
 All examples can be run using standardized npm scripts from the project root:
@@ -46,9 +61,72 @@ npm run example:exercise
 
 # Multi-stage workout program generation with session management
 npm run example:workout
+
+# Provider-specific examples showcasing unique capabilities
+npm run example:ollama      # Local creative writing with privacy
+npm run example:gemini      # Technical analysis with JSON mode
+npm run example:anthropic   # Music composition with advanced reasoning
 ```
 
-## 📚 Examples Overview
+## 🤖 Provider-Specific Examples
+
+These examples showcase the unique capabilities of different LLM providers with Persuader:
+
+### 🏠 [Ollama Local Creative Writing](./ollama-local/) - **Privacy-First Local LLMs**
+**Complexity**: ⭐⭐⭐  
+**Key Features**: Local execution, creative writing, session management, privacy-focused
+
+Demonstrates creative story generation using locally-hosted Ollama models. Perfect for privacy-sensitive applications, offline usage, and cost-effective creative tasks. Features session continuity for character and plot consistency.
+
+```bash
+npm run example:ollama
+```
+
+**Learning Focus**:
+- Local LLM integration and benefits
+- Privacy-preserving AI workflows
+- Creative writing with structured output
+- Session-based narrative consistency
+
+---
+
+### 🔍 [Gemini Technical Analysis](./gemini-analysis/) - **JSON Mode & Advanced Reasoning**
+**Complexity**: ⭐⭐⭐⭐  
+**Key Features**: JSON mode, document analysis, session context building, batch processing
+
+Sophisticated technical documentation analysis using Google's Gemini models. Showcases JSON mode for structured outputs, session-based context building across multiple documents, and comprehensive analysis schemas.
+
+```bash
+npm run example:gemini
+```
+
+**Learning Focus**:
+- JSON mode for guaranteed structured output
+- Session-based context accumulation
+- Technical document analysis patterns
+- Multi-document batch processing
+
+---
+
+### 🎵 [Anthropic Music Composition](./anthropic-music/) - **Creative Reasoning & Stateless Design**
+**Complexity**: ⭐⭐⭐⭐  
+**Key Features**: Advanced creative reasoning, music composition, stateless design, professional output
+
+Complete song composition from simple themes using Anthropic's advanced reasoning capabilities. Generates full songs with lyrics, chord progressions, arrangements, and production notes. Demonstrates stateless design for independent creative projects.
+
+```bash
+npm run example:anthropic
+```
+
+**Learning Focus**:
+- Advanced creative reasoning applications
+- Stateless design patterns
+- Professional music composition structure
+- Creative data transformation workflows
+
+---
+
+## 📚 Domain-Specific Examples
 
 ### 🏋️ [Fitness Analysis](./fitness-analysis/) - **Multi-Lens Analysis**
 **Complexity**: ⭐⭐⭐⭐  
@@ -172,14 +250,17 @@ example-name/
 
 ## 🎓 Learning Path
 
-### Beginner: Start with Yoga
+### Beginner: Provider Basics
+- **Local LLMs**: `npm run example:ollama` - Privacy-first creative writing
 - **Basic**: `npm run example:yoga` - Simple relationship extraction
 - **Minimal**: `npm run example:yoga:minimal` - Streamlined session usage
 
-### Intermediate: Exercise Relationships  
+### Intermediate: Provider Features
+- **JSON Mode**: `npm run example:gemini` - Structured output with Gemini
 - **Multi-Category**: `npm run example:exercise` - Structured categorization patterns
 
-### Advanced: Complex Analysis
+### Advanced: Complex Analysis & Reasoning
+- **Creative AI**: `npm run example:anthropic` - Advanced reasoning for music composition
 - **Multi-Lens**: `npm run example:fitness` - Professional perspective modeling
 - **Multi-Dimensional**: `npm run example:yoga-advanced` - Complex relationship extraction
 
@@ -251,6 +332,9 @@ const exercises = await selectExercises(profile, sessionId);
 
 | Example | Schema Complexity | Domain Depth | Session Usage | Output Richness | Learning Value |
 |---------|-------------------|--------------|---------------|-----------------|----------------|
+| **Ollama Local** | ⭐⭐⭐ Rich Objects | ⭐⭐⭐ Creative | ⭐⭐⭐ Continuity | ⭐⭐⭐⭐ Creative | ⭐⭐⭐⭐ High |
+| **Gemini Analysis** | ⭐⭐⭐⭐ Complex | ⭐⭐⭐⭐ Technical | ⭐⭐⭐⭐ Context Building | ⭐⭐⭐⭐⭐ Professional | ⭐⭐⭐⭐⭐ Highest |
+| **Anthropic Music** | ⭐⭐⭐⭐⭐ Multi-Layered | ⭐⭐⭐⭐ Artistic | ⭐⭐ Stateless | ⭐⭐⭐⭐⭐ Complete Songs | ⭐⭐⭐⭐⭐ Highest |
 | **Yoga** | ⭐⭐ Simple | ⭐⭐⭐ Moderate | ⭐⭐ Basic | ⭐⭐ Lists | ⭐⭐⭐⭐ High |
 | **Exercise** | ⭐⭐⭐ Multi-field | ⭐⭐⭐⭐ Advanced | ⭐⭐⭐ Context Reuse | ⭐⭐⭐ Categorized | ⭐⭐⭐⭐ High |
 | **Fitness** | ⭐⭐⭐⭐ Rich Objects | ⭐⭐⭐⭐⭐ Expert | ⭐⭐⭐ Multi-Lens | ⭐⭐⭐⭐ Professional | ⭐⭐⭐⭐⭐ Highest |
@@ -306,15 +390,28 @@ These examples demonstrate production-ready patterns:
 
 Use these examples as templates for:
 
+### Provider-Specific Applications
+- **Ollama Local**: Privacy-sensitive creative tools, offline content generation, cost-effective bulk processing
+- **Gemini**: Technical documentation analysis, structured data extraction, multi-document processing
+- **Anthropic**: Creative content generation, professional composition tools, complex reasoning tasks
+
+### Domain Applications  
 - **Fitness Apps**: Exercise recommendation and program generation
 - **Educational Platforms**: Curriculum sequencing and prerequisite mapping
 - **E-commerce**: Product relationship discovery and recommendation
 - **Content Management**: Article tagging and relationship extraction
 - **Healthcare**: Treatment protocol generation and safety validation
 - **Research**: Data classification and relationship analysis
+- **Creative Tools**: Music composition, story generation, artistic workflows
 
 Each example provides both immediate utility and architectural patterns for building your own domain-specific LLM applications with Persuader.
 
 ---
 
-Ready to explore? Start with `npm run example:yoga` for a gentle introduction, or dive into `npm run example:workout` to see Persuader's full orchestration capabilities!
+Ready to explore? 
+
+**New to Persuader?** Start with `npm run example:ollama` for local privacy-first AI or `npm run example:yoga` for basic concepts.
+
+**Want to see advanced capabilities?** Try `npm run example:gemini` for JSON mode analysis or `npm run example:anthropic` for creative reasoning.
+
+**Ready for production patterns?** Dive into `npm run example:workout` to see Persuader's full multi-stage orchestration capabilities!
