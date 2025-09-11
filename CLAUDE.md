@@ -71,10 +71,10 @@ Persuader is a TypeScript framework for schema-driven LLM orchestration with val
 
 ### Session Management (`src/session/`)
 - **`manager.ts`** - Session lifecycle management for context reuse across multiple operations
-- **`provider-session.ts`** - Provider-specific session implementations (currently Claude CLI)
+- **`provider-session.ts`** - Provider-specific session implementations (currently ClaudeCode)
 
 ### Provider Adapters (`src/adapters/`)
-- **`claude-cli.ts`** - Integration with Claude CLI using `claude -p --output-format json`
+- **`claude-cli.ts`** - Integration with ClaudeCode using `claude -p --output-format json`
 - Provider adapter pattern allows for future OpenAI, Anthropic SDK, and local LLM support
 
 ### CLI Implementation (`src/cli/`)
@@ -123,7 +123,7 @@ interface ProviderAdapter {
 All validation uses Zod schemas. Validation errors are converted to specific LLM feedback through `formatValidationErrorFeedback` in `validation.ts`. This enables intelligent retry loops where the LLM receives targeted corrections.
 
 ### Session Management
-Sessions are optional but recommended for batch processing. The session manager handles context reuse, reducing token costs and improving consistency. Currently implemented for Claude CLI; other providers can implement session support.
+Sessions are optional but recommended for batch processing. The session manager handles context reuse, reducing token costs and improving consistency. Currently implemented for ClaudeCode; other providers can implement session support.
 
 ## Testing Architecture
 
@@ -137,7 +137,7 @@ Sessions are optional but recommended for batch processing. The session manager 
 
 ### Runtime Requirements
 - **Node.js**: 22.0.0+ (specified in package.json engines)
-- **Claude CLI**: Required for the default adapter (`pip install claude-cli`)
+- **ClaudeCode**: Required for the default adapter (`npm install -g @anthropic-ai/claude-code`)
 - **TypeScript**: ES2024 target with strict mode enabled
 
 ### Development Stack

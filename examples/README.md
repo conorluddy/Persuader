@@ -22,8 +22,8 @@ cp .env.example .env
 2. Create a new API key
 3. Add it to your `.env` file as `OPENAI_API_KEY`
 
-#### Claude CLI (for Claude examples)
-1. Install: `pip install claude-cli`
+#### ClaudeCode (for Claude examples)
+1. Install: `npm install -g @anthropic-ai/claude-code`
 2. Authenticate: `claude auth login`
 3. No additional API key needed in `.env`
 
