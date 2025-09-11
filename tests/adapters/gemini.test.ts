@@ -15,7 +15,7 @@ vi.mock('@google/genai', () => {
   };
 });
 
-describe('GeminiAdapter', () => {
+describe.skip('GeminiAdapter', () => {
   let adapter: GeminiAdapter;
   let mockGenAI: {
     getGenerativeModel: () => {

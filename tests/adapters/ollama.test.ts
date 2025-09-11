@@ -219,7 +219,7 @@ describe('OllamaAdapter', () => {
 
       await expect(
         adapter.sendPrompt(null, 'Hello', { maxTokens: 100 })
-      ).rejects.toThrow(/Ollama API error: 500/);
+      ).rejects.toThrow(/Ollama server error/);
     });
 
     it('should handle network errors', async () => {
@@ -282,7 +282,7 @@ describe('OllamaAdapter', () => {
 
       await expect(
         adapter.sendPrompt(null, 'Hello', { maxTokens: 100 })
-      ).rejects.toThrow(/Ollama API error: 404/);
+      ).rejects.toThrow(/Ollama API endpoint not found/);
     });
   });
 
