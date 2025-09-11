@@ -24,8 +24,12 @@ async function testOpenAIProvider(): Promise<void> {
   // Check if OpenAI API key is configured
   if (!process.env.OPENAI_API_KEY) {
     console.log('❌ OPENAI_API_KEY not found in environment variables');
-    console.log('   Please copy .env.example to .env and add your OpenAI API key');
-    console.log('   Get your API key from: https://platform.openai.com/api-keys');
+    console.log(
+      '   Please copy .env.example to .env and add your OpenAI API key'
+    );
+    console.log(
+      '   Get your API key from: https://platform.openai.com/api-keys'
+    );
     process.exit(1);
   }
 
