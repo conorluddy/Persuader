@@ -42,7 +42,10 @@
     "example:exercise": "tsx examples/exercise/index.ts",
     "example:workout": "tsx examples/workout-generator/index.ts",
     "example:workout:optimized": "tsx examples/workout-generator/optimized.ts",
-    "example:openai": "tsx examples/openai-test/index.ts"
+    "example:openai": "tsx examples/openai-test/index.ts",
+    "example:ollama": "tsx examples/ollama-local/index.ts",
+    "example:gemini": "tsx examples/gemini-analysis/index.ts",
+    "example:anthropic": "tsx examples/anthropic-music/index.ts"
   },
   "keywords": [
     "llm",
@@ -79,6 +82,8 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.66",
+    "@anthropic-ai/sdk": "^0.24.0",
+    "@google/genai": "^1.0.0",
     "ai": "^3.4.33",
     "ajv": "^8.17.1",
     "chalk": "^5.6.0",

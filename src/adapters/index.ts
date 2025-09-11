@@ -8,11 +8,17 @@
  */
 
 import type { ProviderAdapter } from '../types/provider.js';
+import {
+  type AnthropicSDKAdapterConfig,
+  createAnthropicSDKAdapter,
+} from './anthropic-sdk.js';
 // Imports for internal use
 import {
   type ClaudeCLIAdapterConfig,
   createClaudeCLIAdapter,
 } from './claude-cli.js';
+import { createGeminiAdapter, type GeminiAdapterConfig } from './gemini.js';
+import { createOllamaAdapter, type OllamaAdapterConfig } from './ollama.js';
 import { createOpenAIAdapter, type OpenAIAdapterConfig } from './openai.js';
 
 // Provider types and utilities
@@ -22,13 +28,30 @@ export type {
   ProviderPromptOptions,
   ProviderResponse,
 } from '../types/provider.js';
+// Anthropic SDK Adapter - Provider adapter for Anthropic API via official SDK
+export {
+  type AnthropicSDKAdapterConfig,
+  createAnthropicSDKAdapter,
+  isAnthropicSDKAdapter,
+} from './anthropic-sdk.js';
 // Claude CLI Adapter - Primary adapter for Claude via CLI
 export {
   type ClaudeCLIAdapterConfig,
   createClaudeCLIAdapter,
   isClaudeCLIAdapter,
 } from './claude-cli.js';
-
+// Gemini Adapter - Provider adapter for Google Gemini API
+export {
+  createGeminiAdapter,
+  type GeminiAdapterConfig,
+  isGeminiAdapter,
+} from './gemini.js';
+// Ollama Adapter - Provider adapter for local Ollama instances
+export {
+  createOllamaAdapter,
+  isOllamaAdapter,
+  type OllamaAdapterConfig,
+} from './ollama.js';
 // OpenAI Adapter - Provider adapter for OpenAI API via AI SDK
 export {
   createOpenAIAdapter,
@@ -39,7 +62,12 @@ export {
 /**
  * Available provider types for adapter creation
  */
-export type ProviderType = 'claude-cli' | 'openai' | 'anthropic-sdk' | 'local';
+export type ProviderType =
+  | 'claude-cli'
+  | 'openai'
+  | 'ollama'
+  | 'gemini'
+  | 'anthropic-sdk';
 
 /**
  * Factory function to create provider adapters by type
@@ -62,15 +90,18 @@ export function createProviderAdapter(
     case 'openai':
       return createOpenAIAdapter(options as OpenAIAdapterConfig);
 
+    case 'ollama':
+      return createOllamaAdapter(options as OllamaAdapterConfig);
+
+    case 'gemini':
+      return createGeminiAdapter(options as GeminiAdapterConfig);
+
     case 'anthropic-sdk':
-    case 'local':
-      throw new Error(
-        `Provider type '${type}' is not yet implemented. Currently supported: claude-cli, openai`
-      );
+      return createAnthropicSDKAdapter(options as AnthropicSDKAdapterConfig);
 
     default:
       throw new Error(
-        `Unknown provider type: ${type}. Supported types: claude-cli, openai`
+        `Unknown provider type: ${type}. Supported types: ${getAvailableProviders().join(', ')}`
       );
   }
 }
@@ -81,7 +112,7 @@ export function createProviderAdapter(
  * @returns Array of supported provider types
  */
 export function getAvailableProviders(): ProviderType[] {
-  return ['claude-cli', 'openai'];
+  return ['claude-cli', 'openai', 'ollama', 'gemini', 'anthropic-sdk'];
 }
 
 /**
