@@ -8,6 +8,12 @@
 
 Gently persuades your LLM to generate Zod-schema-fitting JSON. Pairs LLM knowledge with Zod conformity. Uses validation message and retry loops with increasing correction prompts to help steer your agents to deliver what you need.
 
+
+```
+npm install persuader
+```
+
+
 ![Persuader 1](https://github.com/user-attachments/assets/fa9770bd-ed4e-4fdd-bc19-4e594a943a9b)
 
 
