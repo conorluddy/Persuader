@@ -257,29 +257,9 @@ export class VercelAISDKAdapter implements ProviderAdapter {
         content: prompt,
       });
 
-      // Prepare generation options
-      const baseOptions = {
-        model: this.model,
-        messages,
-        ...(options.temperature !== undefined && {
-          temperature: options.temperature,
-        }),
-        ...(options.maxTokens !== undefined && {
-          maxTokens: options.maxTokens,
-        }),
-        ...(this.defaultTemperature !== undefined &&
-          options.temperature === undefined && {
-            temperature: this.defaultTemperature,
-          }),
-        ...(this.defaultMaxTokens !== undefined &&
-          options.maxTokens === undefined && {
-            maxTokens: this.defaultMaxTokens,
-          }),
-      };
-
-      let result: unknown;
       let content: string;
       let tokenUsage = { inputTokens: 0, outputTokens: 0, totalTokens: 0 };
+      let finishReason: string | undefined;
 
       if (useObjectGeneration && schema) {
         // Use generateObject for schema-driven generation
@@ -289,12 +269,31 @@ export class VercelAISDKAdapter implements ProviderAdapter {
           hasSchema: Boolean(schema),
         });
 
-        result = await generateObject({
-          ...baseOptions,
+        // Create the generateObject parameters with schema
+        const generateObjectParams = {
+          model: this.model,
+          messages,
           schema,
-        });
+          ...(options.temperature !== undefined && {
+            temperature: options.temperature,
+          }),
+          ...(this.defaultTemperature !== undefined &&
+            options.temperature === undefined && {
+              temperature: this.defaultTemperature,
+            }),
+          ...(options.maxTokens !== undefined && {
+            maxTokens: options.maxTokens,
+          }),
+          ...(this.defaultMaxTokens !== undefined &&
+            options.maxTokens === undefined && {
+              maxTokens: this.defaultMaxTokens,
+            }),
+        };
+
+        const result = await generateObject(generateObjectParams as any);
 
         content = JSON.stringify(result.object, null, 2);
+        finishReason = result.finishReason;
         tokenUsage = {
           inputTokens: result.usage?.promptTokens ?? 0,
           outputTokens: result.usage?.completionTokens ?? 0,
@@ -307,9 +306,28 @@ export class VercelAISDKAdapter implements ProviderAdapter {
           messageCount: messages.length,
         });
 
-        result = await generateText(baseOptions);
+        // Create the generateText parameters
+        const result = await generateText({
+          model: this.model,
+          messages,
+          ...(options.temperature !== undefined && {
+            temperature: options.temperature,
+          }),
+          ...(this.defaultTemperature !== undefined &&
+            options.temperature === undefined && {
+              temperature: this.defaultTemperature,
+            }),
+          ...(options.maxTokens !== undefined && {
+            maxTokens: options.maxTokens,
+          }),
+          ...(this.defaultMaxTokens !== undefined &&
+            options.maxTokens === undefined && {
+              maxTokens: this.defaultMaxTokens,
+            }),
+        });
 
         content = result.text;
+        finishReason = result.finishReason;
         tokenUsage = {
           inputTokens: result.usage?.promptTokens ?? 0,
           outputTokens: result.usage?.completionTokens ?? 0,
@@ -339,19 +357,16 @@ export class VercelAISDKAdapter implements ProviderAdapter {
       }
 
       // Log successful response
-      const responseLogData: Record<string, unknown> = {
+      const responseLogData: import('../utils/logger.js').LLMResponseLogData = {
         provider: this.name,
         model: this.modelId,
         response: content,
         tokenUsage,
         durationMs: totalDuration,
         requestId,
-        stopReason: result.finishReason || 'end_turn',
+        stopReason: finishReason || 'end_turn',
+        ...(sessionId && { sessionId }),
       };
-
-      if (sessionId) {
-        responseLogData.sessionId = sessionId;
-      }
 
       llmResponse(responseLogData);
 
@@ -386,12 +401,12 @@ export class VercelAISDKAdapter implements ProviderAdapter {
           model: this.modelId,
           temperature: options.temperature ?? this.defaultTemperature,
           maxTokens: options.maxTokens ?? this.defaultMaxTokens,
-          finishReason: result.finishReason,
+          finishReason: finishReason,
           useObjectGeneration,
-          aiSDKUsage: result.usage,
+          aiSDKUsage: tokenUsage,
         },
-        truncated: result.finishReason === 'length',
-        stopReason: this.mapFinishReason(result.finishReason) || 'end_turn',
+        truncated: finishReason === 'length',
+        stopReason: this.mapFinishReason(finishReason) || 'end_turn',
       };
     } catch (error) {
       const errorDuration = Date.now() - startTime;
