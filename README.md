@@ -6,7 +6,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Devin DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/conorluddy/Persuader)
 
-**Session-based LLM orchestration with validation-driven retry loops and guaranteed schema-adhering output.**
+Gently persuades your LLM to generate Zod-schema-fitting JSON. Pairs LLM knowledge with Zod conformity. Uses validation message and retry loops with increasing correction prompts to help steer your agents to deliver what you need.
+
+![Persuader 1](https://github.com/user-attachments/assets/fa9770bd-ed4e-4fdd-bc19-4e594a943a9b)
+
 
 ## ⚡ Basic Usage
 
