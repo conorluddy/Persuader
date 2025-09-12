@@ -20,6 +20,10 @@ import {
 import { createGeminiAdapter, type GeminiAdapterConfig } from './gemini.js';
 import { createOllamaAdapter, type OllamaAdapterConfig } from './ollama.js';
 import { createOpenAIAdapter, type OpenAIAdapterConfig } from './openai.js';
+import {
+  createVercelAISDKAdapter,
+  type VercelAISDKAdapterConfig,
+} from './vercel-ai-sdk.js';
 
 // Provider types and utilities
 export type {
@@ -58,6 +62,12 @@ export {
   isOpenAIAdapter,
   type OpenAIAdapterConfig,
 } from './openai.js';
+// Vercel AI SDK Adapter - Provider adapter for multiple LLM providers via Vercel AI SDK
+export {
+  createVercelAISDKAdapter,
+  isVercelAISDKAdapter,
+  type VercelAISDKAdapterConfig,
+} from './vercel-ai-sdk.js';
 
 /**
  * Available provider types for adapter creation
@@ -67,7 +77,8 @@ export type ProviderType =
   | 'openai'
   | 'ollama'
   | 'gemini'
-  | 'anthropic-sdk';
+  | 'anthropic-sdk'
+  | 'vercel-ai-sdk';
 
 /**
  * Factory function to create provider adapters by type
@@ -99,6 +110,11 @@ export function createProviderAdapter(
     case 'anthropic-sdk':
       return createAnthropicSDKAdapter(options as AnthropicSDKAdapterConfig);
 
+    case 'vercel-ai-sdk':
+      return createVercelAISDKAdapter(
+        options as unknown as VercelAISDKAdapterConfig
+      );
+
     default:
       throw new Error(
         `Unknown provider type: ${type}. Supported types: ${getAvailableProviders().join(', ')}`
@@ -112,7 +128,14 @@ export function createProviderAdapter(
  * @returns Array of supported provider types
  */
 export function getAvailableProviders(): ProviderType[] {
-  return ['claude-cli', 'openai', 'ollama', 'gemini', 'anthropic-sdk'];
+  return [
+    'claude-cli',
+    'openai',
+    'ollama',
+    'gemini',
+    'anthropic-sdk',
+    'vercel-ai-sdk',
+  ];
 }
 
 /**
