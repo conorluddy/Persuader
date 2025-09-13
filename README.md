@@ -404,7 +404,7 @@ import { persuade } from 'persuader';
 ### Installation
 
 ```bash
-# Production installation (latest v0.2.1)
+# Production installation (latest v0.3.0)
 npm install persuader@latest
 
 # Global CLI installation  
