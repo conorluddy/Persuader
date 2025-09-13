@@ -82,14 +82,14 @@ if [[ "$tool_name" == "Bash" && "$tool_command" =~ git[[:space:]]+push ]]; then
     fi
     print_success "TypeScript type checking passed"
     
-    print_status "2/4 Code quality check with Biome (npm run check)..."
+    print_status "2/4 Code quality check with ESLint (npm run check)..."
     if ! npm run check > /dev/null 2>&1; then
-        print_error "Biome code quality checks failed!"
-        print_error "This matches the CI 'Code quality check (Biome)' step that would fail."
+        print_error "ESLint code quality checks failed!"
+        print_error "This matches the CI 'Code quality check (ESLint & TypeScript)' step that would fail."
         print_error "Run 'npm run check:fix' to auto-fix issues, then retry"
         exit 1
     fi
-    print_success "Biome code quality checks passed"
+    print_success "ESLint code quality checks passed"
     
     print_status "3/4 Build verification (npm run build)..."
     if ! npm run build > /dev/null 2>&1; then
@@ -125,11 +125,11 @@ elif [[ "$tool_name" == "Bash" && "$tool_command" =~ git[[:space:]]+commit ]]; t
         exit 1
     fi
     
-    print_status "Biome formatting check..."
+    print_status "ESLint and Prettier formatting check..."
     if ! npm run check > /dev/null 2>&1; then
-        print_warning "Formatting issues found. Auto-fixing..."
+        print_warning "Linting/formatting issues found. Auto-fixing..."
         npm run check:fix > /dev/null 2>&1 || true
-        print_success "Formatting issues fixed"
+        print_success "Linting/formatting issues fixed"
     fi
     
     print_success "✅ Pre-commit checks passed"

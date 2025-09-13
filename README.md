@@ -606,7 +606,7 @@ src/
 - **656-line runner.ts** → 7 specialized modules under 100 lines each
 - **547-line validation.ts** → 5 focused validation modules  
 - **Zero breaking changes** - 100% API compatibility maintained
-- **All quality gates preserved** - 58 tests, TypeScript strict, Biome clean
+- **All quality gates preserved** - 58 tests, TypeScript strict, ESLint clean
 
 ## 🎨 API Reference
 
@@ -1026,10 +1026,10 @@ npm test                 # Interactive test runner
 npm run test:ui          # Visual test interface
 npm run test:coverage    # Generate coverage report
 
-# Code Quality with Biome
-npm run check            # Lint and format check
-npm run check:fix        # Auto-fix issues
-npm run format           # Format code
+# Code Quality with ESLint + Prettier
+npm run lint             # ESLint linting check
+npm run lint:fix         # Auto-fix ESLint issues
+npm run format           # Format code with Prettier
 ```
 
 ### ✅ Pre-Submit Checklist
@@ -1084,7 +1084,7 @@ src/
 
 ### Code Quality  
 - **TypeScript Strict Mode**: Full type safety with `exactOptionalPropertyTypes`
-- **Biome Linting**: Zero linting issues, consistent formatting across codebase
+- **ESLint + Prettier**: Zero linting issues, consistent formatting across codebase
 - **Modular Architecture**: Every module under 300 lines following CODESTYLE.md
 - **Human-Centric Design**: Optimized for cognitive load management
 
@@ -1122,7 +1122,7 @@ MIT License - Use freely in your projects, commercial or open source.
 - **Anthropic Team** for Claude's remarkable consistency and JSON mode reliability
 - **TypeScript Community** for building the excellent tooling ecosystem  
 - **Zod Team** for creating the most developer-friendly validation library
-- **Vitest & Biome Teams** for modern, fast developer tools
+- **Vitest, ESLint & Prettier Teams** for modern, fast developer tools
 
 ---
 
