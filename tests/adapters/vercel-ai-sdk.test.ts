@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import type { VercelAISDKAdapter } from '../../src/adapters/vercel-ai-sdk.js';
 import {
   createVercelAISDKAdapter,

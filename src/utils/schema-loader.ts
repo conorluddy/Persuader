@@ -18,7 +18,7 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import Ajv from 'ajv';
-import type { z } from 'zod';
+import type { z } from 'zod/v4';
 
 /**
  * Supported file extensions for schema loading

@@ -8,7 +8,7 @@
  * and type safety concerns, with no validation logic or external dependencies.
  */
 
-import type { z } from 'zod';
+import type { z } from 'zod/v4';
 import type { ValidationError } from '../../types/errors.js';
 
 /**

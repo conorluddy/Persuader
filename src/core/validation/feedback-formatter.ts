@@ -5,7 +5,7 @@
  * with progressive urgency and contextual guidance based on attempt number.
  */
 
-import type { z } from 'zod';
+import type { z } from 'zod/v4';
 import type { ValidationError } from '../../types/errors.js';
 import { debug } from '../../utils/logger.js';
 import { generateFieldCorrections } from './suggestion-generator.js';

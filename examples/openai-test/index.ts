@@ -7,7 +7,7 @@
  */
 
 import 'dotenv/config';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { createOpenAIAdapter, persuade } from '../../src/index.js';
 
 // Simple schema for testing

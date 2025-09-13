@@ -20,7 +20,7 @@ npm install persuader
 ## ⚡ Basic Usage
 
 ```typescript
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { persuade } from 'persuader';
 
 // Define your schema
@@ -233,7 +233,7 @@ Core principles:
 ### Basic Usage
 
 ```typescript
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { persuade, createClaudeCLIAdapter } from 'persuader';
 
 // Define your expected data structure
@@ -339,7 +339,7 @@ When validation fails, Persuader automatically generates targeted feedback:
 const UserSchema = z.object({
   email: z.string().email("Must be a valid email address"),
   age: z.number().min(0).max(150, "Age must be between 0-150"),
-  role: z.enum(['admin', 'user'], { message: "Role must be 'admin' or 'user'" })
+  role: z.enum(['admin', 'user'], { error: "Role must be 'admin' or 'user'" })
 });
 
 // ❌ LLM Response: { "email": "not-valid", "age": 200, "role": "manager" }
@@ -384,8 +384,22 @@ const result = await persuade(options, provider);
 ### Requirements
 
 - **Node.js**: Version 20.0.0 or higher (tested on 20+)
-- **TypeScript**: 5.7.2+ for development
+- **TypeScript**: 5.7.2+ for development  
+- **Zod**: v4.1.8+ (latest) - now with improved performance and enhanced error handling
 - **ClaudeCode**: Required for LLM calls (`npm install -g @anthropic-ai/claude-code`)
+
+### Compatibility
+
+**🎯 Zod v4 Support**: This package now uses Zod v4 with improved performance and enhanced error messages. All imports should use `import { z } from 'zod/v4'`.
+
+**📦 Dual Module Support**: Full compatibility with both CommonJS and ES modules:
+```javascript
+// CommonJS
+const { persuade } = require('persuader');
+
+// ES Modules  
+import { persuade } from 'persuader';
+```
 
 ### Installation
 
@@ -445,7 +459,7 @@ Create a simple test to verify everything works:
 
 ```typescript
 // test-setup.ts
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { persuade, createClaudeCLIAdapter } from 'persuader';
 
 const TestSchema = z.object({
@@ -602,7 +616,7 @@ The main entry point for schema-driven LLM orchestration with validation and ret
 
 ```typescript
 import { persuade, createClaudeCLIAdapter } from 'persuader';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 // Define your data structure with validation
 const UserSchema = z.object({

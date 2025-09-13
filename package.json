@@ -3,7 +3,8 @@
   "version": "0.2.1",
   "type": "module",
   "description": "Session-based LLM orchestration with validation-driven retry loops and guaranteed schema-adhering output.",
-  "main": "./dist/index.mjs",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "bin": {
     "persuader": "./dist/cli.mjs"
@@ -11,10 +12,12 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs",
       "import": "./dist/index.mjs"
     },
     "./cli": {
       "types": "./dist/cli.d.ts",
+      "require": "./dist/cli.cjs",
       "import": "./dist/cli.mjs"
     }
   },
@@ -92,7 +95,7 @@
     "dotenv": "^17.2.2",
     "fast-glob": "^3.3.3",
     "ora": "^8.2.0",
-    "zod": "^3.23.8"
+    "zod": "4.1.8"
   },
   "engines": {
     "node": ">=20.0.0"

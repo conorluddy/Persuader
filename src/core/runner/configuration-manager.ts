@@ -6,7 +6,7 @@
  * management with validation and error reporting.
  */
 
-import type { z } from 'zod';
+import type { z } from 'zod/v4';
 import {
   DEFAULT_MAX_TOKENS,
   DEFAULT_MODEL,

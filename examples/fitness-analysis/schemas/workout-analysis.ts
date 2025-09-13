@@ -5,7 +5,7 @@
  * to analyze the same multi-day workout program from their specialized perspectives.
  */
 
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const WorkoutProgramAnalysisSchema = z
   .object({

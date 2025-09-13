@@ -6,7 +6,7 @@
  * Persuader single-stage foundation.
  */
 
-import type { z } from 'zod';
+import type { z } from 'zod/v4';
 import type { LogLevel } from '../utils/logger.js';
 import type { ProviderError, ValidationError } from './errors.js';
 import type { ExecutionMetadata, TokenUsage } from './pipeline.js';

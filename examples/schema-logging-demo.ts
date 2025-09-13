@@ -7,7 +7,7 @@
  * Shows how schemas are logged and analyzed throughout the pipeline for debugging.
  */
 
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import {
   createClaudeCLIAdapter,
   extractSchemaInfo,

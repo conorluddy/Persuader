@@ -5,7 +5,7 @@
  * including validation errors, provider errors, session errors, and configuration errors.
  */
 
-import type { z } from 'zod';
+import type { z } from 'zod/v4';
 
 /**
  * Base error interface for Persuader errors

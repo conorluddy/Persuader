@@ -1,6 +1,6 @@
 #!/usr/bin/env node --import tsx
 
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 /**
  * Stage 1: Fitness Profile Assessment Schema

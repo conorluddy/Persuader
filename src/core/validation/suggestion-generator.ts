@@ -8,7 +8,7 @@
  * clear, specific guidance that LLMs can follow to fix their outputs.
  */
 
-import type { z } from 'zod';
+import type { z } from 'zod/v4';
 import { debug } from '../../utils/logger.js';
 
 /**
@@ -173,7 +173,7 @@ export function generateValidationSuggestions(
         break;
       }
 
-      case 'invalid_enum_value': {
+      case 'invalid_value': {
         const options =
           (issue as { options?: string[] }).options?.join(', ') ||
           'allowed values';

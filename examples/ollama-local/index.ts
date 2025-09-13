@@ -9,7 +9,7 @@
 
 import 'dotenv/config';
 import { writeFile } from 'node:fs/promises';
-import type { z } from 'zod';
+import type { z } from 'zod/v4';
 import { createOllamaAdapter, persuade } from '../../src/index.js';
 import {
   CREATIVE_WRITER_CONTEXT,
