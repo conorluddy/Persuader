@@ -4,98 +4,98 @@
 version: 2
 updates:
   # Enable updates for npm dependencies
-  - package-ecosystem: 'npm'
-    directory: '/'
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
-      interval: 'weekly'
-      day: 'monday'
-      time: '09:00'
-      timezone: 'UTC'
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
     open-pull-requests-limit: 10
     reviewers:
-      - 'conorluddy'
+      - "conorluddy"
     assignees:
-      - 'conorluddy'
+      - "conorluddy"
     commit-message:
-      prefix: 'deps'
-      prefix-development: 'deps-dev'
-      include: 'scope'
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
     labels:
-      - 'dependencies'
-      - 'automated'
+      - "dependencies"
+      - "automated"
     # Group related updates together
     groups:
       # Core runtime dependencies
       production-dependencies:
         patterns:
-          - 'zod'
-          - 'commander'
-          - 'chalk'
-          - 'ora'
-          - 'consola'
-          - 'fast-glob'
+          - "zod"
+          - "commander"
+          - "chalk"
+          - "ora"
+          - "consola"
+          - "fast-glob"
         update-types:
-          - 'minor'
-          - 'patch'
+          - "minor"
+          - "patch"
       # Development and build tools
       build-dependencies:
         patterns:
-          - 'typescript'
-          - 'unbuild'
-          - 'tsx'
-          - '@types/*'
+          - "typescript"
+          - "unbuild"
+          - "tsx"
+          - "@types/*"
         update-types:
-          - 'minor'
-          - 'patch'
+          - "minor"
+          - "patch"
       # Testing dependencies
       test-dependencies:
         patterns:
-          - 'vitest'
-          - '@vitest/*'
+          - "vitest"
+          - "@vitest/*"
         update-types:
-          - 'minor'
-          - 'patch'
+          - "minor"
+          - "patch"
       # Code quality tools
       quality-dependencies:
         patterns:
-          - 'biome'
-          - '@biomejs/*'
+          - "biome"
+          - "@biomejs/*"
         update-types:
-          - 'minor'
-          - 'patch'
+          - "minor"
+          - "patch"
     # Auto-approve and merge patch updates for production dependencies
-    auto-merge: false # Keep manual approval for now
+    auto-merge: false  # Keep manual approval for now
 
   # Enable updates for GitHub Actions
-  - package-ecosystem: 'github-actions'
-    directory: '/'
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
-      interval: 'weekly'
-      day: 'monday'
-      time: '10:00'
-      timezone: 'UTC'
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+      timezone: "UTC"
     open-pull-requests-limit: 5
     reviewers:
-      - 'conorluddy'
+      - "conorluddy"
     assignees:
-      - 'conorluddy'
+      - "conorluddy"
     commit-message:
-      prefix: 'ci'
-      include: 'scope'
+      prefix: "ci"
+      include: "scope"
     labels:
-      - 'github-actions'
-      - 'ci-cd'
-      - 'automated'
+      - "github-actions"
+      - "ci-cd"
+      - "automated"
     # Group all GitHub Actions updates together
     groups:
       github-actions:
         patterns:
-          - '*'
+          - "*"
         update-types:
-          - 'minor'
-          - 'patch'
+          - "minor"
+          - "patch"
     # Auto-approve patch updates for GitHub Actions
-    auto-merge: false # Keep manual approval for security
+    auto-merge: false  # Keep manual approval for security
 
 # Security vulnerability alerts will be created automatically
 # regardless of this configuration when vulnerabilities are detected

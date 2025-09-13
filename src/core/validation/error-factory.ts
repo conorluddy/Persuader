@@ -144,7 +144,7 @@ export function generateSchemaDescription(
       default:
         return 'Value matching the specified schema';
     }
-  } catch {
+  } catch (_error) {
     return 'Value matching the specified schema';
   }
 }

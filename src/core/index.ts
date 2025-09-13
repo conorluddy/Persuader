@@ -14,7 +14,11 @@ import { persuade } from './runner/index.js';
 import { validateJson } from './validation/index.js';
 
 // Core pipeline types
-export type { ExecutionMetadata, Options, Result } from '../types/pipeline.js';
+export type {
+  ExecutionMetadata,
+  Options,
+  Result,
+} from '../types/pipeline.js';
 // Prompt building utilities
 export {
   buildPrompt,

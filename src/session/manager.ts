@@ -308,9 +308,7 @@ export class SessionManager implements SessionManagerInterface {
           const content = await fs.readFile(filePath, 'utf-8');
           const sessionData = JSON.parse(content);
           sessions.push(this.deserializeSession(sessionData));
-        } catch {
-          // Skip invalid session files
-        }
+        } catch {}
       }
 
       return sessions;

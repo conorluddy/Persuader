@@ -184,9 +184,7 @@ async function runExerciseDemo(): Promise<void> {
   const resultsDir = join(import.meta.dirname, 'output');
   try {
     mkdirSync(resultsDir, { recursive: true });
-  } catch {
-    // Ignore if directory already exists
-  }
+  } catch {} // Ignore if exists
 
   // Step 3: Create session context
   const sessionContext = createSessionContext(allExerciseNames);

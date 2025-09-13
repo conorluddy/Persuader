@@ -41,7 +41,10 @@ export {
 } from './schema-analyzer.js';
 
 // Schema loading utilities
-export { loadSchema, type SchemaLoadResult } from './schema-loader.js';
+export {
+  loadSchema,
+  type SchemaLoadResult,
+} from './schema-loader.js';
 
 /**
  * Utility module version and capabilities

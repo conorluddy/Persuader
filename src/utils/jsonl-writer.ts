@@ -298,11 +298,11 @@ export class JsonlWriter {
       for (const file of filesToRemove) {
         try {
           await fs.unlink(file.path);
-        } catch {
+        } catch (_error) {
           console.warn(`Failed to remove old log file ${file.name}`);
         }
       }
-    } catch {
+    } catch (_error) {
       console.warn('Failed to cleanup old log files');
     }
   }

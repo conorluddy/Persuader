@@ -290,7 +290,6 @@ export class VercelAISDKAdapter implements ProviderAdapter {
             }),
         };
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const result = await generateObject(generateObjectParams as any);
 
         content = JSON.stringify(result.object, null, 2);
