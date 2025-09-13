@@ -83,6 +83,13 @@
     "unbuild": "^3.6.1",
     "vitest": "^3.2.4"
   },
+  "optionalDependencies": {
+    "@biomejs/cli-linux-x64": "^2.2.3",
+    "@biomejs/cli-linux-arm64": "^2.2.3",
+    "@biomejs/cli-darwin-x64": "^2.2.3",
+    "@biomejs/cli-darwin-arm64": "^2.2.3",
+    "@biomejs/cli-win32-x64": "^2.2.3"
+  },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.66",
     "@anthropic-ai/sdk": "^0.24.0",
