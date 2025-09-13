@@ -20,7 +20,7 @@ npm install persuader
 ## ⚡ Basic Usage
 
 ```typescript
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { persuade } from 'persuader';
 
 // Define your schema
@@ -233,7 +233,7 @@ Core principles:
 ### Basic Usage
 
 ```typescript
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { persuade, createClaudeCLIAdapter } from 'persuader';
 
 // Define your expected data structure
@@ -390,7 +390,7 @@ const result = await persuade(options, provider);
 
 ### Compatibility
 
-**🎯 Zod v4 Support**: This package now uses Zod v4 with improved performance and enhanced error messages. All imports should use `import { z } from 'zod/v4'`.
+**🎯 Zod v4 Support**: This package now uses Zod v4 with improved performance and enhanced error messages. Standard Zod imports work as expected: `import { z } from 'zod'`.
 
 **📦 Dual Module Support**: Full compatibility with both CommonJS and ES modules:
 ```javascript
@@ -459,7 +459,7 @@ Create a simple test to verify everything works:
 
 ```typescript
 // test-setup.ts
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { persuade, createClaudeCLIAdapter } from 'persuader';
 
 const TestSchema = z.object({
@@ -616,7 +616,7 @@ The main entry point for schema-driven LLM orchestration with validation and ret
 
 ```typescript
 import { persuade, createClaudeCLIAdapter } from 'persuader';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 // Define your data structure with validation
 const UserSchema = z.object({

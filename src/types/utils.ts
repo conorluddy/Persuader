@@ -5,7 +5,7 @@
  * These types provide common patterns for type manipulation and schema inference.
  */
 
-import type { z } from 'zod/v4';
+import type { z } from 'zod';
 
 /**
  * Make all properties in T deeply readonly

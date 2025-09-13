@@ -5,7 +5,7 @@
  * to give visibility into what schemas are being passed to the Persuader pipeline.
  */
 
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 /**
  * Schema information extracted for logging and debugging

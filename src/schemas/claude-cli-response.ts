@@ -5,7 +5,7 @@
  * when using --output-format json
  */
 
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 /**
  * Usage metrics from Claude CLI response

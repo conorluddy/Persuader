@@ -5,7 +5,7 @@
  * Messy AI responses go in, clean validated data comes out.
  */
 
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 // Provider adapters
 export {

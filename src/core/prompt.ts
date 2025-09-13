@@ -6,7 +6,7 @@
  * includes automatic example generation to improve LLM output reliability.
  */
 
-import type { z } from 'zod/v4';
+import type { z } from 'zod';
 import { generateExampleFromSchema } from '../utils/example-generator.js';
 import { debug } from '../utils/logger.js';
 

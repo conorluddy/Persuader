@@ -5,7 +5,7 @@
  * showcasing the Vercel AI SDK's native schema validation capabilities.
  */
 
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 // Input schemas
 export const ProductInputSchema = z.object({

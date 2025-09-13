@@ -6,7 +6,7 @@
  * demonstrate proper enum formatting, array sizes, nested objects, and constraint boundaries.
  */
 
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { debug } from './logger.js';
 
 /**

@@ -5,7 +5,7 @@
  * including options, results, execution metadata, and token usage tracking.
  */
 
-import type { z } from 'zod/v4';
+import type { z } from 'zod';
 import type { LogLevel } from '../utils/logger.js';
 import type { ProviderError, ValidationError } from './errors.js';
 

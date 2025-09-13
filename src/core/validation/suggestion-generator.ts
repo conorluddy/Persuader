@@ -8,7 +8,7 @@
  * clear, specific guidance that LLMs can follow to fix their outputs.
  */
 
-import type { z } from 'zod/v4';
+import type { z } from 'zod';
 import { debug } from '../../utils/logger.js';
 
 /**

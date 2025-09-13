@@ -7,7 +7,7 @@
  * @module cli/utilities/config-validator
  */
 
-import type { z } from 'zod/v4';
+import type { z } from 'zod';
 import { validateRunnerOptions } from '../../core/runner.js';
 import { DEFAULT_RETRIES } from '../../shared/constants/index.js';
 import type { Options } from '../../types/pipeline.js';

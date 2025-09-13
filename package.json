@@ -102,5 +102,8 @@
   },
   "overrides": {
     "zod": "4.1.8"
+  },
+  "resolutions": {
+    "zod": "4.1.8"
   }
 }

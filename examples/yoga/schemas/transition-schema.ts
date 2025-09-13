@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 /**
  * Zod schema for validating pose transition responses from the LLM

@@ -6,7 +6,7 @@
  */
 
 import { promises as fs } from 'node:fs';
-import type { z } from 'zod/v4';
+import type { z } from 'zod';
 import { persuade } from '../../src/index.js';
 import { BASE_CONTEXT } from './prompts/base-context.js';
 import { STRENGTH_COACH_LENS } from './prompts/strength-coach-lens.js';

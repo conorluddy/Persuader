@@ -5,7 +5,7 @@
  * validation with intelligent error handling and feedback generation.
  */
 
-import type { z } from 'zod/v4';
+import type { z } from 'zod';
 import type { ValidationError } from '../../types/errors.js';
 import { debug, logValidation } from '../../utils/logger.js';
 import {
