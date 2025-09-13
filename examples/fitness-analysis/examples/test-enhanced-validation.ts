@@ -84,7 +84,9 @@ async function testEnhancedValidation() {
       console.log(`📊 Rating: ${result2.value.overall_rating}`);
       console.log(`📈 Score: ${result2.value.effectiveness_score}/10`);
       console.log(`🎯 Strengths: ${result2.value.program_strengths.length}`);
-      console.log(`⚠️  Weaknesses: ${result2.value.critical_weaknesses.length}`);
+      console.log(
+        `⚠️  Weaknesses: ${result2.value.critical_weaknesses.length}`
+      );
       console.log(
         `🔧 Modifications: ${result2.value.modification_priorities.length}`
       );

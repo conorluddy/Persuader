@@ -63,7 +63,7 @@ jobs:
         run: |
           # Set npm token
           npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
-          
+
           # Publish package
           echo "Publishing persuader@${{ steps.version.outputs.version }}..."
           npm publish --access public

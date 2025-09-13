@@ -5,6 +5,7 @@ This example demonstrates using **Ollama** for **private, local creative writing
 ## 🔒 Privacy First
 
 **Everything runs on your machine:**
+
 - ✅ Complete privacy for creative prompts and stories
 - ✅ No API costs - unlimited story generation
 - ✅ Works offline once models are downloaded
@@ -28,18 +29,23 @@ npm run example:ollama
 ## 📋 Prerequisites
 
 ### 1. Install Ollama
+
 Visit [ollama.ai](https://ollama.ai) or install via script:
+
 ```bash
 curl -fsSL https://ollama.ai/install.sh | sh
 ```
 
 ### 2. Start Ollama Service
+
 ```bash
 ollama serve
 ```
+
 Keep this running in a terminal. Ollama will be available at `http://localhost:11434`.
 
 ### 3. Download a Model
+
 ```bash
 # Recommended: Fast, capable model
 ollama pull llama3.2
@@ -52,6 +58,7 @@ ollama pull mistral
 ```
 
 ### 4. Verify Setup
+
 ```bash
 # Check available models
 ollama list
@@ -63,6 +70,7 @@ ollama run llama3.2 "Write a haiku about coding"
 ## 🎨 What This Example Does
 
 ### Creative Writing Pipeline
+
 1. **Health Check**: Verifies Ollama service and model availability
 2. **Model Discovery**: Lists available local models
 3. **Session Creation**: Establishes context for narrative continuity
@@ -70,12 +78,15 @@ ollama run llama3.2 "Write a haiku about coding"
 5. **Output Saving**: Stores all stories locally
 
 ### Sample Story Prompts
+
 - "A person discovers an old letter in a used book that changes everything"
-- "In a world where colors have been drained away, someone finds the last rainbow"  
+- "In a world where colors have been drained away, someone finds the last rainbow"
 - "A time traveler gets stuck in the wrong decade and must adapt to survive"
 
 ### Generated Story Structure
+
 Each story includes:
+
 - **Narrative Elements**: Title, genre, setting, characters, plot
 - **Writing Analysis**: Style, tone, perspective, themes
 - **Metadata**: Word count, generation time, model info
@@ -97,13 +108,17 @@ examples/ollama-local/
 ### Key Components
 
 #### Story Schema (`schemas/story-schema.ts`)
+
 Comprehensive Zod schema defining:
+
 - Story structure (title, genre, plot, characters)
 - Writing style analysis (perspective, tone, pacing)
 - Narrative elements (setting, themes, conflict resolution)
 
 #### Creative Writer Persona (`prompts/creative-writer.ts`)
+
 Professional writer context including:
+
 - Writing philosophy and expertise
 - Genre versatility and techniques
 - Session continuity guidelines
@@ -112,12 +127,14 @@ Professional writer context including:
 ## 🎯 Learning Objectives
 
 ### Ollama Concepts
+
 - **Local LLM Setup**: Installing and configuring Ollama
 - **Model Management**: Downloading and selecting appropriate models
 - **Health Monitoring**: Checking service availability and performance
 - **Privacy Benefits**: Understanding local vs. cloud trade-offs
 
 ### Persuader Patterns
+
 - **Session Continuity**: Maintaining context across multiple generations
 - **Schema Validation**: Ensuring structured creative output
 - **Error Handling**: Graceful degradation for local services
@@ -126,29 +143,31 @@ Professional writer context including:
 ## 🔧 Configuration
 
 ### Model Selection
+
 Different models for different creative needs:
 
 ```typescript
 // Fast, general creative writing
 const ollamaProvider = createOllamaAdapter({
   defaultModel: 'llama3.2',
-  baseUrl: 'http://localhost:11434'
+  baseUrl: 'http://localhost:11434',
 });
 
 // Larger model for complex narratives
 const ollamaProvider = createOllamaAdapter({
   defaultModel: 'llama3.1:8b',
-  timeout: 120000 // Longer timeout for larger models
+  timeout: 120000, // Longer timeout for larger models
 });
 
 // Specialized creative model
 const ollamaProvider = createOllamaAdapter({
   defaultModel: 'mistral',
-  temperature: 0.9 // Higher creativity
+  temperature: 0.9, // Higher creativity
 });
 ```
 
 ### Creative Parameters
+
 Adjust for different writing styles:
 
 ```typescript
@@ -159,7 +178,7 @@ const result = await persuade({
   // ... other options
 });
 
-// More focused and consistent  
+// More focused and consistent
 const result = await persuade({
   temperature: 0.6,
   maxTokens: 1500,
@@ -205,6 +224,7 @@ const result = await persuade({
 ### Common Issues
 
 #### "Ollama API not responding"
+
 ```bash
 # Check if Ollama is running
 curl http://localhost:11434/api/tags
@@ -214,6 +234,7 @@ ollama serve
 ```
 
 #### "No models available"
+
 ```bash
 # List installed models
 ollama list
@@ -223,11 +244,13 @@ ollama pull llama3.2
 ```
 
 #### "Generation timeout"
+
 - Increase timeout for complex stories
 - Try a smaller, faster model
 - Reduce `maxTokens` parameter
 
 #### "Poor story quality"
+
 - Try different models (mistral, llama3.1)
 - Adjust temperature (0.7-0.9 for creativity)
 - Modify prompts for clearer instructions
@@ -235,12 +258,15 @@ ollama pull llama3.2
 ## 🔄 Extending the Example
 
 ### Add New Story Types
+
 1. Create new prompt templates in the script
 2. Adjust schema for different story formats
 3. Modify writer context for specific genres
 
 ### Multiple Models
+
 Compare outputs from different models:
+
 ```typescript
 const models = ['llama3.2', 'mistral', 'llama3.1:8b'];
 for (const model of models) {
@@ -250,6 +276,7 @@ for (const model of models) {
 ```
 
 ### Advanced Features
+
 - **Story Series**: Generate connected stories with recurring characters
 - **Style Analysis**: Compare writing styles across different models
 - **Interactive Mode**: Accept user prompts for custom story generation

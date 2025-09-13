@@ -207,15 +207,8 @@ export const ALTERNATIVE_ANALYSIS: WorkoutProgramAnalysis = {
  * ```
  */
 export function validateExamples(): { valid: boolean; errors: string[] } {
-  try {
-    // This would be imported in actual usage - simplified for example
-    // WorkoutProgramAnalysisSchema.parse(EXAMPLE_ANALYSIS);
-    // WorkoutProgramAnalysisSchema.parse(ALTERNATIVE_ANALYSIS);
-    return { valid: true, errors: [] };
-  } catch (error) {
-    return {
-      valid: false,
-      errors: [error instanceof Error ? error.message : 'Validation failed'],
-    };
-  }
+  // This would be imported in actual usage - simplified for example
+  // WorkoutProgramAnalysisSchema.parse(EXAMPLE_ANALYSIS);
+  // WorkoutProgramAnalysisSchema.parse(ALTERNATIVE_ANALYSIS);
+  return { valid: true, errors: [] };
 }

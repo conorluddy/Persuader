@@ -33,18 +33,21 @@ fitness-analysis/
 ## 🏃‍♂️ Quick Start
 
 ### Analyze Single Program with One Lens
+
 ```bash
 # From project root
 npx tsx examples/fitness-analysis/examples/analyze-single.ts
 ```
 
 ### Compare All Professional Perspectives
+
 ```bash
-# From project root  
+# From project root
 npx tsx examples/fitness-analysis/examples/compare-perspectives.ts
 ```
 
 ### CLI Usage
+
 ```bash
 # Strength coach analysis of beginner program
 persuader run \
@@ -57,21 +60,25 @@ persuader run \
 ## 👥 Professional Perspectives
 
 ### 💪 Strength Coach
+
 - **Focus**: Progressive overload, compound movements, strength gains
 - **Priorities**: Movement patterns, periodization, power development
 - **Concerns**: Technical breakdown, plateau prevention
 
-### 🏃 Endurance Coach  
+### 🏃 Endurance Coach
+
 - **Focus**: Cardiovascular adaptations, work capacity, recovery
 - **Priorities**: Heart rate zones, energy systems, volume distribution
 - **Concerns**: Overtraining, metabolic inflexibility
 
 ### 🩺 Physical Therapist
+
 - **Focus**: Injury prevention, movement quality, tissue health
 - **Priorities**: Biomechanics, muscle balance, safe progression
 - **Concerns**: Injury risk, compensatory patterns
 
 ### 🏆 Bodybuilder
+
 - **Focus**: Muscle hypertrophy, aesthetic development, volume
 - **Priorities**: Muscle isolation, time under tension, symmetry
 - **Concerns**: Muscle imbalances, hypertrophy optimization
@@ -80,12 +87,12 @@ persuader run \
 
 The same **Beginner 3-Day Split** program might receive:
 
-| Professional | Rating | Effectiveness | Primary Strength | Main Concern |
-|--------------|---------|---------------|------------------|--------------|
-| **Strength Coach** | Very Good | 8/10 | "Solid compound movement foundation" | "Lacks progressive overload specificity" |
-| **Endurance Coach** | Fair | 5/10 | "Good movement variety" | "Insufficient cardiovascular challenge" |
-| **Physical Therapist** | Excellent | 9/10 | "Safe progression for beginners" | "Missing mobility work" |
-| **Bodybuilder** | Good | 6/10 | "Covers all major muscle groups" | "Low volume for muscle growth" |
+| Professional           | Rating    | Effectiveness | Primary Strength                     | Main Concern                             |
+| ---------------------- | --------- | ------------- | ------------------------------------ | ---------------------------------------- |
+| **Strength Coach**     | Very Good | 8/10          | "Solid compound movement foundation" | "Lacks progressive overload specificity" |
+| **Endurance Coach**    | Fair      | 5/10          | "Good movement variety"              | "Insufficient cardiovascular challenge"  |
+| **Physical Therapist** | Excellent | 9/10          | "Safe progression for beginners"     | "Missing mobility work"                  |
+| **Bodybuilder**        | Good      | 6/10          | "Covers all major muscle groups"     | "Low volume for muscle growth"           |
 
 ## 🎓 Learning Outcomes
 
@@ -93,15 +100,16 @@ This example teaches:
 
 1. **Lens Design**: How to create detailed, domain-specific analytical prompts
 2. **Perspective Impact**: How the same data produces different insights
-3. **Professional Thinking**: Real-world expertise embedded in prompts  
+3. **Professional Thinking**: Real-world expertise embedded in prompts
 4. **Schema Reusability**: One validation schema works across all perspectives
 5. **Complex Data**: Handling multi-day, structured fitness programs
 
 ## 🛠️ Extending the Example
 
 Add your own perspectives:
+
 - **Sports Performance Coach** - Sport-specific adaptations
-- **Rehabilitation Specialist** - Return from injury protocols  
+- **Rehabilitation Specialist** - Return from injury protocols
 - **Nutrition Coach** - Integration with meal planning
 - **Youth Coach** - Age-appropriate training modifications
 

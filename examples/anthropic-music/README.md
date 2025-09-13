@@ -5,12 +5,14 @@ This example demonstrates using Anthropic's language models for sophisticated mu
 ## What This Example Showcases
 
 ### Anthropic SDK Advantages
+
 - **Advanced Creative Reasoning**: Superior ability to transform abstract concepts into concrete musical elements
 - **Stateless Design**: Each composition is an independent creative project without session dependencies
 - **Comprehensive Output**: Generate complete songs including lyrics, chords, arrangements, and production notes
 - **Professional Quality**: Industry-standard terminology and practical implementation guidance
 
 ### Music Composition Features
+
 - **Complete Song Creation**: From theme to finished composition with all musical elements
 - **Multi-Genre Capability**: Folk, rock, electronic, country, jazz, and more
 - **Professional Arrangements**: Detailed instrumentation and production guidance
@@ -20,6 +22,7 @@ This example demonstrates using Anthropic's language models for sophisticated mu
 ## Example Output
 
 The system transforms simple themes like:
+
 ```json
 {
   "theme": "A coffee shop on a rainy Tuesday morning where strangers share quiet moments",
@@ -29,6 +32,7 @@ The system transforms simple themes like:
 ```
 
 Into complete compositions including:
+
 - **Song Metadata**: Title, genre, key, time signature, estimated duration
 - **Full Lyrics**: Verses, choruses, bridge with rhyme schemes
 - **Chord Progressions**: Detailed progressions for each song section
@@ -39,12 +43,14 @@ Into complete compositions including:
 ## Setup Requirements
 
 ### 1. Install Dependencies
+
 ```bash
 # Install from project root
 npm install
 ```
 
 ### 2. Anthropic API Setup
+
 Get your API key from [Anthropic Console](https://console.anthropic.com/):
 
 ```bash
@@ -56,6 +62,7 @@ ANTHROPIC_API_KEY=your_api_key_here
 ```
 
 ### 3. Verify Setup
+
 ```bash
 # Test the example
 npm run demo:anthropic-music
@@ -64,18 +71,21 @@ npm run demo:anthropic-music
 ## Usage
 
 ### Basic Composition
+
 ```bash
 # Run the music composition demo
 npm run demo:anthropic-music
 ```
 
 This will:
+
 1. Load song themes from `input/song-themes.json`
 2. Create complete compositions for each theme
 3. Save results to `output/compositions.json`
 4. Display composition summaries in the console
 
 ### Custom Themes
+
 Edit `input/song-themes.json` to add your own themes:
 
 ```json
@@ -91,6 +101,7 @@ Edit `input/song-themes.json` to add your own themes:
 ```
 
 ### Using in Code
+
 ```typescript
 import { createAnthropicAdapter, persuade } from 'persuader';
 import { SongCompositionSchema } from './schemas/song-schema.js';
@@ -106,11 +117,11 @@ const result = await persuade(
     input: {
       theme: {
         theme: "Dancing under city lights on New Year's Eve",
-        mood: "celebratory",
-        genre: "pop"
-      }
+        mood: 'celebratory',
+        genre: 'pop',
+      },
     },
-    context: "You are an expert music composer...",
+    context: 'You are an expert music composer...',
     temperature: 0.8, // Higher for creativity
   },
   provider
@@ -125,6 +136,7 @@ if (result.ok) {
 ## Generated Content Structure
 
 ### Song Composition Schema
+
 ```typescript
 {
   metadata: {
@@ -172,13 +184,14 @@ if (result.ok) {
 ## Advanced Features
 
 ### Batch Composition
+
 Process multiple themes in a single run with comprehensive collection analysis:
 
 ```typescript
 const themes = [
-  { theme: "Morning coffee ritual", mood: "peaceful", genre: "jazz" },
-  { theme: "Highway adventure", mood: "adventurous", genre: "country" },
-  { theme: "Late night coding", mood: "focused", genre: "electronic" }
+  { theme: 'Morning coffee ritual', mood: 'peaceful', genre: 'jazz' },
+  { theme: 'Highway adventure', mood: 'adventurous', genre: 'country' },
+  { theme: 'Late night coding', mood: 'focused', genre: 'electronic' },
 ];
 
 // Each composition is independent (stateless design)
@@ -188,15 +201,17 @@ for (const theme of themes) {
 ```
 
 ### Genre Specialization
+
 The composer persona adapts to different musical styles:
 
 - **Folk & Acoustic**: Intimate storytelling with organic arrangements
-- **Rock & Pop**: Hook-driven songs with strong rhythmic foundations  
+- **Rock & Pop**: Hook-driven songs with strong rhythmic foundations
 - **Jazz & Blues**: Sophisticated harmony with improvisation focus
 - **Electronic**: Textural, atmospheric compositions with technology themes
 - **Country**: Narrative-driven songs with traditional instrumentation
 
 ### Professional Output
+
 Generated compositions include:
 
 - **Music Theory**: Proper chord notation, key signatures, time signatures
@@ -207,16 +222,19 @@ Generated compositions include:
 ## Anthropic SDK Benefits
 
 ### Creative Excellence
+
 - **Advanced Reasoning**: Superior ability to connect abstract themes with concrete musical elements
 - **Cultural Awareness**: Understanding of musical traditions and contemporary trends
 - **Artistic Vision**: Coherent creative decisions that serve the overall artistic statement
 
 ### Technical Sophistication
+
 - **Music Theory Knowledge**: Proper harmonic progressions and structural forms
 - **Genre Fluency**: Authentic representation of diverse musical styles
 - **Industry Standards**: Professional terminology and practical implementation details
 
 ### Reliable Quality
+
 - **Consistent Output**: High-quality compositions across diverse themes and genres
 - **Complete Information**: All elements needed for performance and recording
 - **Practical Focus**: Realistic arrangements suitable for actual musicians
@@ -226,6 +244,7 @@ Generated compositions include:
 ### Common Issues
 
 **API Key Problems**
+
 ```bash
 # Error: Authentication failed
 # Solution: Verify API key in .env file
@@ -233,17 +252,20 @@ echo $ANTHROPIC_API_KEY  # Should show your key
 ```
 
 **Model Access Issues**
+
 ```bash
 # Error: Model not available
 # Solution: Check your Anthropic account tier and model access
 ```
 
 **Output Quality Concerns**
+
 - Increase `maxTokens` for more detailed compositions
 - Adjust `temperature` (0.7-0.9 for creative tasks)
 - Refine theme descriptions for better results
 
 ### Performance Tips
+
 - Use specific, evocative themes for better compositions
 - Include genre and mood preferences for focused output
 - Provide key elements or instruments for targeted arrangements

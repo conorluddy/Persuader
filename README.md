@@ -8,14 +8,11 @@
 
 Gently persuades your LLM to generate Zod-schema-fitting JSON. Pairs LLM knowledge with Zod conformity. Uses validation message and retry loops with increasing correction prompts to help steer your agents to deliver what you need.
 
-
 ```
 npm install persuader
 ```
 
-
 ![Persuader 1](https://github.com/user-attachments/assets/fa9770bd-ed4e-4fdd-bc19-4e594a943a9b)
-
 
 ## ⚡ Basic Usage
 
@@ -27,14 +24,14 @@ import { persuade } from 'persuader';
 const UserSchema = z.object({
   name: z.string(),
   age: z.number(),
-  email: z.string().email()
+  email: z.string().email(),
 });
 
 // Process data with validation
 const result = await persuade({
   schema: UserSchema,
-  context: "Extract user information accurately",
-  input: "John Doe is 30 years old, email: john@example.com"
+  context: 'Extract user information accurately',
+  input: 'John Doe is 30 years old, email: john@example.com',
 });
 
 // Get guaranteed structured output
@@ -46,7 +43,12 @@ if (result.ok) {
 ### 🔌 Multiple Provider Support
 
 ```typescript
-import { createMockProvider, createOpenAIAdapter, createAnthropicSDKAdapter, createOllamaAdapter } from 'persuader';
+import {
+  createMockProvider,
+  createOpenAIAdapter,
+  createAnthropicSDKAdapter,
+  createOllamaAdapter,
+} from 'persuader';
 
 // For testing (fixed in v0.2.1!)
 const mockProvider = createMockProvider(); // Now works without arguments!
@@ -55,13 +57,15 @@ const mockProvider = createMockProvider(); // Now works without arguments!
 const openaiProvider = createOpenAIAdapter({ apiKey: 'your-key' });
 
 // For local/private deployment
-const ollamaProvider = createOllamaAdapter({ baseUrl: 'http://localhost:11434' });
+const ollamaProvider = createOllamaAdapter({
+  baseUrl: 'http://localhost:11434',
+});
 
 // Use any provider with the same interface
 const result = await persuade({
   provider: mockProvider, // or openaiProvider, ollamaProvider, etc.
   schema: UserSchema,
-  input: "Your data..."
+  input: 'Your data...',
 });
 ```
 
@@ -71,7 +75,9 @@ const result = await persuade({
 
 ```javascript
 // ❌ Raw LLM calls are unreliable
-const response = await llm.prompt("Extract user data from: John Doe, age thirty, email john@invalid");
+const response = await llm.prompt(
+  'Extract user data from: John Doe, age thirty, email john@invalid'
+);
 // Returns: "The user's name is John, they're 30-ish, contact: john at invalid dot com"
 // 😤 Useless! No structure, wrong types, malformed email
 
@@ -80,9 +86,9 @@ const result = await persuade({
   schema: z.object({
     name: z.string(),
     age: z.number().int().min(0).max(150),
-    email: z.string().email()
+    email: z.string().email(),
   }),
-  input: "John Doe, age thirty, email john@invalid"
+  input: 'John Doe, age thirty, email john@invalid',
 });
 // Returns: { name: "John Doe", age: 30, email: "john@example.com" }
 // 🎉 Perfect! Structured, typed, validated
@@ -118,7 +124,7 @@ for (const document of 100_documents) {
   // 💸 100x full context tokens = $$$
 }
 
-// ✅ Sessions share context efficiently  
+// ✅ Sessions share context efficiently
 const session = await sessionManager.createSession("You are an expert analyst...");
 for (const document of 100_documents) {
   await persuade({
@@ -134,16 +140,16 @@ for (const document of 100_documents) {
 
 ```javascript
 // ❌ Managing multiple prompts manually is chaos
-const legalReview = await llm.prompt("As a lawyer, analyze...");
-const businessReview = await llm.prompt("As a business analyst, analyze...");
-const riskReview = await llm.prompt("As a risk manager, analyze...");
+const legalReview = await llm.prompt('As a lawyer, analyze...');
+const businessReview = await llm.prompt('As a business analyst, analyze...');
+const riskReview = await llm.prompt('As a risk manager, analyze...');
 // 😵 No consistency, no guaranteed structure, manual error handling
 
 // ✅ Lens system provides consistent multi-perspective analysis
 const reviews = await Promise.all([
-  persuade({ schema: ReviewSchema, input: contract, lens: "legal compliance" }),
-  persuade({ schema: ReviewSchema, input: contract, lens: "business value" }),
-  persuade({ schema: ReviewSchema, input: contract, lens: "risk assessment" })
+  persuade({ schema: ReviewSchema, input: contract, lens: 'legal compliance' }),
+  persuade({ schema: ReviewSchema, input: contract, lens: 'business value' }),
+  persuade({ schema: ReviewSchema, input: contract, lens: 'risk assessment' }),
 ]);
 // 🎯 Same structure, different expert perspectives, all validated
 ```
@@ -169,7 +175,7 @@ export async function extractUserData(text: string) {
     schema: UserSchema,
     input: text,
     retries: 3,
-    context: "You extract user profiles from unstructured text"
+    context: 'You extract user profiles from unstructured text',
   });
 }
 // 🚀 Full production features: retries, validation, logging, type safety
@@ -201,7 +207,7 @@ When validation fails, Persuader automatically provides targeted corrections to 
 ❌ Original LLM Response: { "name": "John", "age": "thirty", "email": "not-valid" }
 
 🔄 Persuader Feedback: "Your response had validation errors:
-   - age field: Expected number, received string 'thirty'  
+   - age field: Expected number, received string 'thirty'
    - email field: Must be a valid email (received 'not-valid')
    Please fix these specific issues and provide a corrected response."
 
@@ -212,7 +218,7 @@ When validation fails, Persuader automatically provides targeted corrections to 
 
 - **🎯 Schema-First Validation**: Zod integration with intelligent error feedback for retry loops
 - **🔄 Smart Retry Logic**: Validation errors become specific LLM corrections
-- **⚡ Session Management**: Optional context reuse for token efficiency and consistency  
+- **⚡ Session Management**: Optional context reuse for token efficiency and consistency
 - **🛠️ Production CLI**: Batch processing with glob patterns, progress tracking, and dry-run mode
 - **🔒 Type Safety**: Full TypeScript support with strict mode and comprehensive error handling
 - **✅ Battle Tested**: 58 passing tests covering core pipeline, adapters, validation, and CLI
@@ -223,8 +229,9 @@ When validation fails, Persuader automatically provides targeted corrections to 
 **This project follows strict human-centric coding principles. See [CODESTYLE.md](./CODESTYLE.md) for our complete philosophy and guidelines.**
 
 Core principles:
+
 - **Jackson's Law**: Small deficiencies compound exponentially - fix issues immediately
-- **Cognitive Load Management**: Code for humans with ~7 item working memory limit  
+- **Cognitive Load Management**: Code for humans with ~7 item working memory limit
 - **The Middle Way**: Balance simplicity, functionality, and perfection
 - **Fail Fast, Fix Early**: Validate at boundaries with actionable error messages
 
@@ -239,21 +246,24 @@ import { persuade, createClaudeCLIAdapter } from 'persuader';
 // Define your expected data structure
 const UserSchema = z.object({
   name: z.string().min(1),
-  email: z.string().email(), 
-  age: z.number().min(0).max(150)
+  email: z.string().email(),
+  age: z.number().min(0).max(150),
 });
 
 // Process unstructured data into validated output
-const result = await persuade({
-  schema: UserSchema,
-  input: "John Doe, 30 years old, email: john@example.com",
-  context: "Extract user information accurately",
-  retries: 3
-}, createClaudeCLIAdapter());
+const result = await persuade(
+  {
+    schema: UserSchema,
+    input: 'John Doe, 30 years old, email: john@example.com',
+    context: 'Extract user information accurately',
+    retries: 3,
+  },
+  createClaudeCLIAdapter()
+);
 
 if (result.ok) {
   // result.value is fully typed and validated ✅
-  console.log('User:', result.value); 
+  console.log('User:', result.value);
   // { name: "John Doe", email: "john@example.com", age: 30 }
 } else {
   console.error('Failed after retries:', result.error);
@@ -290,20 +300,24 @@ const provider = createClaudeCLIAdapter();
 
 // Create session with shared context
 const session = await sessionManager.createSession(provider, {
-  context: 'You are an expert data analyst with knowledge of user behavior patterns...',
-  model: 'claude-3-5-sonnet-20241022'
+  context:
+    'You are an expert data analyst with knowledge of user behavior patterns...',
+  model: 'claude-3-5-sonnet-20241022',
 });
 
 // Process multiple items with shared context (saves tokens & time)
 const results = [];
 for (const item of userDataItems) {
-  const result = await persuade({
-    schema: UserAnalysisSchema,
-    input: item,
-    sessionId: session.id,  // Reuse context
-    retries: 2
-  }, provider);
-  
+  const result = await persuade(
+    {
+      schema: UserAnalysisSchema,
+      input: item,
+      sessionId: session.id, // Reuse context
+      retries: 2,
+    },
+    provider
+  );
+
   if (result.ok) {
     results.push(result.value);
   }
@@ -323,7 +337,7 @@ Persuader follows a **modular, human-centric design** with clear separation of c
 The main `persuade()` function orchestrates:
 
 1. **Configuration Processing**: Validates options, normalizes parameters
-2. **Session Coordination**: Creates or reuses sessions for context efficiency  
+2. **Session Coordination**: Creates or reuses sessions for context efficiency
 3. **Prompt Building**: Constructs targeted prompts with schema guidance
 4. **LLM Execution**: Calls provider adapter (Claude CLI, planned: OpenAI, Anthropic)
 5. **Output Validation**: Validates response against Zod schema
@@ -337,16 +351,18 @@ When validation fails, Persuader automatically generates targeted feedback:
 ```typescript
 // Schema with detailed error messages
 const UserSchema = z.object({
-  email: z.string().email("Must be a valid email address"),
-  age: z.number().min(0).max(150, "Age must be between 0-150"),
-  role: z.enum(['admin', 'user'], { message: "Role must be 'admin' or 'user'" })
+  email: z.string().email('Must be a valid email address'),
+  age: z.number().min(0).max(150, 'Age must be between 0-150'),
+  role: z.enum(['admin', 'user'], {
+    message: "Role must be 'admin' or 'user'",
+  }),
 });
 
 // ❌ LLM Response: { "email": "not-valid", "age": 200, "role": "manager" }
 
 // 🔄 Auto-Generated Feedback:
 // "Your previous response had validation errors:
-// - email: Must be a valid email address (you provided: 'not-valid')  
+// - email: Must be a valid email address (you provided: 'not-valid')
 // - age: Age must be between 0-150 (you provided: 200)
 // - role: Role must be 'admin' or 'user' (you provided: 'manager')
 // Please provide a corrected response with these specific fixes."
@@ -367,7 +383,7 @@ const result = await persuade(options, provider);
 // Returns comprehensive execution data:
 {
   ok: true,
-  value: validatedData,      // Typed result  
+  value: validatedData,      // Typed result
   attempts: 2,               // Retry count
   sessionId: "conv_abc123",  // Session for context reuse
   metadata: {
@@ -393,7 +409,7 @@ const result = await persuade(options, provider);
 # Production installation (latest v0.2.1)
 npm install persuader@latest
 
-# Global CLI installation  
+# Global CLI installation
 npm install -g persuader@latest
 
 # Development setup with TypeScript
@@ -435,6 +451,7 @@ ANTHROPIC_API_KEY=sk-ant-your-anthropic-api-key-here
 ```
 
 **API Key Setup:**
+
 - **OpenAI**: Get your key from [OpenAI API Keys](https://platform.openai.com/api-keys)
 - **Anthropic**: Get your key from [Anthropic Console](https://console.anthropic.com/)
 - **ClaudeCode**: Uses authentication from `claude auth login` (no `.env` needed)
@@ -450,15 +467,18 @@ import { persuade, createClaudeCLIAdapter } from 'persuader';
 
 const TestSchema = z.object({
   greeting: z.string(),
-  timestamp: z.number()
+  timestamp: z.number(),
 });
 
-const result = await persuade({
-  schema: TestSchema,
-  input: "Say hello with current timestamp",
-  context: "Generate a simple greeting",
-  retries: 2
-}, createClaudeCLIAdapter());
+const result = await persuade(
+  {
+    schema: TestSchema,
+    input: 'Say hello with current timestamp',
+    context: 'Generate a simple greeting',
+    retries: 2,
+  },
+  createClaudeCLIAdapter()
+);
 
 console.log(result.ok ? 'Setup complete!' : 'Setup failed:', result);
 ```
@@ -474,13 +494,13 @@ Persuader includes comprehensive examples demonstrating production patterns acro
 ### Available Examples
 
 ```bash
-# Fitness program analysis with expert perspectives  
+# Fitness program analysis with expert perspectives
 npm run example:fitness
 
 # Yoga pose transition generation with complex validation
 npm run example:yoga
 
-# Multi-stage workout program generation  
+# Multi-stage workout program generation
 npm run example:workout
 
 # Exercise relationship extraction and analysis
@@ -491,7 +511,7 @@ npm run example:yoga-advanced
 
 # Provider-specific examples (NEW in v0.2.0+)
 npm run example:openai          # OpenAI integration demo
-npm run example:ollama          # Local Ollama LLM demo  
+npm run example:ollama          # Local Ollama LLM demo
 npm run example:gemini          # Google Gemini API demo
 npm run example:anthropic       # Anthropic SDK demo
 ```
@@ -499,21 +519,25 @@ npm run example:anthropic       # Anthropic SDK demo
 ### Example Highlights
 
 **Fitness Analysis** (`examples/fitness-analysis/`)
+
 - Multi-perspective expert analysis (trainer, physiotherapist, nutritionist)
 - Complex nested schema validation
 - Session-based context reuse for efficiency
 
-**Yoga Pose Transitions** (`examples/yoga/`)  
+**Yoga Pose Transitions** (`examples/yoga/`)
+
 - Domain-specific validation (pose safety, muscle groups)
 - Progressive retry refinement
 - Real-world biomechanics modeling
 
 **Workout Generator** (`examples/workout-generator/`)
+
 - Multi-stage pipeline orchestration
 - Dependent schema validation (exercise → muscle group → equipment)
 - Resource optimization patterns
 
 Each example demonstrates:
+
 - **Production-ready error handling** with graceful degradation
 - **Complex schema validation** with detailed error messages
 - **Session optimization** for multi-step workflows
@@ -529,14 +553,14 @@ Persuader follows a **clean, modular architecture** with strict separation of co
 src/
 ├── core/                           # Core framework logic (NEW: Modular)
 │   ├── runner/                     # Pipeline orchestration (7 focused modules)
-│   │   ├── pipeline-orchestrator.ts   # Main execution coordinator  
+│   │   ├── pipeline-orchestrator.ts   # Main execution coordinator
 │   │   ├── configuration-manager.ts   # Options validation & normalization
 │   │   ├── session-coordinator.ts     # Session lifecycle management
 │   │   ├── execution-engine.ts        # Core LLM execution logic
 │   │   ├── error-recovery.ts          # Intelligent retry strategies
 │   │   ├── result-processor.ts        # Response validation & metadata
 │   │   └── index.ts                   # Clean public API with health checking
-│   ├── validation/                 # Validation system (5 focused modules)  
+│   ├── validation/                 # Validation system (5 focused modules)
 │   │   ├── json-parser.ts             # JSON parsing with intelligent error detection
 │   │   ├── error-factory.ts           # Structured ValidationError creation
 │   │   ├── suggestion-generator.ts    # Smart validation suggestions
@@ -563,7 +587,7 @@ src/
 ├── shared/                        # Shared constants (NEW)
 │   └── constants/
 │       └── http.ts                 # HTTP status codes & magic numbers
-├── types/                         # Comprehensive TypeScript definitions  
+├── types/                         # Comprehensive TypeScript definitions
 │   ├── pipeline.ts                 # Core pipeline types (Options, Result)
 │   ├── provider.ts                 # Provider adapter interfaces
 │   ├── validation.ts               # Enhanced validation error types
@@ -572,7 +596,7 @@ src/
 ├── utils/                         # Core utilities (NEW: Health checking)
 │   ├── file-io.ts                 # Robust I/O with glob patterns
 │   ├── schema-loader.ts           # Dynamic TypeScript schema loading
-│   ├── logger.ts                  # Structured JSONL logging  
+│   ├── logger.ts                  # Structured JSONL logging
 │   ├── schema-analyzer.ts         # Schema introspection for validation
 │   └── index.ts                   # Utilities API with health checking
 └── examples/                      # Production-ready usage examples
@@ -588,11 +612,12 @@ src/
 - **🎯 Jackson's Law Compliant**: Small deficiencies don't compound - immediate fixes
 
 **Refactor Achievements:**
+
 - **1,200+ lines reorganized** into 17 focused modules (Sept 2025)
 - **656-line runner.ts** → 7 specialized modules under 100 lines each
-- **547-line validation.ts** → 5 focused validation modules  
+- **547-line validation.ts** → 5 focused validation modules
 - **Zero breaking changes** - 100% API compatibility maintained
-- **All quality gates preserved** - 58 tests, TypeScript strict, Biome clean
+- **All quality gates preserved** - 58 tests, TypeScript strict, ESLint clean
 
 ## 🎨 API Reference
 
@@ -606,21 +631,24 @@ import { z } from 'zod';
 
 // Define your data structure with validation
 const UserSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Must be a valid email"),
-  age: z.number().min(0).max(150, "Age must be 0-150"),
-  interests: z.array(z.string()).optional()
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Must be a valid email'),
+  age: z.number().min(0).max(150, 'Age must be 0-150'),
+  interests: z.array(z.string()).optional(),
 });
 
-const result = await persuade({
-  schema: UserSchema,
-  input: "John Doe, 30, loves hiking and coding, email: john@example.com",
-  context: "Extract user information accurately",
-  lens: "Focus on data completeness and accuracy",  
-  retries: 3,
-  model: "claude-3-5-sonnet-20241022",
-  exampleOutput: { name: "Jane Smith", email: "jane@example.com", age: 25 }
-}, createClaudeCLIAdapter());
+const result = await persuade(
+  {
+    schema: UserSchema,
+    input: 'John Doe, 30, loves hiking and coding, email: john@example.com',
+    context: 'Extract user information accurately',
+    lens: 'Focus on data completeness and accuracy',
+    retries: 3,
+    model: 'claude-3-5-sonnet-20241022',
+    exampleOutput: { name: 'Jane Smith', email: 'jane@example.com', age: 25 },
+  },
+  createClaudeCLIAdapter()
+);
 
 if (result.ok) {
   // result.value is fully typed and validated ✅
@@ -637,16 +665,16 @@ if (result.ok) {
 
 ```typescript
 interface Options<T> {
-  schema: ZodSchema<T>;           // Zod schema for validation
-  input: string | unknown;       // Input data to process
-  context?: string;              // Context for the LLM  
-  lens?: string;                 // Focus/perspective guidance
-  retries?: number;              // Max retry attempts (default: 3)
-  model?: string;                // LLM model to use
-  sessionId?: string;            // Reuse existing session
-  exampleOutput?: Partial<T>;    // Example for schema guidance
-  temperature?: number;          // LLM temperature (0-1)
-  maxTokens?: number;            // Max response tokens
+  schema: ZodSchema<T>; // Zod schema for validation
+  input: string | unknown; // Input data to process
+  context?: string; // Context for the LLM
+  lens?: string; // Focus/perspective guidance
+  retries?: number; // Max retry attempts (default: 3)
+  model?: string; // LLM model to use
+  sessionId?: string; // Reuse existing session
+  exampleOutput?: Partial<T>; // Example for schema guidance
+  temperature?: number; // LLM temperature (0-1)
+  maxTokens?: number; // Max response tokens
 }
 ```
 
@@ -683,20 +711,20 @@ persuader run \
 
 #### CLI Options
 
-| Option | Description | Example |
-|--------|-------------|---------|
-| `--schema` | Path to TypeScript/JavaScript schema file | `./schemas/user.ts` |
-| `--input` | Input file or glob pattern | `"./data/*.json"` |
-| `--output` | Output directory (optional) | `./results/` |
-| `--context` | LLM context/instructions | `"Extract user data accurately"` |
-| `--lens` | Focus/perspective guidance | `"Prioritize data completeness"` |
-| `--retries` | Max retry attempts (default: 3) | `5` |
-| `--model` | LLM model name | `claude-3-5-sonnet-20241022` |
-| `--session-id` | Reuse session ID | `"session-abc123"` |
-| `--dry-run` | Validate without LLM calls | - |
-| `--verbose` | Detailed execution logs | - |
+| Option         | Description                               | Example                          |
+| -------------- | ----------------------------------------- | -------------------------------- |
+| `--schema`     | Path to TypeScript/JavaScript schema file | `./schemas/user.ts`              |
+| `--input`      | Input file or glob pattern                | `"./data/*.json"`                |
+| `--output`     | Output directory (optional)               | `./results/`                     |
+| `--context`    | LLM context/instructions                  | `"Extract user data accurately"` |
+| `--lens`       | Focus/perspective guidance                | `"Prioritize data completeness"` |
+| `--retries`    | Max retry attempts (default: 3)           | `5`                              |
+| `--model`      | LLM model name                            | `claude-3-5-sonnet-20241022`     |
+| `--session-id` | Reuse session ID                          | `"session-abc123"`               |
+| `--dry-run`    | Validate without LLM calls                | -                                |
+| `--verbose`    | Detailed execution logs                   | -                                |
 
-### Session Management  
+### Session Management
 
 Efficient session management for batch processing and context reuse:
 
@@ -710,7 +738,7 @@ const provider = createClaudeCLIAdapter();
 const session = await sessionManager.createSession(provider, {
   context: `You are an expert data analyst with deep knowledge of user behavior patterns, 
            data quality assessment, and statistical validation. Focus on accuracy and completeness.`,
-  model: 'claude-3-5-sonnet-20241022'
+  model: 'claude-3-5-sonnet-20241022',
 });
 
 console.log('Session created:', session.id);
@@ -718,19 +746,29 @@ console.log('Session created:', session.id);
 // Process multiple items with shared context (saves tokens & improves consistency)
 const results = await Promise.all(
   userDataItems.map(async (item, index) => {
-    const result = await persuade({
-      schema: UserAnalysisSchema,
-      input: item,
-      sessionId: session.id,  // Reuse session context
-      lens: `Item ${index + 1} of ${userDataItems.length}`,
-      retries: 2
-    }, provider);
-    
-    return { index, success: result.ok, data: result.value, error: result.error };
+    const result = await persuade(
+      {
+        schema: UserAnalysisSchema,
+        input: item,
+        sessionId: session.id, // Reuse session context
+        lens: `Item ${index + 1} of ${userDataItems.length}`,
+        retries: 2,
+      },
+      provider
+    );
+
+    return {
+      index,
+      success: result.ok,
+      data: result.value,
+      error: result.error,
+    };
   })
 );
 
-console.log(`Processed ${results.filter(r => r.success).length}/${results.length} items successfully`);
+console.log(
+  `Processed ${results.filter(r => r.success).length}/${results.length} items successfully`
+);
 ```
 
 ### Result Interface
@@ -739,26 +777,27 @@ Comprehensive result object with execution metadata:
 
 ```typescript
 interface Result<T> {
-  ok: boolean;                    // Success/failure indicator
-  value?: T;                      // Validated, typed output (when ok: true)  
-  error?: ValidationError | ProviderError;  // Detailed error info (when ok: false)
-  attempts: number;               // Number of retry attempts made
-  sessionId?: string;             // Session ID if session was used
-  metadata: ExecutionMetadata;    // Rich execution data
+  ok: boolean; // Success/failure indicator
+  value?: T; // Validated, typed output (when ok: true)
+  error?: ValidationError | ProviderError; // Detailed error info (when ok: false)
+  attempts: number; // Number of retry attempts made
+  sessionId?: string; // Session ID if session was used
+  metadata: ExecutionMetadata; // Rich execution data
 }
 
 interface ExecutionMetadata {
-  executionTimeMs: number;        // Total execution time
-  startedAt: Date;                // Start timestamp
-  completedAt: Date;              // End timestamp  
-  provider: string;               // Provider name (e.g., 'claude-cli')
-  model?: string;                 // LLM model used
-  tokenUsage?: {                  // Token consumption (if available)
+  executionTimeMs: number; // Total execution time
+  startedAt: Date; // Start timestamp
+  completedAt: Date; // End timestamp
+  provider: string; // Provider name (e.g., 'claude-cli')
+  model?: string; // LLM model used
+  tokenUsage?: {
+    // Token consumption (if available)
     inputTokens: number;
-    outputTokens: number; 
+    outputTokens: number;
     totalTokens: number;
   };
-  cost?: number;                  // Estimated cost (if available)
+  cost?: number; // Estimated cost (if available)
 }
 ```
 
@@ -767,21 +806,24 @@ interface ExecutionMetadata {
 ### ✅ Current Release (v0.2.1)
 
 #### Core Framework
-- **🎯 Schema-First Validation**: Zod integration with intelligent error feedback that guides LLM corrections  
+
+- **🎯 Schema-First Validation**: Zod integration with intelligent error feedback that guides LLM corrections
 - **🔒 Full Type Safety**: Complete TypeScript coverage with strict mode and comprehensive error handling
 - **🔄 Smart Retry Logic**: Validation-driven retries with exponential backoff and progressive enhancement
 - **⚡ Session Management**: Context reuse for token efficiency and consistency across batch operations
 - **✅ Battle-Tested**: 58 comprehensive tests covering pipeline, adapters, validation, CLI, and error scenarios
 
 #### Production CLI (`persuader run`)
+
 - **📁 Batch Processing**: Glob pattern support for processing multiple files (`./data/*.json`)
 - **🔧 Dynamic Schema Loading**: Runtime TypeScript/JavaScript schema loading with validation
 - **🎛️ Comprehensive Options**: Context, lens, retries, models, session reuse, and more
-- **🔍 Verbose Mode**: Detailed execution metrics, token usage, timing, and debug information  
+- **🔍 Verbose Mode**: Detailed execution metrics, token usage, timing, and debug information
 - **🎯 Dry Run Mode**: Configuration validation without LLM calls for testing
 - **📊 Progress Tracking**: Real-time spinners, progress indicators, and execution reporting
 
 #### Provider Integration
+
 - **🤖 Claude CLI Adapter**: Full integration with session support and metadata tracking
 - **🤖 OpenAI Integration**: Direct API support with Azure OpenAI compatibility
 - **🤖 Anthropic SDK**: Direct Anthropic API integration with streaming support
@@ -792,7 +834,8 @@ interface ExecutionMetadata {
 - **🔧 Health Checks**: Provider availability validation before processing
 - **🎚️ Model Selection**: Support for different models with parameter customization
 
-#### Developer Experience  
+#### Developer Experience
+
 - **🛡️ Robust Error Handling**: Detailed error types, recovery strategies, actionable feedback
 - **📝 JSONL Logging**: Structured session logging for debugging and analysis
 - **🔍 Schema Introspection**: Automatic schema analysis for better validation feedback
@@ -801,25 +844,29 @@ interface ExecutionMetadata {
 ### 🚀 Planned Features (Roadmap)
 
 #### ✅ v0.2.1 - Hotfix Release (Current)
+
 - **🐛 Mock Provider Fix**: Resolved critical bug where `createMockProvider()` required arguments
 - **🔄 Backward Compatibility**: Restored ability to call `createMockProvider()` without parameters
 - **🧪 Enhanced Testing**: Improved default mock responses for better development experience
 
 #### ✅ v0.2.0 - Multi-Provider Support (Released)
+
 - **✅ OpenAI Integration**: Direct API and Azure OpenAI support
-- **✅ Anthropic SDK**: Direct Anthropic API integration  
+- **✅ Anthropic SDK**: Direct Anthropic API integration
 - **✅ Local Models**: Support for Ollama and other local LLM providers
 - **✅ Gemini Integration**: Google AI platform support
 - **✅ Provider Abstraction**: Unified interface across all providers
 - **✅ Enhanced Examples**: Provider-specific demonstrations and best practices
 
 #### v0.3.0 - Advanced Patterns
+
 - **Multi-Stage Pipelines**: Chain multiple validation steps with dependencies
 - **Conditional Logic**: Flow control based on intermediate results
 - **Batch Optimization**: Smart request batching for high-volume processing
 - **Result Caching**: Intelligent caching layer with invalidation strategies
 
 #### v0.4.0 - Enterprise Features
+
 - **Observability**: Metrics, tracing, and monitoring integration
 - **Performance Optimization**: Request deduplication, parallel processing
 - **Advanced Session Management**: Long-lived sessions, session sharing
@@ -838,16 +885,19 @@ const FeedbackSchema = z.object({
   priority: z.number().min(1).max(5),
   actionable: z.boolean(),
   summary: z.string().min(10),
-  keywords: z.array(z.string())
+  keywords: z.array(z.string()),
 });
 
 // Process customer feedback with 95%+ success rate
-const result = await persuade({
-  schema: FeedbackSchema,
-  input: rawCustomerFeedback,
-  context: "Analyze customer feedback for actionable insights",
-  retries: 3
-}, createClaudeCLIAdapter());
+const result = await persuade(
+  {
+    schema: FeedbackSchema,
+    input: rawCustomerFeedback,
+    context: 'Analyze customer feedback for actionable insights',
+    retries: 3,
+  },
+  createClaudeCLIAdapter()
+);
 ```
 
 **Results**: 95%+ success rate on first attempt, 99%+ after retries. Reduced manual processing time from hours to minutes.
@@ -892,33 +942,36 @@ persuader run \
 ### Real-World Example Patterns
 
 **Financial Data Analysis**
+
 ```typescript
 const TransactionSchema = z.object({
   amount: z.number(),
   category: z.enum(['income', 'expense', 'transfer']),
   merchant: z.string(),
   date: z.string().datetime(),
-  confidence: z.number().min(0).max(1)
+  confidence: z.number().min(0).max(1),
 });
 ```
 
 **Content Moderation**
+
 ```typescript
 const ModerationSchema = z.object({
   safe: z.boolean(),
   categories: z.array(z.enum(['spam', 'harassment', 'inappropriate'])),
   severity: z.number().min(1).max(10),
-  reasoning: z.string()
+  reasoning: z.string(),
 });
 ```
 
 **Lead Qualification**
+
 ```typescript
 const LeadSchema = z.object({
   qualified: z.boolean(),
   score: z.number().min(0).max(100),
   interests: z.array(z.string()),
-  nextAction: z.enum(['call', 'email', 'nurture', 'disqualify'])
+  nextAction: z.enum(['call', 'email', 'nurture', 'disqualify']),
 });
 ```
 
@@ -926,18 +979,19 @@ const LeadSchema = z.object({
 
 ### vs. Raw LLM API Calls
 
-| Challenge | Raw LLM Calls | Persuader |
-|-----------|---------------|-----------|
-| **Inconsistent Output** | ❌ Manual validation, error-prone | ✅ Zod schema validation with intelligent retries |
-| **Type Safety** | ❌ `any` types, runtime surprises | ✅ Full TypeScript safety from schema to result |
-| **Error Handling** | ❌ Generic errors, manual retry logic | ✅ Actionable errors with automatic LLM feedback |
-| **Batch Processing** | ❌ Custom scripting, no progress tracking | ✅ Production CLI with glob patterns & progress |
-| **Context Efficiency** | ❌ Repeat context in every call | ✅ Session management for token optimization |
-| **Observability** | ❌ Custom logging and metrics | ✅ Built-in JSONL logging and execution metadata |
+| Challenge               | Raw LLM Calls                             | Persuader                                         |
+| ----------------------- | ----------------------------------------- | ------------------------------------------------- |
+| **Inconsistent Output** | ❌ Manual validation, error-prone         | ✅ Zod schema validation with intelligent retries |
+| **Type Safety**         | ❌ `any` types, runtime surprises         | ✅ Full TypeScript safety from schema to result   |
+| **Error Handling**      | ❌ Generic errors, manual retry logic     | ✅ Actionable errors with automatic LLM feedback  |
+| **Batch Processing**    | ❌ Custom scripting, no progress tracking | ✅ Production CLI with glob patterns & progress   |
+| **Context Efficiency**  | ❌ Repeat context in every call           | ✅ Session management for token optimization      |
+| **Observability**       | ❌ Custom logging and metrics             | ✅ Built-in JSONL logging and execution metadata  |
 
 ### vs. Other LLM Frameworks
 
 **Persuader's Unique Value**:
+
 - **🎯 Schema-First**: Define your data structure first, let validation guide corrections
 - **🔄 Smart Retries**: Validation errors become specific LLM feedback, not generic retries
 - **⚡ Session Optimization**: Context reuse for efficiency without sacrificing quality
@@ -954,17 +1008,20 @@ Persuader:         ~95%+ success rate (validation-driven feedback)
 
 ### ROI Calculation
 
-**Time Savings**: 
+**Time Savings**:
+
 - Manual processing: 2-4 hours per 1000 records
 - Persuader batch processing: 5-15 minutes per 1000 records
 - **Result**: 8-48x time savings
 
 **Quality Improvements**:
+
 - Manual data extraction: ~80-90% accuracy
-- Persuader with validation: ~95-99% accuracy  
+- Persuader with validation: ~95-99% accuracy
 - **Result**: Significant reduction in post-processing cleanup
 
 **Token Efficiency**:
+
 - Without sessions: 100% context repetition
 - With Persuader sessions: 60-80% token savings on batch operations
 - **Result**: Major cost reduction for high-volume processing
@@ -976,12 +1033,14 @@ We welcome contributions that enhance Persuader's core mission: **making LLM orc
 ### 🎯 Contribution Priorities
 
 **High Impact Areas**:
+
 1. **Provider Adapters**: OpenAI, Anthropic SDK, local models
 2. **Advanced Patterns**: Multi-stage pipelines, conditional logic
 3. **Performance Optimization**: Batching, caching, parallel processing
 4. **Enterprise Features**: Monitoring, metrics, observability
 
 **Quality Standards**:
+
 - **Human-Centric Code**: Follow [CODESTYLE.md](./CODESTYLE.md) principles
 - **Comprehensive Testing**: All new features need test coverage
 - **Production-Ready**: Error handling, validation, documentation
@@ -995,7 +1054,7 @@ npm install
 
 # Verify setup works
 npm run typecheck        # TypeScript validation
-npm run test:run         # Run all tests  
+npm run test:run         # Run all tests
 npm run check            # Code quality checks
 npm run build           # Production build
 ```
@@ -1007,15 +1066,15 @@ npm run build           # Production build
 npm run dev              # Watch mode development
 npm run dev:cli          # Watch mode for CLI development
 
-# Testing with Vitest  
+# Testing with Vitest
 npm test                 # Interactive test runner
 npm run test:ui          # Visual test interface
 npm run test:coverage    # Generate coverage report
 
-# Code Quality with Biome
-npm run check            # Lint and format check
-npm run check:fix        # Auto-fix issues
-npm run format           # Format code
+# Code Quality with ESLint & Prettier
+npm run check            # TypeScript & linting checks
+npm run lint:fix         # Auto-fix linting issues
+npm run format           # Format code with Prettier
 ```
 
 ### ✅ Pre-Submit Checklist
@@ -1023,16 +1082,18 @@ npm run format           # Format code
 Before submitting a PR, ensure your code passes our quality gates:
 
 **Required**:
+
 - [ ] `npm run typecheck` - TypeScript validation passes
 - [ ] `npm run test:run` - All tests pass
 - [ ] `npm run check` - Code quality checks pass
 - [ ] New features have comprehensive test coverage
 
 **Code Quality** (from [CODESTYLE.md](./CODESTYLE.md)):
+
 - [ ] Solves the problem without over-engineering
 - [ ] Cognitive load is reasonable (≤7 conceptual items)
 - [ ] Errors provide actionable feedback
-- [ ] Naming is clear and self-documenting  
+- [ ] Naming is clear and self-documenting
 - [ ] Would make sense to a tired developer at 3 AM
 - [ ] Follows "The Middle Way" (balanced approach)
 
@@ -1047,7 +1108,7 @@ src/
 │   ├── validation.ts               # Zod integration & error feedback
 │   ├── retry.ts                    # Smart retry with backoff
 │   └── prompt.ts                   # Progressive prompt building
-├── adapters/                       # LLM provider integrations  
+├── adapters/                       # LLM provider integrations
 ├── session/                        # Session management
 ├── cli/                           # Production-ready CLI
 ├── types/                         # TypeScript definitions
@@ -1055,6 +1116,7 @@ src/
 ```
 
 **Design Principles**:
+
 - **Single Responsibility**: Each module has one clear purpose
 - **Progressive Enhancement**: Start simple, add complexity only when needed
 - **Fail Fast**: Validate at boundaries with actionable errors
@@ -1063,18 +1125,21 @@ src/
 ## 📊 Performance & Quality Metrics
 
 ### Test Coverage
+
 - **58 Passing Tests**: Comprehensive coverage of core pipeline, adapters, validation, CLI
-- **Zero Test Failures**: All tests passing consistently across the codebase  
+- **Zero Test Failures**: All tests passing consistently across the codebase
 - **Integration Testing**: End-to-end pipeline testing with real provider mocking
 - **Error Scenario Coverage**: Comprehensive testing of failure modes and recovery
 
-### Code Quality  
+### Code Quality
+
 - **TypeScript Strict Mode**: Full type safety with `exactOptionalPropertyTypes`
-- **Biome Linting**: Zero linting issues, consistent formatting across codebase
+- **ESLint + Prettier**: Zero linting issues, consistent formatting across codebase
 - **Modular Architecture**: Every module under 300 lines following CODESTYLE.md
 - **Human-Centric Design**: Optimized for cognitive load management
 
 ### Production Readiness
+
 - **Error Handling**: Comprehensive error types with actionable feedback
 - **Logging**: Structured JSONL logging for debugging and monitoring
 - **CLI Robustness**: Batch processing, progress tracking, dry-run validation
@@ -1083,12 +1148,14 @@ src/
 ## 🌟 Community & Support
 
 ### Getting Help
+
 - **GitHub Issues**: Bug reports and feature requests
 - **Discussions**: Implementation questions and usage patterns
 - **Examples**: Comprehensive real-world examples in `examples/` directory
 - **Documentation**: Complete API reference and architecture guides
 
 ### Staying Updated
+
 - **GitHub Releases**: Follow for version updates and new features
 - **Changelog**: Detailed changes and migration guides
 - **Roadmap**: Planned features and timeline in issues/projects
@@ -1100,15 +1167,17 @@ MIT License - Use freely in your projects, commercial or open source.
 ## 🙏 Acknowledgments
 
 **Core Contributors**:
+
 - Built with deep appreciation for the TypeScript and Zod ecosystems
 - Inspired by human-centric code principles from "Code is for Humans"
 - Powered by Claude's consistency and capability for reliable LLM interactions
 
 **Special Thanks**:
+
 - **Anthropic Team** for Claude's remarkable consistency and JSON mode reliability
-- **TypeScript Community** for building the excellent tooling ecosystem  
+- **TypeScript Community** for building the excellent tooling ecosystem
 - **Zod Team** for creating the most developer-friendly validation library
-- **Vitest & Biome Teams** for modern, fast developer tools
+- **Vitest & ESLint Teams** for modern, fast developer tools
 
 ---
 
@@ -1118,7 +1187,7 @@ MIT License - Use freely in your projects, commercial or open source.
 # Installation (Latest v0.2.1)
 npm install persuader@latest
 
-# Basic Usage  
+# Basic Usage
 import { persuade, createMockProvider } from 'persuader';
 const result = await persuade({ schema, input, context, provider: createMockProvider() });
 

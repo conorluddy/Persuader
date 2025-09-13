@@ -226,7 +226,9 @@ async function runAdvancedYogaDemo(): Promise<void> {
   const resultsDir = join(import.meta.dirname, 'output');
   try {
     mkdirSync(resultsDir, { recursive: true });
-  } catch {} // Ignore if exists
+  } catch {
+    // Ignore if directory already exists
+  }
 
   // Step 3: Create advanced session context
   const sessionContext = createAdvancedSessionContext(allPoses);

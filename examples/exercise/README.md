@@ -15,21 +15,21 @@ The exercise demo consists of:
 
 ```
 examples/exercise/
-├── README.md                 # This file  
+├── README.md                 # This file
 ├── index.ts                # Main demo script
 ├── data/                    # Input data files
 │   └── exercises/           # Exercise data files
 │       ├── 001-bench-press.json # Individual exercise definitions
 │       ├── 002-deadlift.json    # ... (9 total exercises)
 │       └── ...
-├── schemas/                 # Zod validation schemas  
+├── schemas/                 # Zod validation schemas
 ├── prompts/                 # External prompt files
 └── output/                  # Generated relationship data
     ├── *-relationships.json # Individual exercise analyses
     └── summary.json        # Comprehensive summary
 ```
 
-## 🔄 Relationship Analysis Workflow  
+## 🔄 Relationship Analysis Workflow
 
 The exercise demo follows a structured analysis pipeline:
 
@@ -39,28 +39,28 @@ flowchart TD
     B --> C[Create output/ directory]
     C --> D[Initialize session with all exercise names]
     D --> E[For each exercise...]
-    
+
     E --> F[Build input with current exercise data]
     F --> G[Send to Persuader pipeline]
-    
-    G --> H[LLM Processing]  
+
+    G --> H[LLM Processing]
     H --> I[Schema validation against ExerciseRelationshipSchema]
     I --> J{Valid?}
-    
+
     J -->|No| K[Generate feedback]
     K --> L[Retry with corrections]
     L --> H
-    
+
     J -->|Yes| M[Save individual result]
     M --> N[Write {exerciseName}-relationships.json]
     N --> O[Update session metrics]
     O --> P[Next exercise or finish]
-    
+
     P --> Q[Generate summary.json]
     Q --> R[Performance metrics & statistics]
-    
+
     style A fill:#e1f5fe
-    style N fill:#c8e6c9  
+    style N fill:#c8e6c9
     style Q fill:#fff3e0
     style I fill:#fce4ec
 ```
@@ -86,6 +86,7 @@ npm run example:exercise
 ```
 
 This will:
+
 1. Load exercise data from `exercises/`
 2. Generate relationships for each exercise using Claude
 3. Validate results against the relationship schema
@@ -113,12 +114,12 @@ Each exercise contains comprehensive training information:
 
 ```typescript
 interface Exercise {
-  name: string;              // Exercise name (e.g., "Bench Press")
-  category: string;          // Exercise category (e.g., "Compound Push") 
-  equipment: string;         // Required equipment (e.g., "Barbell, Bench")
-  primaryMuscles: string[];  // Primary muscle groups worked
-  difficulty: string;        // Difficulty level ("Beginner", "Intermediate", "Advanced")
-  movementPattern: string;   // Movement type (e.g., "Horizontal Push")
+  name: string; // Exercise name (e.g., "Bench Press")
+  category: string; // Exercise category (e.g., "Compound Push")
+  equipment: string; // Required equipment (e.g., "Barbell, Bench")
+  primaryMuscles: string[]; // Primary muscle groups worked
+  difficulty: string; // Difficulty level ("Beginner", "Intermediate", "Advanced")
+  movementPattern: string; // Movement type (e.g., "Horizontal Push")
 }
 ```
 
@@ -132,9 +133,7 @@ const ExerciseRelationshipSchema = z.object({
   similarMuscles: z
     .array(z.string())
     .describe('Exercises that work similar muscle groups'),
-  variationOf: z
-    .array(z.string()) 
-    .describe('Exercises this is a variation of'),
+  variationOf: z.array(z.string()).describe('Exercises this is a variation of'),
   progressionFrom: z
     .array(z.string())
     .describe('Exercises that naturally progress to this one'),
@@ -149,8 +148,9 @@ const ExerciseRelationshipSchema = z.object({
 ### 1. Multi-Dimensional Exercise Relationships
 
 The exercise domain requires understanding of:
+
 - **Muscle Group Synergy**: Which exercises target similar muscle groups
-- **Progressive Overload**: Natural progression pathways between exercises  
+- **Progressive Overload**: Natural progression pathways between exercises
 - **Movement Patterns**: Exercises sharing similar biomechanical patterns
 - **Substitution Logic**: Equivalent exercises for program flexibility
 
@@ -164,6 +164,7 @@ The exercise domain requires understanding of:
 ### 3. Schema-Driven Exercise Validation
 
 Persuader ensures all generated relationships:
+
 - Reference valid exercises from the available dataset
 - Follow proper strength training progression principles
 - Include meaningful categorization across all 4 relationship types
@@ -174,23 +175,10 @@ Persuader ensures all generated relationships:
 ```json
 {
   "exercise": "Bench Press",
-  "similarMuscles": [
-    "Push-up",
-    "Incline Bench Press", 
-    "Dips"
-  ],
-  "variationOf": [
-    "Push-up",
-    "Chest Press"
-  ],
-  "progressionFrom": [
-    "Push-up",
-    "Incline Push-up"
-  ],
-  "substitutableFor": [
-    "Chest Press",
-    "Dumbbell Press"
-  ]
+  "similarMuscles": ["Push-up", "Incline Bench Press", "Dips"],
+  "variationOf": ["Push-up", "Chest Press"],
+  "progressionFrom": ["Push-up", "Incline Push-up"],
+  "substitutableFor": ["Chest Press", "Dumbbell Press"]
 }
 ```
 
@@ -200,7 +188,7 @@ The demo showcases Persuader's reliability patterns:
 
 - **High Success Rate**: Schema validation catches relationship errors
 - **Intelligent Retries**: Specific feedback improves LLM exercise selections
-- **Consistent Output**: All results follow the same validated structure  
+- **Consistent Output**: All results follow the same validated structure
 - **Domain Accuracy**: LLM corrections lead to biomechanically sound relationships
 
 ## 🛠️ Customization
@@ -208,6 +196,7 @@ The demo showcases Persuader's reliability patterns:
 ### Adding New Exercises
 
 1. Create a new exercise file in `data/exercises/`:
+
 ```json
 {
   "data": {
@@ -223,16 +212,15 @@ The demo showcases Persuader's reliability patterns:
 
 2. The demo will automatically include it in the next run
 
-### Modifying the Schema  
+### Modifying the Schema
 
 Edit the `ExerciseRelationshipSchema` in `minimal.ts` to change validation rules:
 
 ```typescript
 // Add minimum relationship requirements
-similarMuscles: z
-  .array(z.string())
-  .min(1, "Must have at least 1 similar exercise")
-  .max(5, "Too many similar exercises - keep it focused")
+similarMuscles: z.array(z.string())
+  .min(1, 'Must have at least 1 similar exercise')
+  .max(5, 'Too many similar exercises - keep it focused');
 ```
 
 ### Changing the Context

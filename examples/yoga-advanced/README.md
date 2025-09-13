@@ -7,7 +7,7 @@ This directory demonstrates Persuader's sophisticated multi-dimensional relation
 The advanced yoga demo analyzes **6 dimensions** of pose relationships using comprehensive anatomical and energetic data:
 
 1. **Anatomical Progression** - Poses with same muscles but increased difficulty
-2. **Energetic Flow** - Poses with compatible or complementary energy states  
+2. **Energetic Flow** - Poses with compatible or complementary energy states
 3. **Therapeutic Alternatives** - Gentler alternatives for physical limitations
 4. **Counter-poses** - Essential balancing poses (backbends after forward folds)
 5. **Preparatory Sequence** - Poses that warm up and prepare the body
@@ -31,6 +31,7 @@ npm run example:yoga-advanced
 ```
 
 The demo processes the first 10 poses for comprehensive analysis, generating:
+
 - Individual relationship files per pose
 - Advanced summary with dimensional breakdowns
 - Rich metadata preservation
@@ -61,12 +62,14 @@ The demo processes the first 10 poses for comprehensive analysis, generating:
 ## 🔬 Technical Sophistication
 
 ### Schema Complexity
+
 - **Schema complexity: 10** (vs 4 for basic yoga, 8 for exercise)
 - **6-dimensional analysis** with sophisticated domain understanding
 - **Rich input context** using comprehensive pose metadata
 - **Automatic retry/validation** handling complex JSON structures
 
 ### Domain Expertise Integration
+
 - **Anatomical safety** considerations for progression recommendations
 - **Energy system understanding** for compatible flow sequences
 - **Therapeutic knowledge** for modification and adaptation suggestions
@@ -88,7 +91,7 @@ examples/yoga-advanced/
 This advanced demo illustrates sophisticated Persuader patterns:
 
 1. **Multi-dimensional Analysis** - Complex relationship extraction (6D vs simple transitions)
-2. **Rich Data Utilization** - Leveraging comprehensive domain datasets  
+2. **Rich Data Utilization** - Leveraging comprehensive domain datasets
 3. **Advanced Schema Design** - Handling complex validation requirements
 4. **Domain Expertise Integration** - Encoding specialized knowledge in prompts
 5. **Scalable Architecture** - Session-based processing for efficiency
@@ -99,7 +102,7 @@ The progression from basic → exercise → advanced demonstrates Persuader's ab
 ## 🧠 Domain Knowledge Demonstrated
 
 - **Anatomical Understanding** - Muscle groups, joint actions, movement patterns
-- **Energy System Awareness** - Grounding, centering, energizing, calming effects  
+- **Energy System Awareness** - Grounding, centering, energizing, calming effects
 - **Therapeutic Applications** - Modifications for injuries and limitations
 - **Sequencing Intelligence** - Safe progressions and balancing practices
 - **Practice Integration** - Holistic consideration of yoga philosophy and safety

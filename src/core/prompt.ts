@@ -150,7 +150,7 @@ function generateSchemaDescription(schema: z.ZodSchema<unknown>): string {
       default:
         return 'A valid JSON value matching the specified schema';
     }
-  } catch (_error) {
+  } catch {
     return 'A valid JSON value matching the specified schema';
   }
 }
@@ -183,7 +183,7 @@ function generateObjectSchemaDescription(
     }
 
     return `A JSON object with fields: ${fieldDescriptions}`;
-  } catch (_error) {
+  } catch {
     return 'A JSON object';
   }
 }
