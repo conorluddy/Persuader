@@ -31,7 +31,7 @@ jobs:
       - name: Type check
         run: npm run typecheck
 
-      - name: Code quality check (Biome)
+      - name: Code quality check (ESLint & TypeScript)
         run: npm run check
 
       - name: Build
