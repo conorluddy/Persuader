@@ -3,6 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/persuader)](https://www.npmjs.com/package/persuader)
 [![Node.js Version](https://img.shields.io/node/v/persuader)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7%2B-blue)](https://www.typescriptlang.org/)
+[![codecov](https://codecov.io/gh/conorluddy/Persuader/graph/badge.svg?token=OVCH7YW0Z1)](https://codecov.io/gh/conorluddy/Persuader)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Devin DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/conorluddy/Persuader)
 
