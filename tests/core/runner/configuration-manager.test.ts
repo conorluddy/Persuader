@@ -488,7 +488,7 @@ describe('validateProviderAdapter', () => {
       const result = validateProviderAdapter(provider);
 
       expect(result.valid).toBe(false);
-      expect(result.errors).toHaveLength(3);
+      expect(result.errors).toHaveLength(4);
     });
   });
 });

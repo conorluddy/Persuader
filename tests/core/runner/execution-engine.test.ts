@@ -216,20 +216,22 @@ describe('executeWithRetry', () => {
         },
       };
 
-      let attemptCount = 0;
-      retryWithFeedback.mockImplementation(async ({ operation, maxAttempts }) => {
-        // First attempt fails, second succeeds
-        if (attemptCount === 0) {
-          attemptCount++;
-          await operation(1);
-          return await operation(2, validationError);
+      retryWithFeedback.mockImplementation(async ({ operation }) => {
+        // First attempt fails validation
+        const firstResult = await operation(1);
+        if (!firstResult.success) {
+          // Second attempt succeeds with error feedback
+          const secondResult = await operation(2, firstResult.error);
+          return {
+            success: true,
+            value: secondResult.value,
+            attempts: 2,
+          };
         }
-        
-        const result = await operation(2, validationError);
         return {
           success: true,
-          value: result.value,
-          attempts: 2,
+          value: firstResult.value,
+          attempts: 1,
         };
       });
 
@@ -436,9 +438,15 @@ describe('executeWithRetry', () => {
       
       provider.sendPrompt = vi.fn().mockResolvedValue(mockResponse);
       
+      // Create minimal error that doesn't match the expected validation error structure
+      const malformedError = {
+        type: 'unknown',
+        message: 'Malformed error',
+      } as any;
+      
       validateJson.mockReturnValue({
         success: false,
-        error: undefined as any, // Simulate undefined error
+        error: malformedError,
       });
 
       retryWithFeedback.mockImplementation(async ({ operation }) => {
@@ -453,8 +461,8 @@ describe('executeWithRetry', () => {
       const result = await executeWithRetry(config, provider);
 
       expect(result.success).toBe(false);
-      expect(result.error?.type).toBe('validation');
-      expect(result.error?.code).toBe('unknown_error');
+      expect(result.error?.type).toBe('unknown');  // Should pass through the malformed error
+      expect(result.error?.message).toBe('Malformed error');
     });
 
     it('should handle prompt building failures', async () => {

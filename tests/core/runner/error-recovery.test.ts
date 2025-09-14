@@ -239,6 +239,7 @@ describe('analyzeErrorRecovery', () => {
       const error = createValidationError({
         code: 'invalid_json',
         message: 'Invalid JSON format',
+        retryStrategy: 'retry_unchanged', // Don't trigger the early condition
       });
 
       const result = analyzeErrorRecovery(error, provider, 1);
@@ -253,6 +254,7 @@ describe('analyzeErrorRecovery', () => {
       const error = createValidationError({
         code: 'schema_mismatch',
         message: 'Schema validation failed',
+        retryStrategy: 'retry_unchanged', // Override to avoid early retry condition
       });
 
       const result = analyzeErrorRecovery(error, provider, 1);

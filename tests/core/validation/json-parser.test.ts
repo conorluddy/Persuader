@@ -341,30 +341,75 @@ describe('validateJson', () => {
   });
 
   describe('unexpected errors', () => {
-    it('should handle unexpected validation errors', () => {
-      // Mock parseJsonWithEnhancedErrors to throw unexpected error
-      vi.doMock('../../../src/core/validation/json-parser.js', async (importOriginal) => {
-        const actual = await importOriginal();
-        return {
-          ...actual,
-          parseJsonWithEnhancedErrors: vi.fn().mockImplementation(() => {
-            throw new Error('Unexpected parsing error');
-          }),
-        };
+    beforeEach(() => {
+      // Extra cleanup to ensure no globals are affected
+      vi.clearAllMocks();
+      // Reset all mock implementations from previous tests
+      extractSchemaInfo.mockReturnValue({
+        name: 'TestSchema',
+        type: 'object',
+        description: 'Test schema',
+        fieldCount: 3,
+        requiredFields: ['name', 'age'],
+        optionalFields: ['email'],
+        nestedObjects: [],
+        arrayFields: [],
+        enumFields: [],
+        complexity: 'simple',
+        shape: {},
       });
+      getSchemaDescription.mockReturnValue('Test schema description');
+      generateSchemaDescription.mockReturnValue('JSON object with specified fields');
+      generateValidationSuggestions.mockReturnValue(['Fix the data format']);
+      createValidationError.mockReturnValue(createMockValidationError());
+    });
 
-      const validInput = '{"name": "Test", "age": 25}';
+    it('should handle unexpected validation errors', () => {
+      // Create a separate test schema for this test to avoid affecting others
+      const testSchema = z.object({
+        name: z.string(),
+        age: z.number(),
+      });
+      
+      // Store originals
+      const originalJsonParse = JSON.parse;
+      const originalSafeParse = testSchema.safeParse;
+      
+      try {
+        // Mock JSON.parse to work normally first
+        let callCount = 0;
+        JSON.parse = vi.fn().mockImplementation((text: string) => {
+          callCount++;
+          if (callCount === 1) {
+            // First call succeeds to get past the JSON parsing step
+            return originalJsonParse(text);
+          }
+          // This shouldn't be called, but if it is, throw to trigger unexpected error
+          throw new Error('Unexpected JSON.parse error');
+        });
 
-      validateJson(personSchema, validInput);
+        // Mock the schema validation to throw an unexpected error
+        testSchema.safeParse = vi.fn().mockImplementation(() => {
+          throw new Error('Unexpected schema validation error');
+        });
 
-      expect(createValidationError).toHaveBeenCalledWith(
-        'unexpected_error',
-        expect.stringContaining('Unexpected validation error'),
-        [],
-        validInput,
-        undefined,
-        ['Please check the input format and try again']
-      );
+        const validInput = '{"name": "Test", "age": 25}';
+
+        validateJson(testSchema, validInput);
+
+        expect(createValidationError).toHaveBeenCalledWith(
+          'unexpected_error',
+          expect.stringContaining('Unexpected validation error'),
+          [],
+          validInput,
+          undefined,
+          ['Please check the input format and try again']
+        );
+      } finally {
+        // Ensure cleanup happens regardless of test outcome
+        JSON.parse = originalJsonParse;
+        testSchema.safeParse = originalSafeParse;
+      }
     });
   });
 });
