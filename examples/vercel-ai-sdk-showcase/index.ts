@@ -209,9 +209,9 @@ async function runVercelAISDKShowcase(): Promise<void> {
             { temperature: 0.7 }
           );
           sessions.set(provider.name, sessionId);
-        } catch {
+        } catch (error) {
           // Session creation is optional - continue without it
-          console.log(`   ⚠️  Failed to create session for ${provider.name}`);
+          console.log(`   ⚠️  Failed to create session for ${provider.name}:`, error instanceof Error ? error.message : 'Unknown error');
         }
       }
 
@@ -290,9 +290,9 @@ async function runVercelAISDKShowcase(): Promise<void> {
         if (provider) {
           try {
             await provider.adapter.destroySession(sessionId);
-          } catch {
+          } catch (error) {
             // Session cleanup failures are non-critical
-            console.log(`   ⚠️  Failed to destroy session for ${providerName}`);
+            console.log(`   ⚠️  Failed to destroy session for ${providerName}:`, error instanceof Error ? error.message : 'Unknown error');
           }
         }
       }
