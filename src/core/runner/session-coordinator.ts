@@ -6,6 +6,7 @@
  * coordination and error recovery for session-related failures.
  */
 
+import { createSessionManager } from '../../session/manager.js';
 import type { ProviderAdapter, ProviderError } from '../../types/index.js';
 import { debug, info, error as logError } from '../../utils/logger.js';
 import type { ProcessedConfiguration } from './configuration-manager.js';
@@ -32,7 +33,8 @@ export interface SessionOptions extends Record<string, unknown> {
  *
  * Handles the logic for determining whether to create a new session,
  * reuse an existing one, or proceed without sessions based on provider
- * capabilities and configuration.
+ * capabilities and configuration. Now properly handles SessionManager ID
+ * to provider session ID translation.
  *
  * @template T The expected output type
  * @param config Processed pipeline configuration
@@ -43,17 +45,40 @@ export async function coordinateSession<T>(
   config: ProcessedConfiguration<T>,
   provider: ProviderAdapter
 ): Promise<SessionCoordinationResult> {
-  // If session ID is already provided, use it directly
+  // If session ID is already provided, translate it to provider session ID if needed
   if (config.sessionId) {
-    debug('Using provided session ID', {
+    debug('Provided session ID detected, checking if translation needed', {
       sessionId: config.sessionId,
       provider: provider.name,
     });
 
-    return {
-      success: true,
-      sessionId: config.sessionId,
-    };
+    const translatedSessionId = await translateSessionId(
+      config.sessionId,
+      provider
+    );
+
+    if (translatedSessionId) {
+      debug('Session ID translated successfully', {
+        originalSessionId: config.sessionId,
+        providerSessionId: translatedSessionId,
+        provider: provider.name,
+      });
+
+      return {
+        success: true,
+        sessionId: translatedSessionId,
+      };
+    } else {
+      debug('Using provided session ID as-is (direct provider session)', {
+        sessionId: config.sessionId,
+        provider: provider.name,
+      });
+
+      return {
+        success: true,
+        sessionId: config.sessionId,
+      };
+    }
   }
 
   // If provider doesn't support sessions, proceed without one
@@ -211,4 +236,67 @@ export function logSessionInfo<T>(
     hasContext: Boolean(config.context),
     contextLength: config.context?.length || 0,
   });
+}
+
+/**
+ * Translates a SessionManager ID to a provider session ID if applicable
+ *
+ * @param sessionId The session ID that might be a SessionManager ID
+ * @param provider The provider adapter being used
+ * @returns Provider session ID if translation successful, null if not needed or failed
+ */
+async function translateSessionId(
+  sessionId: string,
+  provider: ProviderAdapter
+): Promise<string | null> {
+  try {
+    // Create a temporary session manager to check if this ID exists in our session store
+    const sessionManager = createSessionManager();
+    const session = await sessionManager.getSession(sessionId);
+
+    // If no session found, assume it's already a direct provider session ID
+    if (!session) {
+      debug('Session not found in SessionManager, assuming direct provider session', {
+        sessionId,
+        provider: provider.name,
+      });
+      return null; // Use the original ID as-is
+    }
+
+    // If session exists but is for a different provider, this is an error
+    if (session.metadata.provider !== provider.name) {
+      logError('Session provider mismatch detected', {
+        sessionId,
+        sessionProvider: session.metadata.provider,
+        requestedProvider: provider.name,
+      });
+      return null; // Use original ID, let provider handle the error
+    }
+
+    // Extract the provider session ID from session data
+    const providerSessionId = session.providerData?.providerSessionId as string;
+    if (!providerSessionId) {
+      debug('No provider session ID found in session data', {
+        sessionId,
+        provider: provider.name,
+        hasProviderData: Boolean(session.providerData),
+      });
+      return null; // Use original ID, might be a direct provider session
+    }
+
+    info('Successfully translated SessionManager ID to provider session ID', {
+      sessionManagerId: sessionId,
+      providerSessionId,
+      provider: provider.name,
+    });
+
+    return providerSessionId;
+  } catch (error) {
+    logError('Failed to translate session ID', {
+      sessionId,
+      provider: provider.name,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return null; // Use original ID as fallback
+  }
 }
