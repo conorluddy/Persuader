@@ -109,6 +109,30 @@ if [[ "$tool_name" == "Bash" && "$tool_command" =~ git[[:space:]]+push ]]; then
     fi
     print_success "All tests passed"
     
+    # Additional checks for session-related issues (related to GitHub issue #33)
+    print_status "5/5 Session regression checks (for issue #33)..."
+    
+    # Check for session coordinator regression tests
+    if ! npm run test:run -- src/core/runner/__tests__/session-coordinator.test.ts > /dev/null 2>&1; then
+        print_error "Session coordinator regression tests failed!"
+        print_error "These are critical for preventing reintroduction of issue #33 (session ID confusion)"
+        exit 1
+    fi
+    
+    # Check for potential session ID confusion patterns
+    session_confusion=$(grep -r "sessionId.*sessionId" src --include="*.ts" --exclude-dir="__tests__" | wc -l)
+    if [ "$session_confusion" -gt 0 ]; then
+        print_warning "Potential session ID naming confusion detected - review for CODESTYLE.md clarity"
+        print_warning "Found $session_confusion occurrences of 'sessionId.*sessionId' patterns"
+    fi
+    
+    # Check for console.log statements that might be debugging code
+    debug_logs=$(grep -r "console\.log" src --include="*.ts" --exclude-dir="__tests__" | wc -l)
+    if [ "$debug_logs" -gt 0 ]; then
+        print_warning "Found $debug_logs console.log statements in source code"
+        print_warning "Consider using structured logging (utils/logger.ts) instead"
+    fi
+    
     print_success "🚀 All quality checks passed! Git push approved."
     print_success "These are the same checks that run in GitHub CI - your push should pass!"
     

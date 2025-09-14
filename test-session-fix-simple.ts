@@ -35,7 +35,7 @@ async function testSessionTranslation() {
     
     console.log('Result:', result.ok ? 'SUCCESS' : 'FAILED');
     
-  } catch (error) {
+  } catch {
     console.log('Call failed as expected - fake ID is not real');
   }
   

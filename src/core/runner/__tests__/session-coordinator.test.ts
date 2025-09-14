@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { coordinateSession, translateSessionId } from '../session-coordinator.js';
+import { coordinateSession } from '../session-coordinator.js';
 import type { ProcessedConfiguration } from '../configuration-manager.js';
 import type { ProviderAdapter } from '../../../types/index.js';
 import { z } from 'zod';
@@ -37,7 +37,7 @@ const createMockProvider = (name: string = 'test-provider'): ProviderAdapter => 
 
 // Mock configuration
 const createMockConfig = <T>(sessionId?: string): ProcessedConfiguration<T> => ({
-  schema: testSchema as any,
+  schema: testSchema as z.ZodSchema<unknown>,
   input: 'test input',
   sessionId,
   context: undefined,
