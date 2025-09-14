@@ -5,7 +5,7 @@
  * that enable LLMs to self-correct and generate valid responses through retry loops.
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import {
   createStructuredSuggestions,

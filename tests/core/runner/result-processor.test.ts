@@ -19,12 +19,15 @@ import type { ProviderAdapter, ValidationError, ProviderError } from '../../../s
 vi.mock('../../../src/utils/logger.js');
 
 // Test fixtures
-const testSchema = z.object({
+type TestOutput = {
+  name: string;
+  age: number;
+};
+
+const _testSchema = z.object({
   name: z.string(),
   age: z.number(),
-});
-
-type TestOutput = z.infer<typeof testSchema>;
+}) as z.ZodSchema<TestOutput>;
 
 const createMockProvider = (overrides: Partial<ProviderAdapter> = {}): ProviderAdapter => ({
   name: 'test-provider',

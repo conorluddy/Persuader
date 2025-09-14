@@ -50,8 +50,6 @@ const complexSchema = z.object({
   tags: z.array(z.string()),
 });
 
-type PersonType = z.infer<typeof personSchema>;
-
 const createMockValidationError = (overrides = {}) => ({
   type: 'validation' as const,
   code: 'mock_error',

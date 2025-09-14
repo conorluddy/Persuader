@@ -9,7 +9,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import { executeWithRetry } from '../../../src/core/runner/execution-engine.js';
 import type { ProcessedConfiguration } from '../../../src/core/runner/configuration-manager.js';
-import type { ProviderAdapter, ProviderResponse, ValidationError, ProviderError } from '../../../src/types/index.js';
+import type { ProviderAdapter, ProviderResponse, ValidationError } from '../../../src/types/index.js';
 
 // Mock dependencies
 vi.mock('../../../src/utils/logger.js');

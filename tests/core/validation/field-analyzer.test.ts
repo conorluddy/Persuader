@@ -5,7 +5,7 @@
  * extracting specific field information and error patterns.
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import { extractFieldErrors } from '../../../src/core/validation/field-analyzer.js';
 import type { ValidationError } from '../../../src/types/errors.js';
