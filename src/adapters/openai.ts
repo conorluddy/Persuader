@@ -139,7 +139,7 @@ export class OpenAIAdapter implements ProviderAdapter {
       const result = await generateText({
         model: this.getModelInstance(this.defaultModel),
         prompt: 'Say "OK"',
-        maxTokens: 5,
+        maxOutputTokens: 5,
       });
 
       return result.text.length > 0;
@@ -322,7 +322,7 @@ export class OpenAIAdapter implements ProviderAdapter {
       const generateOptions: Parameters<typeof generateText>[0] = {
         model: modelInstance,
         prompt: fullPrompt,
-        ...(options.maxTokens && { maxTokens: options.maxTokens }),
+        ...(options.maxTokens && { maxOutputTokens: options.maxTokens }),
         ...(options.temperature !== undefined && {
           temperature: options.temperature,
         }),
@@ -340,7 +340,7 @@ export class OpenAIAdapter implements ProviderAdapter {
         requestId,
         model: options.model || this.defaultModel,
         promptLength: fullPrompt.length,
-        maxTokens: options.maxTokens,
+        maxOutputTokens: options.maxTokens,
         temperature: options.temperature,
       });
 
@@ -351,8 +351,8 @@ export class OpenAIAdapter implements ProviderAdapter {
 
       // Extract token usage information
       const tokenUsage: TokenUsage = {
-        inputTokens: result.usage?.promptTokens || 0,
-        outputTokens: result.usage?.completionTokens || 0,
+        inputTokens: result.usage?.inputTokens || 0,
+        outputTokens: result.usage?.outputTokens || 0,
         totalTokens: result.usage?.totalTokens || 0,
       };
 
@@ -400,7 +400,7 @@ export class OpenAIAdapter implements ProviderAdapter {
           sessionId: sessionId,
           model: options.model || this.defaultModel,
           temperature: options.temperature,
-          maxTokens: options.maxTokens,
+          maxOutputTokens: options.maxTokens,
           finishReason: result.finishReason,
           usage: result.usage,
         },

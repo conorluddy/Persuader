@@ -129,8 +129,8 @@ describe('VercelAISDKAdapter', () => {
       const mockResponse = {
         text: 'This is a test response',
         usage: {
-          promptTokens: 50,
-          completionTokens: 20,
+          inputTokens: 50,
+          outputTokens: 20,
           totalTokens: 70,
         },
         finishReason: 'stop',
@@ -147,7 +147,7 @@ describe('VercelAISDKAdapter', () => {
         model: mockLanguageModel,
         messages: [{ role: 'user', content: 'Test prompt' }],
         temperature: 0.8,
-        maxTokens: 1000,
+        maxOutputTokens: 1000,
       });
 
       expect(result.content).toBe('This is a test response');
@@ -169,8 +169,8 @@ describe('VercelAISDKAdapter', () => {
       const mockResponse = {
         object: { name: 'John', age: 30 },
         usage: {
-          promptTokens: 60,
-          completionTokens: 25,
+          inputTokens: 60,
+          outputTokens: 25,
           totalTokens: 85,
         },
         finishReason: 'stop',
@@ -187,7 +187,7 @@ describe('VercelAISDKAdapter', () => {
         model: mockLanguageModel,
         messages: [{ role: 'user', content: 'Generate a person' }],
         temperature: 0.5,
-        maxTokens: 4000, // default from config
+        maxOutputTokens: 4000, // default from config
         schema: testSchema,
       });
 

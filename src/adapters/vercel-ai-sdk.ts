@@ -92,7 +92,7 @@ export class VercelAISDKAdapter implements ProviderAdapter {
 
   constructor(config: VercelAISDKAdapterConfig) {
     this.model = config.model;
-    this.modelId = config.modelId ?? config.model.modelId ?? 'ai-sdk-model';
+    this.modelId = config.modelId ?? (typeof config.model === 'string' ? config.model : (config.model as any).modelId) ?? 'ai-sdk-model';
     this.useStreaming = config.useStreaming ?? false;
     this.defaultMaxTokens = config.maxTokens;
     this.defaultTemperature = config.temperature;
@@ -282,11 +282,11 @@ export class VercelAISDKAdapter implements ProviderAdapter {
               temperature: this.defaultTemperature,
             }),
           ...(options.maxTokens !== undefined && {
-            maxTokens: options.maxTokens,
+            maxOutputTokens: options.maxTokens,
           }),
           ...(this.defaultMaxTokens !== undefined &&
             options.maxTokens === undefined && {
-              maxTokens: this.defaultMaxTokens,
+              maxOutputTokens: this.defaultMaxTokens,
             }),
         };
 
@@ -300,8 +300,8 @@ export class VercelAISDKAdapter implements ProviderAdapter {
         content = JSON.stringify(result.object, null, 2);
         finishReason = result.finishReason;
         tokenUsage = {
-          inputTokens: result.usage?.promptTokens ?? 0,
-          outputTokens: result.usage?.completionTokens ?? 0,
+          inputTokens: result.usage?.inputTokens ?? 0,
+          outputTokens: result.usage?.outputTokens ?? 0,
           totalTokens: result.usage?.totalTokens ?? 0,
         };
       } else {
@@ -323,19 +323,19 @@ export class VercelAISDKAdapter implements ProviderAdapter {
               temperature: this.defaultTemperature,
             }),
           ...(options.maxTokens !== undefined && {
-            maxTokens: options.maxTokens,
+            maxOutputTokens: options.maxTokens,
           }),
           ...(this.defaultMaxTokens !== undefined &&
             options.maxTokens === undefined && {
-              maxTokens: this.defaultMaxTokens,
+              maxOutputTokens: this.defaultMaxTokens,
             }),
         });
 
         content = result.text;
         finishReason = result.finishReason;
         tokenUsage = {
-          inputTokens: result.usage?.promptTokens ?? 0,
-          outputTokens: result.usage?.completionTokens ?? 0,
+          inputTokens: result.usage?.inputTokens ?? 0,
+          outputTokens: result.usage?.outputTokens ?? 0,
           totalTokens: result.usage?.totalTokens ?? 0,
         };
       }
@@ -405,7 +405,7 @@ export class VercelAISDKAdapter implements ProviderAdapter {
           sessionId,
           model: this.modelId,
           temperature: options.temperature ?? this.defaultTemperature,
-          maxTokens: options.maxTokens ?? this.defaultMaxTokens,
+          maxOutputTokens: options.maxTokens ?? this.defaultMaxTokens,
           finishReason: finishReason,
           useObjectGeneration,
           aiSDKUsage: tokenUsage,
@@ -490,7 +490,7 @@ export class VercelAISDKAdapter implements ProviderAdapter {
       const result = await generateText({
         model: this.model,
         prompt: 'Say "OK"',
-        maxTokens: 10,
+        maxOutputTokens: 10,
         temperature: 0,
       });
 
