@@ -89,10 +89,10 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^0.0.66",
-    "@anthropic-ai/sdk": "^0.24.0",
+    "@ai-sdk/openai": "^2.0.30",
+    "@anthropic-ai/sdk": "^0.62.0",
     "@google/genai": "^1.0.0",
-    "ai": "^3.4.33",
+    "ai": "^5.0.44",
     "ajv": "^8.17.1",
     "chalk": "^5.6.0",
     "commander": "^14.0.0",
