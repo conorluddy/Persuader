@@ -41,10 +41,10 @@ npm run test:coverage    # Generate test coverage report
 
 ### Code Quality
 ```bash
-npm run check            # Biome check (linting and formatting)
-npm run check:fix        # Auto-fix Biome issues
-npm run format           # Format code with Biome
-npm run lint             # Lint code with Biome
+npm run check            # ESLint + TypeScript checks (linting and type checking)
+npm run check:fix        # Auto-fix ESLint and Prettier issues
+npm run format           # Format code with Prettier
+npm run lint             # Lint code with ESLint
 ```
 
 ### Demo and Examples
@@ -143,7 +143,7 @@ Sessions are optional but recommended for batch processing. The session manager 
 ### Development Stack
 - **Build Tool**: unbuild for ESM output
 - **Testing**: Vitest with coverage via v8
-- **Code Quality**: Biome (replaces ESLint + Prettier)
+- **Code Quality**: ESLint + Prettier for linting and formatting
 - **Type Checking**: TypeScript 5.7.2+ with strict configuration
 
 ## File Structure Conventions
@@ -170,7 +170,7 @@ The `persuader run` command supports:
 Always run these checks (as per CODESTYLE.md):
 ```bash
 npm run typecheck        # Must pass - TypeScript validation
-npm run check            # Must pass - Biome linting/formatting
+npm run check            # Must pass - ESLint linting and TypeScript checks
 npm run test:run         # Must pass - All tests
 ```
 

@@ -3,6 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/persuader)](https://www.npmjs.com/package/persuader)
 [![Node.js Version](https://img.shields.io/node/v/persuader)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7%2B-blue)](https://www.typescriptlang.org/)
+[![codecov](https://codecov.io/gh/conorluddy/Persuader/graph/badge.svg?token=OVCH7YW0Z1)](https://codecov.io/gh/conorluddy/Persuader)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Devin DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/conorluddy/Persuader)
 
@@ -339,7 +340,7 @@ When validation fails, Persuader automatically generates targeted feedback:
 const UserSchema = z.object({
   email: z.string().email("Must be a valid email address"),
   age: z.number().min(0).max(150, "Age must be between 0-150"),
-  role: z.enum(['admin', 'user'], { message: "Role must be 'admin' or 'user'" })
+  role: z.enum(['admin', 'user'], { error: "Role must be 'admin' or 'user'" })
 });
 
 // ❌ LLM Response: { "email": "not-valid", "age": 200, "role": "manager" }
@@ -384,13 +385,27 @@ const result = await persuade(options, provider);
 ### Requirements
 
 - **Node.js**: Version 20.0.0 or higher (tested on 20+)
-- **TypeScript**: 5.7.2+ for development
+- **TypeScript**: 5.7.2+ for development  
+- **Zod**: v4.1.8+ (latest) - now with improved performance and enhanced error handling
 - **ClaudeCode**: Required for LLM calls (`npm install -g @anthropic-ai/claude-code`)
+
+### Compatibility
+
+**🎯 Zod v4 Support**: This package now uses Zod v4 with improved performance and enhanced error messages. Standard Zod imports work as expected: `import { z } from 'zod'`.
+
+**📦 Dual Module Support**: Full compatibility with both CommonJS and ES modules:
+```javascript
+// CommonJS
+const { persuade } = require('persuader');
+
+// ES Modules  
+import { persuade } from 'persuader';
+```
 
 ### Installation
 
 ```bash
-# Production installation (latest v0.2.1)
+# Production installation (latest v0.3.0)
 npm install persuader@latest
 
 # Global CLI installation  
@@ -592,7 +607,7 @@ src/
 - **656-line runner.ts** → 7 specialized modules under 100 lines each
 - **547-line validation.ts** → 5 focused validation modules  
 - **Zero breaking changes** - 100% API compatibility maintained
-- **All quality gates preserved** - 58 tests, TypeScript strict, Biome clean
+- **All quality gates preserved** - 58 tests, TypeScript strict, ESLint clean
 
 ## 🎨 API Reference
 
@@ -1012,10 +1027,10 @@ npm test                 # Interactive test runner
 npm run test:ui          # Visual test interface
 npm run test:coverage    # Generate coverage report
 
-# Code Quality with Biome
-npm run check            # Lint and format check
-npm run check:fix        # Auto-fix issues
-npm run format           # Format code
+# Code Quality with ESLint + Prettier
+npm run lint             # ESLint linting check
+npm run lint:fix         # Auto-fix ESLint issues
+npm run format           # Format code with Prettier
 ```
 
 ### ✅ Pre-Submit Checklist
@@ -1070,7 +1085,7 @@ src/
 
 ### Code Quality  
 - **TypeScript Strict Mode**: Full type safety with `exactOptionalPropertyTypes`
-- **Biome Linting**: Zero linting issues, consistent formatting across codebase
+- **ESLint + Prettier**: Zero linting issues, consistent formatting across codebase
 - **Modular Architecture**: Every module under 300 lines following CODESTYLE.md
 - **Human-Centric Design**: Optimized for cognitive load management
 
@@ -1108,7 +1123,7 @@ MIT License - Use freely in your projects, commercial or open source.
 - **Anthropic Team** for Claude's remarkable consistency and JSON mode reliability
 - **TypeScript Community** for building the excellent tooling ecosystem  
 - **Zod Team** for creating the most developer-friendly validation library
-- **Vitest & Biome Teams** for modern, fast developer tools
+- **Vitest, ESLint & Prettier Teams** for modern, fast developer tools
 
 ---
 

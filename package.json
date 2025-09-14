@@ -1,9 +1,10 @@
 {
   "name": "persuader",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "type": "module",
   "description": "Session-based LLM orchestration with validation-driven retry loops and guaranteed schema-adhering output.",
-  "main": "./dist/index.mjs",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "bin": {
     "persuader": "./dist/cli.mjs"
@@ -11,10 +12,12 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs",
       "import": "./dist/index.mjs"
     },
     "./cli": {
       "types": "./dist/cli.d.ts",
+      "require": "./dist/cli.cjs",
       "import": "./dist/cli.mjs"
     }
   },
@@ -27,12 +30,12 @@
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "check": "biome check .",
-    "check:fix": "biome check --fix .",
-    "format": "biome format --write .",
-    "format:check": "biome format .",
-    "lint": "biome lint .",
-    "lint:fix": "biome lint --fix .",
+    "check": "npm run typecheck && npm run lint",
+    "check:fix": "npm run lint:fix && npm run format",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint . --ext .ts,.js,.tsx,.jsx",
+    "lint:fix": "eslint . --ext .ts,.js,.tsx,.jsx --fix",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run build",
     "example:fitness": "tsx examples/fitness-analysis/index.ts",
@@ -71,10 +74,15 @@
   },
   "homepage": "https://github.com/conorluddy/Persuader#readme",
   "devDependencies": {
-    "@biomejs/biome": "^2.2.3",
+    "@eslint/js": "^9.35.0",
     "@types/node": "^24.3.1",
+    "@typescript-eslint/eslint-plugin": "^8.43.0",
+    "@typescript-eslint/parser": "^8.43.0",
     "@vitest/coverage-v8": "^3.2.4",
     "@vitest/ui": "^3.2.4",
+    "eslint": "^9.35.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.6.2",
     "tsx": "^4.20.5",
     "typescript": "^5.7.2",
     "unbuild": "^3.6.1",
@@ -92,9 +100,15 @@
     "dotenv": "^17.2.2",
     "fast-glob": "^3.3.3",
     "ora": "^8.2.0",
-    "zod": "^3.23.8"
+    "zod": "^4.1.8"
   },
   "engines": {
     "node": ">=20.0.0"
+  },
+  "overrides": {
+    "zod": "^4.1.8"
+  },
+  "resolutions": {
+    "zod": "^4.1.8"
   }
 }

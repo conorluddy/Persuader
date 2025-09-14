@@ -218,7 +218,7 @@ function analyzeObjectSchema(
         info.enumFields.push(key);
       }
     }
-  } catch (_error) {
+  } catch {
     // Silently handle errors in schema analysis
   }
 }
@@ -240,8 +240,8 @@ function analyzeArraySchema(
         info.nestedObjects.push('element');
       }
     }
-  } catch (_error) {
-    // Silently handle errors
+  } catch {
+    // Silently handle errors in array analysis
   }
 }
 
@@ -263,8 +263,8 @@ function analyzeEnumSchema(
       const values = Object.values(schema.enum);
       info.shape = { options: values.join(' | ') };
     }
-  } catch (_error) {
-    // Silently handle errors
+  } catch {
+    // Silently handle errors in enum analysis
   }
 }
 
@@ -282,8 +282,8 @@ function analyzeUnionSchema(
       );
       info.shape = { union: unionTypes.join(' | ') };
     }
-  } catch (_error) {
-    // Silently handle errors
+  } catch {
+    // Silently handle errors in union analysis
   }
 }
 
@@ -298,8 +298,8 @@ function analyzeIntersectionSchema(
     const leftType = getSchemaTypeName(schema._def.left);
     const rightType = getSchemaTypeName(schema._def.right);
     info.shape = { intersection: `${leftType} & ${rightType}` };
-  } catch (_error) {
-    // Silently handle errors
+  } catch {
+    // Silently handle errors in intersection analysis
   }
 }
 
@@ -358,7 +358,8 @@ export function getSchemaDescription(schema: z.ZodSchema<unknown>): string {
     }
 
     return `${info.type.charAt(0).toUpperCase() + info.type.slice(1)} schema`;
-  } catch (_error) {
+  } catch {
+    // Fallback if description generation fails
     return 'Complex schema';
   }
 }

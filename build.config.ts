@@ -24,12 +24,12 @@ export default defineBuildConfig({
   // Source maps
   sourcemap: true,
 
-  // Rollup options - ESM only approach
+  // Rollup options - dual ESM/CJS support
   rollup: {
-    emitCJS: false, // ESM only - no CommonJS compatibility layer
+    emitCJS: true, // Enable CommonJS compatibility layer
     inlineDependencies: false,
     esbuild: {
-      target: 'node22',
+      target: 'node20', // Lower target for broader compatibility
       minify: false,
       format: 'esm',
     },
@@ -39,7 +39,20 @@ export default defineBuildConfig({
   },
 
   // External dependencies (not bundled)
-  externals: ['zod', 'commander', 'chalk', 'ora', 'consola', 'fast-glob'],
+  externals: [
+    'zod',
+    'commander',
+    'chalk',
+    'ora',
+    'consola',
+    'fast-glob',
+    'ai',
+    '@ai-sdk/openai',
+    '@anthropic-ai/sdk',
+    '@google/genai',
+    'ajv',
+    'dotenv',
+  ],
 
   // Replace values
   replace: {

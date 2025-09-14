@@ -173,7 +173,7 @@ export function generateValidationSuggestions(
         break;
       }
 
-      case 'invalid_enum_value': {
+      case 'invalid_value': {
         const options =
           (issue as { options?: string[] }).options?.join(', ') ||
           'allowed values';

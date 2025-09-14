@@ -202,7 +202,7 @@ export function parseFileContent(
         data: JSON.parse(content),
         wasParsed: true,
       };
-    } catch (_error) {
+    } catch {
       // If JSON parsing fails, treat as text
       return {
         data: content,

@@ -290,7 +290,12 @@ export class VercelAISDKAdapter implements ProviderAdapter {
             }),
         };
 
-        const result = await generateObject(generateObjectParams as any);
+        // Type assertion needed due to Vercel AI SDK version compatibility
+        const result = await generateObject(
+          generateObjectParams as unknown as Parameters<
+            typeof generateObject
+          >[0]
+        );
 
         content = JSON.stringify(result.object, null, 2);
         finishReason = result.finishReason;
