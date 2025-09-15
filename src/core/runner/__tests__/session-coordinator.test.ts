@@ -48,7 +48,7 @@ const createMockConfig = <T>(sessionId?: string): ProcessedConfiguration<T> => (
   model: 'test-model',
   providerOptions: {
     maxTokens: 1000,
-    temperature: DEFAULT_TEMPERATURE,
+    temperature: DEFAULT_TEMPERATURE
   },
 });
 
