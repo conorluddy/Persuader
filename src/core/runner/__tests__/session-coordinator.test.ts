@@ -9,6 +9,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { coordinateSession } from '../session-coordinator.js';
 import type { ProcessedConfiguration } from '../configuration-manager.js';
 import type { ProviderAdapter } from '../../../types/index.js';
+import { DEFAULT_TEMPERATURE } from '../../../shared/constants/values.js';
 import { z } from 'zod';
 
 // Mock session manager
@@ -47,7 +48,7 @@ const createMockConfig = <T>(sessionId?: string): ProcessedConfiguration<T> => (
   model: 'test-model',
   providerOptions: {
     maxTokens: 1000,
-    temperature: 0.7,
+    temperature: DEFAULT_TEMPERATURE,
   },
 });
 
