@@ -61,7 +61,7 @@ export interface ProviderAdapter {
    * const response = await provider.sendPrompt(
    *   sessionId,
    *   'Analyze this data: {...}',
-   *   { model: 'claude-3-sonnet', temperature: 0.7, maxTokens: 4096 }
+   *   { model: 'claude-3-sonnet', temperature: 0.4, maxTokens: 4096 }
    * );
    * console.log('Generated:', response.content);
    * ```

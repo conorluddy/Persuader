@@ -11,7 +11,15 @@ import type {
   ProviderError,
   ValidationError,
 } from '../../types/index.js';
-import { debug, info, error as logError, warn } from '../../utils/logger.js';
+import { 
+  debug, 
+  info, 
+  error as logError, 
+  warn, 
+  verboseDebug,
+  llmRequest,
+  llmResponse,
+} from '../../utils/logger.js';
 import {
   augmentPromptWithErrors,
   buildPrompt,
@@ -344,12 +352,55 @@ async function callProvider<T>(
     attemptNumber,
   });
 
-  return await provider.sendPrompt(sessionId || null, prompt, {
+  // Enhanced debug logging: Log the full prompt for debugging
+  llmRequest({
+    provider: provider.name,
+    model: config.model,
+    prompt: prompt.substring(0, 1000), // Preview for standard logging
+    fullPrompt: prompt, // Complete prompt for verbose debug mode
+    temperature: config.providerOptions.temperature,
+    maxTokens: config.providerOptions.maxTokens,
+    sessionId: sessionId || null,
+    attemptNumber,
+    requestId: `${provider.name}-${Date.now()}-${attemptNumber}`,
+  });
+
+  const providerResponse = await provider.sendPrompt(sessionId || null, prompt, {
     ...config.providerOptions,
     model: config.model,
     maxTokens: config.providerOptions.maxTokens,
     temperature: config.providerOptions.temperature,
   });
+
+  // Enhanced debug logging: Log the raw response for debugging
+  const responseData: Parameters<typeof llmResponse>[0] = {
+    provider: provider.name,
+    model: config.model,
+    response: providerResponse.content,
+    rawResponse: providerResponse.content, // Raw response for verbose debug mode
+    requestId: `${provider.name}-${Date.now()}-${attemptNumber}`,
+  };
+
+  if (sessionId) {
+    responseData.sessionId = sessionId;
+  }
+
+  if (providerResponse.tokenUsage) {
+    responseData.tokenUsage = providerResponse.tokenUsage;
+  }
+  if (providerResponse.metadata?.cost && typeof providerResponse.metadata.cost === 'number') {
+    responseData.cost = providerResponse.metadata.cost;
+  }
+  if (providerResponse.metadata?.durationMs && typeof providerResponse.metadata.durationMs === 'number') {
+    responseData.durationMs = providerResponse.metadata.durationMs;
+  }
+  if (providerResponse.metadata?.stopReason && typeof providerResponse.metadata.stopReason === 'string') {
+    responseData.stopReason = providerResponse.metadata.stopReason;
+  }
+
+  llmResponse(responseData);
+
+  return providerResponse;
 }
 
 /**
@@ -391,6 +442,16 @@ function validateProviderResponse<T>(
       errorCode: validationResult.error.code,
       errorMessage: validationResult.error.message,
       issues: validationResult.error.issues?.length || 0,
+    });
+
+    // Enhanced debug logging: Log raw response content on validation failure
+    verboseDebug('Raw response content that failed validation', {
+      attemptNumber,
+      rawContent: responseContent,
+      contentLength: responseContent.length,
+      errorType: validationResult.error.type,
+      errorCode: validationResult.error.code,
+      issues: validationResult.error.issues?.slice(0, 3), // First 3 issues for debugging
     });
 
     return {

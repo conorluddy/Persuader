@@ -32,6 +32,7 @@ export interface RunOptions {
   model?: string;
   dryRun?: boolean;
   verbose?: boolean;
+  debug?: boolean;
 }
 
 /**
@@ -44,8 +45,8 @@ export async function runCommand(options: RunOptions): Promise<void> {
   const startTime = Date.now();
 
   try {
-    // Configure logging based on verbose flag
-    configureLogging(options.verbose);
+    // Configure logging based on verbose and debug flags
+    configureLogging(options.verbose, options.debug);
 
     consola.info(chalk.green('Starting Persuader pipeline...'));
 
@@ -78,10 +79,23 @@ export async function runCommand(options: RunOptions): Promise<void> {
 }
 
 /**
- * Configure logging level based on verbose flag
+ * Configure logging level based on verbose and debug flags
  */
-function configureLogging(verbose = false): void {
-  if (verbose) {
+function configureLogging(verbose = false, debug = false): void {
+  if (debug) {
+    // Import and configure the global logger for debug mode
+    import('../../utils/logger.js').then(({ setGlobalLogLevel, getGlobalLogger }) => {
+      setGlobalLogLevel('verboseDebug');
+      const logger = getGlobalLogger();
+      logger.updateConfig({
+        fullPromptLogging: true,
+        rawResponseLogging: true,
+        detailedValidationErrors: true,
+      });
+    });
+    consola.level = 4; // Debug level for consola
+    consola.info(chalk.cyan('🔍 Debug mode enabled - Full LLM visibility active'));
+  } else if (verbose) {
     consola.level = 4; // Debug level
     consola.info(chalk.blue('🔧 Verbose mode enabled'));
   } else {

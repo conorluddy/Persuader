@@ -164,6 +164,111 @@ The `persuader run` command supports:
 - **Dry Run**: Configuration validation without LLM calls
 - Don't have more than a couple of node processes running at a time if possible
 
+## Enhanced Debug Features (v0.3.1+)
+
+### Debug Mode Usage
+
+The `--debug` flag provides comprehensive LLM interaction visibility for troubleshooting validation issues:
+
+```bash
+# Basic debug mode - enables all debug features
+persuader run --schema ./schema.ts --input ./data.json --debug
+
+# Combined with verbose for maximum visibility
+persuader run --schema ./schema.ts --input ./data.json --verbose --debug
+
+# Debug specific enum validation issues
+persuader run --schema ./complex-enums.ts --input ./problematic-data.json --debug
+```
+
+### Debug Features Enabled
+
+When `--debug` is active, the system:
+
+1. **Full Prompt Logging**: Shows complete prompts without truncation
+   ```
+   🔍 FULL LLM REQUEST claude-cli (claude-3-5-haiku-20241022)
+   ┌─ COMPLETE PROMPT
+   │ [SYSTEM] You are a world-class BJJ expert with deep knowledge...
+   │ [SCHEMA] The output must strictly conform to this Zod schema:...
+   │ [USER] Generate transitions from base-back-control-harness-controlling...
+   └─ END COMPLETE PROMPT
+   ```
+
+2. **Raw Response Capture**: Shows unprocessed LLM responses before validation
+   ```
+   🔍 RAW LLM RESPONSE claude-cli
+   ┌─ RAW RESPONSE
+   │ {
+   │   "perspectiveUuid": "base-mount-high-controlling",
+   │   "transitions": [...]
+   │ }
+   └─ END RAW RESPONSE
+   ```
+
+3. **Enhanced Validation Errors**: Detailed validation failures with fuzzy matching
+   ```
+   🔍 DETAILED VALIDATION ERROR transitions[0].targetUuid
+   field: transitions[0].targetUuid
+   actualValue: base-mount-high-controlling
+   expectedType: enum
+   validOptionsCount: 194
+   closestMatches: ["base-control-high-mount-controlling", "base-mount-controlling"]
+   suggestions: ["Did you mean: base-control-high-mount-controlling?"]
+   ```
+
+### Logging Level Hierarchy
+
+The framework uses a 6-level logging system:
+
+- **none**: No output
+- **error**: Critical failures only
+- **warn**: Warnings and validation failures
+- **info**: General execution flow (default)
+- **debug**: Truncated prompts/responses, basic metadata
+- **prompts**: Beautiful formatted prompt/response display
+- **verboseDebug**: Complete prompts, raw responses, validation details (enabled by `--debug`)
+
+### Troubleshooting Common Issues
+
+#### Enum Validation Failures
+```bash
+# Problem: UUID enum validation fails
+persuader run --schema ./schema.ts --input ./data.json --debug
+
+# Look for output like:
+# 💡 Did you mean: base-control-high-mount-controlling, base-mount-controlling?
+```
+
+#### Unknown Validation Errors
+```bash
+# Use debug mode to see the exact raw response that failed validation
+persuader run --schema ./schema.ts --input ./data.json --debug | grep -A 10 "RAW RESPONSE"
+```
+
+#### Token Usage Optimization
+```bash
+# Check token usage patterns with debug metadata
+persuader run --schema ./schema.ts --input ./data.json --debug --verbose | grep "tokens:"
+```
+
+### Fuzzy Matching Algorithm
+
+The enhanced validation system uses Levenshtein distance to suggest corrections:
+
+- **30% similarity threshold**: Only suggests reasonably similar options
+- **Top 3 suggestions**: Provides up to 3 closest matches
+- **Case-insensitive matching**: Handles casing differences gracefully
+- **Intelligent ranking**: Sorts by similarity score (highest first)
+
+Example fuzzy matching behavior:
+```
+Input: "base-mount-high-controlling"
+Valid options: ["base-control-high-mount-controlling", "base-mount-controlling", ...]
+Suggestions: ["base-control-high-mount-controlling", "base-mount-controlling"]
+Similarity scores: [0.89, 0.78]
+```
+
 ## Code Quality Standards
 
 ### Important! Before Committing (PR will fail CI/CD if ignored)

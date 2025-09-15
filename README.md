@@ -49,7 +49,7 @@ if (result.ok) {
 ```typescript
 import { createMockProvider, createOpenAIAdapter, createAnthropicSDKAdapter, createOllamaAdapter } from 'persuader';
 
-// For testing (fixed in v0.2.1!)
+// For testing (stable in v0.3.1!)
 const mockProvider = createMockProvider(); // Now works without arguments!
 
 // For production with OpenAI
@@ -710,6 +710,44 @@ persuader run \
 | `--session-id` | Reuse session ID | `"session-abc123"` |
 | `--dry-run` | Validate without LLM calls | - |
 | `--verbose` | Detailed execution logs | - |
+| `--debug` | Full LLM visibility mode | - |
+
+#### Debug Mode & Advanced Logging
+
+Persuader includes sophisticated debug capabilities for troubleshooting validation issues and understanding LLM interactions:
+
+```bash
+# Enable full LLM visibility with debug mode
+persuader run --schema ./schema.ts --input ./data.json --debug
+
+# Combine with verbose for maximum visibility
+persuader run --schema ./schema.ts --input ./data.json --verbose --debug
+```
+
+**Debug Mode Features:**
+- **🔍 Full Prompt Logging**: See complete prompts sent to LLMs without truncation
+- **📥 Raw Response Capture**: View unprocessed LLM responses before validation
+- **🎯 Enhanced Validation Errors**: Get fuzzy matching suggestions for enum mismatches
+- **📊 Detailed Metadata**: Track request IDs, attempt numbers, token usage, and execution timing
+
+**Logging Levels:**
+- `error`: Critical failures only
+- `warn`: Warnings and validation failures  
+- `info`: General execution flow (default)
+- `debug`: Truncated prompts/responses with basic metadata
+- `prompts`: Beautiful formatted prompt/response display
+- `verboseDebug`: Complete prompts, raw responses, and validation details
+
+**Example Debug Output for Enum Validation:**
+```
+🔍 DETAILED VALIDATION ERROR transitions[0].targetUuid
+  field: transitions[0].targetUuid
+  actualValue: base-mount-high-controlling
+  expectedType: enum
+  validOptionsCount: 194
+  closestMatches: ["base-control-high-mount-controlling", "base-mount-controlling"]
+  suggestions: ["Did you mean: base-control-high-mount-controlling, base-mount-controlling?"]
+```
 
 ### Session Management  
 
@@ -779,7 +817,7 @@ interface ExecutionMetadata {
 
 ## 🛠️ Production-Ready Features
 
-### ✅ Current Release (v0.2.1)
+### ✅ Current Release (v0.3.1)
 
 #### Core Framework
 - **🎯 Schema-First Validation**: Zod integration with intelligent error feedback that guides LLM corrections  
@@ -802,7 +840,7 @@ interface ExecutionMetadata {
 - **🤖 Anthropic SDK**: Direct Anthropic API integration with streaming support
 - **🤖 Ollama Support**: Local LLM integration for privacy-focused deployments
 - **🤖 Gemini Integration**: Google AI platform support with multimodal capabilities
-- **🧪 Enhanced Mock Provider**: Improved testing with configurable responses (fixed in v0.2.1)
+- **🧪 Enhanced Mock Provider**: Improved testing with configurable responses (stable in v0.3.1)
 - **📈 Rich Metadata**: Token usage, cost estimation, timing, and execution statistics
 - **🔧 Health Checks**: Provider availability validation before processing
 - **🎚️ Model Selection**: Support for different models with parameter customization
@@ -815,10 +853,12 @@ interface ExecutionMetadata {
 
 ### 🚀 Planned Features (Roadmap)
 
-#### ✅ v0.2.1 - Hotfix Release (Current)
+#### ✅ v0.3.1 - Enhanced Debug Release (Current)
+- **🔍 Advanced Debug Mode**: Full LLM prompt/response visibility with `--debug` flag
+- **🎯 Fuzzy Matching**: Intelligent enum validation with closest-match suggestions using Levenshtein distance
+- **📊 Enhanced Logging**: New `verboseDebug` level with complete execution transparency
+- **🛠️ Improved Validation**: Detailed validation error analysis with actionable corrections
 - **🐛 Mock Provider Fix**: Resolved critical bug where `createMockProvider()` required arguments
-- **🔄 Backward Compatibility**: Restored ability to call `createMockProvider()` without parameters
-- **🧪 Enhanced Testing**: Improved default mock responses for better development experience
 
 #### ✅ v0.2.0 - Multi-Provider Support (Released)
 - **✅ OpenAI Integration**: Direct API and Azure OpenAI support
@@ -1130,7 +1170,7 @@ MIT License - Use freely in your projects, commercial or open source.
 ## 📋 Quick Reference
 
 ```bash
-# Installation (Latest v0.2.1)
+# Installation (Latest v0.3.1)
 npm install persuader@latest
 
 # Basic Usage  
@@ -1147,5 +1187,46 @@ npm run dev && npm test && npm run check
 **🎯 Perfect for**: Data extraction, content analysis, domain modeling, batch processing, type-safe LLM integration
 
 **Built with ❤️ for production-ready, type-safe LLM orchestration.**
+
+## 🔍 Troubleshooting
+
+### UUID/Enum Validation Issues
+
+If you're encountering UUID format or enum validation failures, use debug mode to get detailed insights:
+
+```bash
+# Use debug mode to see exact values being validated
+persuader run --schema ./schema.ts --input ./data.json --debug
+```
+
+The enhanced validation system will:
+- Show the exact value received vs expected
+- Suggest closest enum matches using fuzzy matching (Levenshtein distance)
+- Provide "Did you mean?" suggestions for typos
+- Display all valid options for reference
+- Track which specific field path is failing
+
+**Example debug output for enum mismatch:**
+```
+⚠️  VALIDATION FAILED transitions.0.targetUuid
+💡 Did you mean: base-control-high-mount-controlling, base-mount-controlling?
+```
+
+### Common Issues
+
+| Issue | Solution | Command |
+|-------|----------|---------|
+| Schema validation failure | Enable debug mode for detailed errors | `--debug` |
+| Enum value mismatches | Use fuzzy matching suggestions | `--debug` |
+| Session not working | Check provider session support | `--verbose` |
+| Token usage too high | Use session management | `--session-id` |
+| Slow processing | Check model selection | `--model` |
+
+### Debug Workflow
+
+1. **Start with standard logging**: Use `--verbose` for execution flow
+2. **Add debug mode**: Use `--debug` for full LLM visibility
+3. **Check specific errors**: Look for validation feedback with suggestions
+4. **Iterate with corrections**: Apply suggested fixes and retry
 
 ---

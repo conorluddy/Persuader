@@ -196,14 +196,14 @@ export const DEFAULT_MAX_CONTEXT_LENGTH: MaxTokens = maxTokens(200000);
 /**
  * Default temperature for generation.
  *
- * Set to 0.7 for balanced creativity and consistency:
- * - High enough for varied, natural responses
- * - Low enough for reliable structured output
- * - Suitable for most use cases
+ * Set to 0.4 for deterministic, consistent responses:
+ * - Lower temperature for more predictable outputs
+ * - Better for reliable structured output and validation
+ * - Reduces variability while maintaining quality
  *
  * @since v2.0.0
  */
-export const DEFAULT_TEMPERATURE: Temperature = temperature(0.7);
+export const DEFAULT_TEMPERATURE: Temperature = temperature(0.4);
 
 // ============================================================================
 // MULTIPLIERS AND RATIOS
