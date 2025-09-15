@@ -13,7 +13,7 @@ import {
   type JsonlWriter,
 } from './jsonl-writer.js';
 
-export type LogLevel = 'none' | 'error' | 'warn' | 'info' | 'debug' | 'prompts';
+export type LogLevel = 'none' | 'error' | 'warn' | 'info' | 'debug' | 'prompts' | 'verboseDebug';
 
 export interface LogContext {
   [key: string]: unknown;
@@ -27,6 +27,11 @@ export interface LoggerConfig {
   maxPromptLength?: number;
   maxResponseLength?: number;
 
+  // Debug visibility options
+  fullPromptLogging?: boolean;
+  rawResponseLogging?: boolean;
+  detailedValidationErrors?: boolean;
+
   // JSONL logging options
   jsonlLogging?: boolean;
   logsDirectory?: string;
@@ -38,6 +43,7 @@ export interface LLMRequestLogData {
   provider: string;
   model?: string;
   prompt: string;
+  fullPrompt?: string; // Complete prompt when debug mode enabled
   temperature?: number | undefined;
   maxTokens?: number | undefined;
   sessionId?: string | null;
@@ -49,6 +55,7 @@ export interface LLMResponseLogData {
   provider: string;
   model?: string;
   response: string;
+  rawResponse?: string; // Unprocessed response when debug mode enabled
   tokenUsage?: TokenUsage;
   cost?: number;
   durationMs?: number;
@@ -67,6 +74,17 @@ export interface LLMErrorLogData {
   isRetryable?: boolean;
 }
 
+export interface DetailedValidationErrorData {
+  field: string;
+  actualValue: unknown;
+  expectedType: string;
+  validOptions?: unknown[];
+  closestMatches?: string[];
+  suggestions?: string[];
+  errorCode: string;
+  message: string;
+}
+
 class PersuaderLogger {
   private config: LoggerConfig;
   private readonly levels = {
@@ -76,6 +94,7 @@ class PersuaderLogger {
     info: 2,
     debug: 3,
     prompts: 4,
+    verboseDebug: 5,
   };
   private jsonlWriter: JsonlWriter | null = null;
 
@@ -86,6 +105,9 @@ class PersuaderLogger {
       prefix: 'Persuader',
       maxPromptLength: 1000,
       maxResponseLength: 1000,
+      fullPromptLogging: false,
+      rawResponseLogging: false,
+      detailedValidationErrors: false,
       jsonlLogging: false,
       logsDirectory: './logs',
       maxFileSize: 10 * 1024 * 1024, // 10MB
@@ -152,8 +174,9 @@ class PersuaderLogger {
         info: chalk.blue,
         debug: chalk.dim,
         prompts: chalk.magenta,
+        verboseDebug: chalk.cyan.dim,
         none: chalk.reset,
-      };
+      } as const;
       output += levelFormatters[level](`[${level.toUpperCase()}] `);
     } else {
       output += `[${level.toUpperCase()}] `;
@@ -264,6 +287,10 @@ class PersuaderLogger {
     this.log('debug', message, context);
   }
 
+  verboseDebug(message: string, context?: LogContext): void {
+    this.log('verboseDebug', message, context);
+  }
+
   /**
    * Log LLM request with formatted prompt and metadata
    */
@@ -272,6 +299,27 @@ class PersuaderLogger {
     if (this.config.level === 'prompts') {
       this.logPromptRequest(data);
       return;
+    }
+
+    // For verboseDebug level with fullPromptLogging, show complete prompt
+    if (this.shouldLog('verboseDebug') && this.config.fullPromptLogging && data.fullPrompt) {
+      const message = this.config.colors
+        ? `${chalk.cyan('🔍 FULL LLM REQUEST')} ${chalk.bold(data.provider)}${data.model ? ` (${data.model})` : ''}`
+        : `🔍 FULL LLM REQUEST ${data.provider}${data.model ? ` (${data.model})` : ''}`;
+
+      const context: LogContext = {
+        ...(data.requestId && { requestId: data.requestId }),
+        ...(data.attemptNumber && { attempt: data.attemptNumber }),
+        ...(data.sessionId && { sessionId: data.sessionId }),
+        ...(data.temperature !== undefined && { temperature: data.temperature }),
+        ...(data.maxTokens && { maxTokens: data.maxTokens }),
+        fullPrompt: this.config.colors
+          ? `${chalk.cyan('┌─ COMPLETE PROMPT')}\n${this.formatMultilineText(data.fullPrompt)}\n${chalk.cyan('└─ END COMPLETE PROMPT')}`
+          : `COMPLETE PROMPT:\n${data.fullPrompt}`,
+        promptLength: data.fullPrompt.length,
+      };
+
+      this.log('verboseDebug', message, context);
     }
 
     if (!this.shouldLog('debug')) return;
@@ -308,7 +356,7 @@ class PersuaderLogger {
           llmProvider: data.provider,
           llmModel: data.model,
           promptLength: data.prompt.length,
-          fullPrompt: data.prompt, // Store full prompt in JSONL
+          fullPrompt: data.fullPrompt || data.prompt, // Store full prompt in JSONL when available
           wasTruncated,
         },
         'llm'
@@ -324,6 +372,28 @@ class PersuaderLogger {
     if (this.config.level === 'prompts') {
       this.logPromptResponse(data);
       return;
+    }
+
+    // For verboseDebug level with rawResponseLogging, show raw response
+    if (this.shouldLog('verboseDebug') && this.config.rawResponseLogging && data.rawResponse) {
+      const message = this.config.colors
+        ? `${chalk.green('🔍 RAW LLM RESPONSE')} ${chalk.bold(data.provider)}${data.model ? ` (${data.model})` : ''}`
+        : `🔍 RAW LLM RESPONSE ${data.provider}${data.model ? ` (${data.model})` : ''}`;
+
+      const context: LogContext = {
+        ...(data.requestId && { requestId: data.requestId }),
+        ...(data.sessionId && { sessionId: data.sessionId }),
+        ...(data.durationMs && { durationMs: data.durationMs }),
+        ...(data.tokenUsage && {
+          tokens: `${data.tokenUsage.inputTokens}→${data.tokenUsage.outputTokens} (${data.tokenUsage.totalTokens} total)`,
+        }),
+        rawResponse: this.config.colors
+          ? `${chalk.green('┌─ RAW RESPONSE')}\n${this.formatMultilineText(data.rawResponse)}\n${chalk.green('└─ END RAW RESPONSE')}`
+          : `RAW RESPONSE:\n${data.rawResponse}`,
+        rawResponseLength: data.rawResponse.length,
+      };
+
+      this.log('verboseDebug', message, context);
     }
 
     if (!this.shouldLog('debug')) return;
@@ -364,7 +434,7 @@ class PersuaderLogger {
           llmProvider: data.provider,
           llmModel: data.model,
           responseLength: data.response.length,
-          fullResponse: data.response, // Store full response in JSONL
+          fullResponse: data.rawResponse || data.response, // Store raw response in JSONL when available
           tokenUsage: data.tokenUsage,
           wasTruncated,
         },
@@ -467,6 +537,50 @@ class PersuaderLogger {
     };
 
     this.log(success ? 'info' : 'warn', message, context);
+  }
+
+  /**
+   * Log detailed validation error with enhanced debugging information
+   */
+  detailedValidationError(data: DetailedValidationErrorData): void {
+    if (!this.shouldLog('verboseDebug') || !this.config.detailedValidationErrors) return;
+
+    const message = this.config.colors
+      ? `${chalk.red('🔍 DETAILED VALIDATION ERROR')} ${chalk.bold(data.field)}`
+      : `🔍 DETAILED VALIDATION ERROR ${data.field}`;
+
+    const context: LogContext = {
+      field: data.field,
+      actualValue: data.actualValue,
+      expectedType: data.expectedType,
+      errorCode: data.errorCode,
+      message: data.message,
+      ...(data.validOptions && { 
+        validOptionsCount: data.validOptions.length,
+        validOptionsSample: data.validOptions.slice(0, 5), // Show first 5 options
+      }),
+      ...(data.closestMatches && data.closestMatches.length > 0 && {
+        closestMatches: data.closestMatches,
+      }),
+      ...(data.suggestions && data.suggestions.length > 0 && {
+        suggestions: data.suggestions,
+      }),
+    };
+
+    this.log('verboseDebug', message, context);
+
+    // Enhanced JSONL logging for detailed validation errors
+    if (this.jsonlWriter) {
+      this.writeToJsonl(
+        'verboseDebug',
+        'DETAILED_VALIDATION_ERROR',
+        {
+          ...context,
+          allValidOptions: data.validOptions, // Store complete list in JSONL
+        },
+        'validation'
+      );
+    }
   }
 
   private formatMultilineText(text: string): string {
@@ -716,6 +830,10 @@ export function debug(message: string, context?: LogContext): void {
   globalLogger.debug(message, context);
 }
 
+export function verboseDebug(message: string, context?: LogContext): void {
+  globalLogger.verboseDebug(message, context);
+}
+
 // LLM-specific logging functions
 export function llmRequest(data: LLMRequestLogData): void {
   globalLogger.llmRequest(data);
@@ -748,6 +866,10 @@ export function logValidation(
   metadata?: LogContext
 ): void {
   globalLogger.validation(success, schemaName, issues, metadata);
+}
+
+export function logDetailedValidationError(data: DetailedValidationErrorData): void {
+  globalLogger.detailedValidationError(data);
 }
 
 export { PersuaderLogger };

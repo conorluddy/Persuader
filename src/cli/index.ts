@@ -75,6 +75,7 @@ For more information, visit: https://github.com/conorluddy/Persuader
     )
     .option('--dry-run', 'Validate inputs without calling LLM')
     .option('-v, --verbose', 'Enable verbose output with detailed logging')
+    .option('-d, --debug', 'Enable debug mode with full prompt/response visibility')
     .addHelpText(
       'after',
       `
@@ -93,6 +94,12 @@ Run Command Examples:
 
   $ persuader run -s ./schema.ts -i ./data.json --retries 3 --verbose
     Use custom retry count with detailed logging
+
+  $ persuader run -s ./schema.ts -i ./data.json --debug
+    Enable debug mode for full prompt/response visibility
+
+  $ persuader run -s ./schema.ts -i ./data.json --verbose --debug
+    Combine verbose progress with debug-level LLM visibility
 
   $ persuader run -s ./schema.ts -i ./data.json --dry-run
     Validate schema and inputs without LLM calls

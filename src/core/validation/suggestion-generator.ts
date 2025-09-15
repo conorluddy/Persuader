@@ -9,7 +9,7 @@
  */
 
 import type { z } from 'zod';
-import { debug } from '../../utils/logger.js';
+import { debug, logDetailedValidationError } from '../../utils/logger.js';
 
 /**
  * Structured representation of validation suggestions
@@ -35,6 +35,53 @@ export interface FieldCorrection {
   readonly currentState: string;
   /** Required correction action */
   readonly correctionAction: string;
+}
+
+/**
+ * Calculate Levenshtein distance between two strings for fuzzy matching
+ */
+function levenshteinDistance(str1: string, str2: string): number {
+  const matrix: number[][] = Array(str2.length + 1).fill(0).map(() => Array(str1.length + 1).fill(0));
+  
+  for (let i = 0; i <= str1.length; i++) {
+    matrix[0]![i] = i;
+  }
+  for (let j = 0; j <= str2.length; j++) {
+    matrix[j]![0] = j;
+  }
+  
+  for (let j = 1; j <= str2.length; j++) {
+    for (let i = 1; i <= str1.length; i++) {
+      const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+      matrix[j]![i] = Math.min(
+        matrix[j]![i - 1]! + 1,        // deletion
+        matrix[j - 1]![i]! + 1,        // insertion
+        matrix[j - 1]![i - 1]! + cost  // substitution
+      );
+    }
+  }
+  
+  return matrix[str2.length]![str1.length]!;
+}
+
+/**
+ * Find closest matches using fuzzy string matching
+ */
+function findClosestMatches(invalidValue: string, validOptions: string[], maxSuggestions = 3): string[] {
+  if (!validOptions.length) return [];
+  
+  const matches = validOptions
+    .map(option => ({
+      option,
+      distance: levenshteinDistance(invalidValue.toLowerCase(), option.toLowerCase()),
+      similarity: 1 - levenshteinDistance(invalidValue.toLowerCase(), option.toLowerCase()) / Math.max(invalidValue.length, option.length)
+    }))
+    .filter(match => match.similarity > 0.3) // Only suggest if at least 30% similar
+    .sort((a, b) => b.similarity - a.similarity) // Sort by similarity (highest first)
+    .slice(0, maxSuggestions)
+    .map(match => match.option);
+  
+  return matches;
 }
 
 /**
@@ -209,8 +256,40 @@ export function generateValidationSuggestions(
             suggestions.push(`Field "${path}": String format is invalid.`);
           }
         } else if (issueCode === 'invalid_enum_value' && hasOptions(issue)) {
-          const options = issue.options?.join(', ') || 'allowed values';
-          suggestions.push(`Field "${path}": Must be one of: ${options}.`);
+          const validOptions = issue.options || [];
+          const receivedValue = 'received' in issue ? String(issue.received) : 'unknown value';
+          
+          // Find closest matches using fuzzy matching
+          const closestMatches = receivedValue !== 'unknown value' 
+            ? findClosestMatches(receivedValue, validOptions.map(String))
+            : [];
+            
+          // Enhanced debug logging for enum validation failures
+          logDetailedValidationError({
+            field: path,
+            actualValue: receivedValue,
+            expectedType: 'enum',
+            validOptions: validOptions.map(String),
+            closestMatches,
+            suggestions: closestMatches.length > 0 
+              ? [`Did you mean: ${closestMatches.join(', ')}?`]
+              : ['Check the enum values list for exact match'],
+            errorCode: 'invalid_enum_value',
+            message: issue.message,
+          });
+          
+          if (closestMatches.length > 0) {
+            const truncatedOptions = validOptions.length > 10 
+              ? `${validOptions.slice(0, 10).join(', ')}... (${validOptions.length} total options)`
+              : validOptions.join(', ');
+            suggestions.push(
+              `Field "${path}": Received "${receivedValue}" but must be one of: ${truncatedOptions}.`,
+              `💡 Did you mean: ${closestMatches.join(', ')}?`
+            );
+          } else {
+            const options = issue.options?.join(', ') || 'allowed values';
+            suggestions.push(`Field "${path}": Must be one of: ${options}.`);
+          }
         } else {
           suggestions.push(`Field "${path}": ${issue.message}`);
         }
