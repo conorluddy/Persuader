@@ -262,6 +262,12 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
 
       // Parse the response to ensure session was established
       const claudeResponse = parseClaudeCLIResponse(stdout);
+      
+      // Handle error responses during session creation
+      if (claudeResponse.is_error) {
+        const errorContent = extractContentFromResponse(claudeResponse);
+        throw new Error(`Failed to create session: ${errorContent}`);
+      }
 
       info(
         '✅ SESSION_LIFECYCLE: Claude CLI session established successfully',
@@ -397,6 +403,7 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
       provider: this.name,
       model: options.model || 'default',
       prompt,
+      fullPrompt: prompt, // Always include full prompt for JSONL logging
       temperature: options.temperature ?? undefined,
       maxTokens: options.maxTokens ?? undefined,
       sessionId: sessionId,
@@ -489,6 +496,32 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
       });
 
       const claudeResponse = parseClaudeCLIResponse(stdout);
+      
+      // Handle error responses from Claude CLI
+      if (claudeResponse.is_error) {
+        const errorContent = extractContentFromResponse(claudeResponse);
+        const errorDuration = Date.now() - startTime;
+        
+        llmError({
+          provider: this.name,
+          model: options.model || 'default',
+          error: errorContent,
+          requestId,
+          isRetryable: this.isRetryableError(new Error(errorContent)),
+        });
+        
+        logError('Claude CLI returned error response', {
+          requestId,
+          errorMessage: errorContent,
+          sessionId: claudeResponse.session_id,
+          cost: claudeResponse.total_cost_usd || 0,
+          failureDurationMs: errorDuration,
+          retryable: this.isRetryableError(new Error(errorContent)),
+        });
+        
+        throw new Error(`Claude CLI error: ${errorContent}`);
+      }
+      
       const content = extractContentFromResponse(claudeResponse);
       const tokenUsage = getTokenUsage(claudeResponse);
       const totalDuration = Date.now() - startTime;
@@ -498,10 +531,11 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
         provider: this.name,
         model: options.model || 'default',
         response: content,
+        rawResponse: stdout, // Include raw Claude CLI response for debugging
         tokenUsage,
         cost: claudeResponse.total_cost_usd,
         durationMs: totalDuration,
-        sessionId: claudeResponse.session_id,
+        ...(claudeResponse.session_id && { sessionId: claudeResponse.session_id }),
         requestId,
         stopReason: 'end_turn', // Claude CLI doesn't provide this explicitly
       });

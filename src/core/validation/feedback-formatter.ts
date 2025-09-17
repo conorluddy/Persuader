@@ -96,6 +96,8 @@ export function formatSchemaValidationErrorFeedback(
     issueCount: error.issues?.length || 0,
     hasFieldCorrections: fieldCorrections.length > 0,
     hasSuggestions: (error.suggestions?.length || 0) > 0,
+    fullErrorDetails: error, // Log complete error for analysis
+    formattedFeedback: issueLines + correctionLines + suggestionLines + urgencyNote, // Log what we're sending back
   });
 
   return `Schema Validation Failed (Attempt ${attemptNumber}):\n${issueLines}${correctionLines}${suggestionLines}${urgencyNote}`;
