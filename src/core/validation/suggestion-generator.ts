@@ -221,10 +221,7 @@ export function generateValidationSuggestions(
       }
 
       case 'invalid_value': {
-        const options =
-          (issue as { options?: string[] }).options?.join(', ') ||
-          'allowed values';
-        suggestions.push(`Field "${path}": Must be one of: ${options}.`);
+        suggestions.push(`Field "${path}": Must select from the values provided in the original list.`);
         break;
       }
 
@@ -279,16 +276,14 @@ export function generateValidationSuggestions(
           });
           
           if (closestMatches.length > 0) {
-            const truncatedOptions = validOptions.length > 10 
-              ? `${validOptions.slice(0, 10).join(', ')}... (${validOptions.length} total options)`
-              : validOptions.join(', ');
             suggestions.push(
-              `Field "${path}": Received "${receivedValue}" but must be one of: ${truncatedOptions}.`,
+              `Field "${path}": Received "${receivedValue}" which is not valid. Please select only from the position perspectives provided in the original list.`,
               `💡 Did you mean: ${closestMatches.join(', ')}?`
             );
           } else {
-            const options = issue.options?.join(', ') || 'allowed values';
-            suggestions.push(`Field "${path}": Must be one of: ${options}.`);
+            suggestions.push(
+              `Field "${path}": Must select from the position perspectives provided in the original list. The value "${receivedValue}" is not recognized.`
+            );
           }
         } else {
           suggestions.push(`Field "${path}": ${issue.message}`);
