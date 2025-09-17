@@ -26,6 +26,7 @@ export interface LoggerConfig {
   timestamp?: boolean;
   maxPromptLength?: number;
   maxResponseLength?: number;
+  truncate?: boolean; // Only truncate if explicitly set to true
 
   // Debug visibility options
   fullPromptLogging?: boolean;
@@ -221,7 +222,8 @@ class PersuaderLogger {
     text: string,
     maxLength: number
   ): { text: string; wasTruncated: boolean } {
-    if (text.length <= maxLength) {
+    // Only truncate if explicitly enabled
+    if (!this.config.truncate || text.length <= maxLength) {
       return { text, wasTruncated: false };
     }
 
