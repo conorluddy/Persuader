@@ -194,7 +194,7 @@ describe('generateValidationSuggestions', () => {
 
       const result = generateValidationSuggestions(issues, {});
 
-      expect(result).toContain('Field "color": Must be one of: red, green, blue.');
+      expect(result).toContain('Field "color": Must select from the allowed values. The value "unknown value" is not recognized.');
     });
 
     it('should generate suggestions for invalid union types', () => {
@@ -225,7 +225,7 @@ describe('generateValidationSuggestions', () => {
 
       const result = generateValidationSuggestions(issues, {});
 
-      expect(result).toContain('Field "choice": Must be one of: option1, option2.');
+      expect(result).toContain('Field "choice": Must select from the allowed values.');
     });
   });
 

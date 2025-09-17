@@ -221,7 +221,7 @@ export function generateValidationSuggestions(
       }
 
       case 'invalid_value': {
-        suggestions.push(`Field "${path}": Must select from the values provided in the original list.`);
+        suggestions.push(`Field "${path}": Must select from the allowed values.`);
         break;
       }
 
@@ -277,12 +277,12 @@ export function generateValidationSuggestions(
           
           if (closestMatches.length > 0) {
             suggestions.push(
-              `Field "${path}": Received "${receivedValue}" which is not valid. Please select only from the position perspectives provided in the original list.`,
+              `Field "${path}": Received "${receivedValue}" which is not valid. Please select only from the allowed values.`,
               `💡 Did you mean: ${closestMatches.join(', ')}?`
             );
           } else {
             suggestions.push(
-              `Field "${path}": Must select from the position perspectives provided in the original list. The value "${receivedValue}" is not recognized.`
+              `Field "${path}": Must select from the allowed values. The value "${receivedValue}" is not recognized.`
             );
           }
         } else {
