@@ -214,6 +214,7 @@ export class VercelAISDKAdapter implements ProviderAdapter {
       provider: this.name,
       model: this.modelId,
       prompt,
+      fullPrompt: prompt, // Always include full prompt for JSONL logging
       temperature: options.temperature ?? this.defaultTemperature,
       maxTokens: options.maxTokens ?? this.defaultMaxTokens,
       sessionId,

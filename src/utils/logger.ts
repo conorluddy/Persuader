@@ -26,7 +26,29 @@ export interface LoggerConfig {
   timestamp?: boolean;
   maxPromptLength?: number;
   maxResponseLength?: number;
-  truncate?: boolean; // Only truncate if explicitly set to true
+  
+  /**
+   * Enable truncation of prompts and responses in logs.
+   * @default false - Shows full content by default for better debugging visibility.
+   * 
+   * **Security Warning**: Full prompt logging may expose sensitive data in production logs.
+   * Consider setting this to `true` in production environments to limit log size and 
+   * prevent accidental exposure of PII or sensitive information.
+   * 
+   * @example
+   * ```typescript
+   * // Development - full visibility for debugging
+   * const devLogger = createLogger({ level: 'debug' });
+   * 
+   * // Production - truncated for security and performance
+   * const prodLogger = createLogger({ 
+   *   level: 'info', 
+   *   truncate: true, 
+   *   maxPromptLength: 500 
+   * });
+   * ```
+   */
+  truncate?: boolean;
 
   // Debug visibility options
   fullPromptLogging?: boolean;
@@ -348,7 +370,7 @@ class PersuaderLogger {
 
     this.log('debug', message, context);
 
-    // Enhanced JSONL logging for LLM requests
+    // Enhanced JSONL logging for LLM requests - ALWAYS log full prompt for debugging
     if (this.jsonlWriter) {
       this.writeToJsonl(
         'debug',
@@ -358,8 +380,10 @@ class PersuaderLogger {
           llmProvider: data.provider,
           llmModel: data.model,
           promptLength: data.prompt.length,
-          fullPrompt: data.fullPrompt || data.prompt, // Store full prompt in JSONL when available
+          fullPrompt: data.fullPrompt || data.prompt, // Always store complete prompt in JSONL
+          promptPreview: data.prompt.substring(0, 200) + (data.prompt.length > 200 ? '...' : ''),
           wasTruncated,
+          timestamp: new Date().toISOString(),
         },
         'llm'
       );
@@ -426,7 +450,7 @@ class PersuaderLogger {
 
     this.log('debug', message, context);
 
-    // Enhanced JSONL logging for LLM responses
+    // Enhanced JSONL logging for LLM responses - ALWAYS log full response for debugging
     if (this.jsonlWriter) {
       this.writeToJsonl(
         'debug',
@@ -436,9 +460,11 @@ class PersuaderLogger {
           llmProvider: data.provider,
           llmModel: data.model,
           responseLength: data.response.length,
-          fullResponse: data.rawResponse || data.response, // Store raw response in JSONL when available
+          fullResponse: data.rawResponse || data.response, // Always store complete response in JSONL
+          responsePreview: data.response.substring(0, 200) + (data.response.length > 200 ? '...' : ''),
           tokenUsage: data.tokenUsage,
           wasTruncated,
+          timestamp: new Date().toISOString(),
         },
         'llm'
       );

@@ -283,7 +283,7 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
       );
 
       info('✅ SESSION_LIFECYCLE: Claude CLI session ready for use', {
-        sessionId: sessionId ? `${sessionId.substring(0, 8)}...` : 'unknown',
+        sessionId: `${sessionId.substring(0, 8)}...`,
         readyForUse: true,
         timestamp: new Date().toISOString(),
       });

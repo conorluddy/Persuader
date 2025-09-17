@@ -260,6 +260,7 @@ export class AnthropicSDKAdapter implements ProviderAdapter {
       provider: this.name,
       model,
       prompt,
+      fullPrompt: prompt, // Always include full prompt for JSONL logging
       temperature: options.temperature ?? undefined,
       maxTokens: options.maxTokens ?? undefined,
       sessionId: null, // Always null for stateless adapter
