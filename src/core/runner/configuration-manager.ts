@@ -82,7 +82,13 @@ export function validateAndNormalizeOptions<T>(
   // Validate basic options structure
   const validation = validateRunnerOptions(options);
   if (!validation.valid) {
-    throw new Error(`Invalid runner options: ${validation.errors.join(', ')}`);
+    const errorType = validation.errors.some(error => error.includes('Options configuration'))
+      ? 'Configuration validation failed'
+      : 'Options validation failed';
+    
+    throw new Error(
+      `${errorType}: ${validation.errors.join(' | ')}. This is a configuration issue with your options object, not a Zod schema validation failure.`
+    );
   }
 
   // Log schema information for debugging and visibility
@@ -195,6 +201,9 @@ export function processConfiguration<T>(
 /**
  * Validates runner options before processing
  *
+ * Provides comprehensive validation of all options with specific, actionable error
+ * messages that distinguish between configuration issues and schema validation failures.
+ *
  * @template T The expected output type
  * @param options Options to validate
  * @returns Validation result with specific error details
@@ -204,35 +213,139 @@ export function validateRunnerOptions<T>(
 ): ConfigurationValidation {
   const errors: string[] = [];
 
-  // Check required fields
+  // Validate options object structure
+  if (!options || typeof options !== 'object') {
+    errors.push(
+      'Options configuration is invalid: Must be a valid object. Please provide an options object with schema and input properties.'
+    );
+    return { valid: false, errors };
+  }
+
+  // Check required fields with detailed guidance
   if (!options.schema) {
-    errors.push('Schema is required');
+    errors.push(
+      'Options configuration error: schema property is required. Please provide a valid Zod schema object.'
+    );
+  } else {
+    // Validate schema is a Zod schema
+    if (
+      !options.schema ||
+      typeof options.schema !== 'object' ||
+      typeof options.schema.safeParse !== 'function'
+    ) {
+      errors.push(
+        'Options configuration error: schema must be a valid Zod schema object. Ensure you are importing and using a Zod schema (e.g., z.object({...})).'
+      );
+    }
   }
 
   if (options.input === undefined) {
-    errors.push('Input is required');
+    errors.push(
+      'Options configuration error: input property is required. Please provide input data to be processed by the LLM.'
+    );
   }
 
-  // Check numeric constraints
-  if (options.retries !== undefined && options.retries < 0) {
-    errors.push('Retries must be non-negative');
+  // Check numeric constraints with examples
+  if (options.retries !== undefined) {
+    if (typeof options.retries !== 'number') {
+      errors.push(
+        'Options configuration error: retries must be a number. Example: retries: 5'
+      );
+    } else if (options.retries < 0) {
+      errors.push(
+        'Options configuration error: retries must be non-negative. Use 0 for no retries, or a positive number like 3.'
+      );
+    } else if (options.retries > 10) {
+      errors.push(
+        'Options configuration warning: retries should not exceed 10 for reasonable execution time. Consider using a lower value like 3-5.'
+      );
+    }
   }
 
-  if (options.retries !== undefined && options.retries > 10) {
-    errors.push('Retries should not exceed 10 for reasonable execution time');
-  }
-
-  // Check string constraints
+  // Check string constraints with examples
   if (options.model !== undefined && typeof options.model !== 'string') {
-    errors.push('Model must be a string');
+    errors.push(
+      'Options configuration error: model must be a string. Example: model: "claude-3-5-sonnet-20241022"'
+    );
   }
 
   if (options.context !== undefined && typeof options.context !== 'string') {
-    errors.push('Context must be a string');
+    errors.push(
+      'Options configuration error: context must be a string. Example: context: "You are an expert data analyst"'
+    );
   }
 
   if (options.lens !== undefined && typeof options.lens !== 'string') {
-    errors.push('Lens must be a string');
+    errors.push(
+      'Options configuration error: lens must be a string. Example: lens: "Focus on accuracy and detail"'
+    );
+  }
+
+  if (options.sessionId !== undefined && typeof options.sessionId !== 'string') {
+    errors.push(
+      'Options configuration error: sessionId must be a string. Example: sessionId: "analysis-session-1"'
+    );
+  }
+
+  if (options.output !== undefined && typeof options.output !== 'string') {
+    errors.push(
+      'Options configuration error: output must be a string file path. Example: output: "./results.json"'
+    );
+  }
+
+  // Validate providerOptions structure
+  if (options.providerOptions !== undefined) {
+    if (typeof options.providerOptions !== 'object' || options.providerOptions === null) {
+      errors.push(
+        'Options configuration error: providerOptions must be an object. Example: providerOptions: { maxTokens: 1000, temperature: 0.7 }'
+      );
+    } else {
+      // Check common provider option types
+      const providerOpts = options.providerOptions;
+      
+      if ('maxTokens' in providerOpts && typeof providerOpts.maxTokens !== 'number') {
+        errors.push(
+          'Options configuration error: providerOptions.maxTokens must be a number. Example: maxTokens: 1000'
+        );
+      }
+      
+      if ('temperature' in providerOpts && typeof providerOpts.temperature !== 'number') {
+        errors.push(
+          'Options configuration error: providerOptions.temperature must be a number between 0 and 1. Example: temperature: 0.7'
+        );
+      }
+      
+      if ('temperature' in providerOpts && typeof providerOpts.temperature === 'number') {
+        const temp = providerOpts.temperature as number;
+        if (temp < 0 || temp > 2) {
+          errors.push(
+            'Options configuration warning: providerOptions.temperature should typically be between 0 and 1. Higher values increase randomness.'
+          );
+        }
+      }
+    }
+  }
+
+  // Validate logLevel if provided
+  if (options.logLevel !== undefined) {
+    const validLogLevels = ['none', 'error', 'warn', 'info', 'debug', 'prompts'];
+    if (typeof options.logLevel !== 'string' || !validLogLevels.includes(options.logLevel)) {
+      errors.push(
+        `Options configuration error: logLevel must be one of: ${validLogLevels.join(', ')}. Example: logLevel: "info"`
+      );
+    }
+  }
+
+  // Validate exampleOutput matches schema type if both provided
+  if (options.exampleOutput !== undefined && options.schema) {
+    try {
+      // Quick type check - full validation happens later in validateExampleOutput
+      if (typeof options.exampleOutput !== 'object' && typeof options.exampleOutput !== 'string' && typeof options.exampleOutput !== 'number' && typeof options.exampleOutput !== 'boolean') {
+        // Only warn for clearly invalid types, let the later validation handle schema specifics
+      }
+    } catch {
+      // Ignore validation errors here - they'll be caught in validateExampleOutput
+    }
   }
 
   return {

@@ -143,7 +143,7 @@ describe('validateAndNormalizeOptions', () => {
       const options = { schema: undefined, input: undefined } as any;
 
       expect(() => validateAndNormalizeOptions(options)).toThrow(
-        'Invalid runner options: Schema is required, Input is required'
+        /Configuration validation failed.*Options configuration error.*schema property is required.*input property is required.*This is a configuration issue with your options object, not a Zod schema validation failure/
       );
     });
 
@@ -159,6 +159,19 @@ describe('validateAndNormalizeOptions', () => {
 
       expect(() => validateAndNormalizeOptions(options)).toThrow(
         'Invalid exampleOutput provided: Name must be a string. Age must be a number'
+      );
+    });
+
+    it('should clearly distinguish configuration errors from schema validation errors', () => {
+      const options = {
+        schema: testSchema,
+        input: 'test input',
+        model: 123, // Invalid type
+        providerOptions: 'invalid' // Invalid type
+      } as any;
+
+      expect(() => validateAndNormalizeOptions(options)).toThrow(
+        /Configuration validation failed.*Options configuration error.*model must be a string.*providerOptions must be an object.*This is a configuration issue with your options object, not a Zod schema validation failure/
       );
     });
   });
@@ -322,7 +335,7 @@ describe('validateRunnerOptions', () => {
       const result = validateRunnerOptions(options);
 
       expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Schema is required');
+      expect(result.errors).toContain('Options configuration error: schema property is required. Please provide a valid Zod schema object.');
     });
 
     it('should detect missing input', () => {
@@ -331,7 +344,7 @@ describe('validateRunnerOptions', () => {
       const result = validateRunnerOptions(options);
 
       expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Input is required');
+      expect(result.errors).toContain('Options configuration error: input property is required. Please provide input data to be processed by the LLM.');
     });
 
     it('should detect negative retries', () => {
@@ -340,7 +353,7 @@ describe('validateRunnerOptions', () => {
       const result = validateRunnerOptions(options);
 
       expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Retries must be non-negative');
+      expect(result.errors).toContain('Options configuration error: retries must be non-negative. Use 0 for no retries, or a positive number like 3.');
     });
 
     it('should detect excessive retries', () => {
@@ -349,7 +362,7 @@ describe('validateRunnerOptions', () => {
       const result = validateRunnerOptions(options);
 
       expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Retries should not exceed 10 for reasonable execution time');
+      expect(result.errors).toContain('Options configuration warning: retries should not exceed 10 for reasonable execution time. Consider using a lower value like 3-5.');
     });
 
     it('should detect invalid model type', () => {
@@ -358,7 +371,7 @@ describe('validateRunnerOptions', () => {
       const result = validateRunnerOptions(options);
 
       expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Model must be a string');
+      expect(result.errors).toContain('Options configuration error: model must be a string. Example: model: "claude-3-5-sonnet-20241022"');
     });
 
     it('should detect invalid context type', () => {
@@ -367,7 +380,7 @@ describe('validateRunnerOptions', () => {
       const result = validateRunnerOptions(options);
 
       expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Context must be a string');
+      expect(result.errors).toContain('Options configuration error: context must be a string. Example: context: "You are an expert data analyst"');
     });
 
     it('should detect invalid lens type', () => {
@@ -376,7 +389,7 @@ describe('validateRunnerOptions', () => {
       const result = validateRunnerOptions(options);
 
       expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Lens must be a string');
+      expect(result.errors).toContain('Options configuration error: lens must be a string. Example: lens: "Focus on accuracy and detail"');
     });
 
     it('should accumulate multiple errors', () => {
@@ -390,6 +403,147 @@ describe('validateRunnerOptions', () => {
 
       expect(result.valid).toBe(false);
       expect(result.errors).toHaveLength(5); // schema, input, retries, model, context
+      expect(result.errors.some(error => error.includes('Options configuration error'))).toBe(true);
+    });
+
+    it('should detect invalid options object', () => {
+      const options = null as any;
+
+      const result = validateRunnerOptions(options);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Options configuration is invalid: Must be a valid object. Please provide an options object with schema and input properties.');
+    });
+
+    it('should detect invalid schema object', () => {
+      const options = createMockOptions({ schema: { notAZodSchema: true } as any });
+
+      const result = validateRunnerOptions(options);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Options configuration error: schema must be a valid Zod schema object. Ensure you are importing and using a Zod schema (e.g., z.object({...})).');
+    });
+
+    it('should validate providerOptions structure', () => {
+      const options = createMockOptions({
+        providerOptions: {
+          maxTokens: 1000,
+          temperature: 0.7,
+        },
+      });
+
+      const result = validateRunnerOptions(options);
+
+      expect(result.valid).toBe(true);
+      expect(result.errors).toEqual([]);
+    });
+
+    it('should detect invalid providerOptions', () => {
+      const options = createMockOptions({
+        providerOptions: 'not an object' as any,
+      });
+
+      const result = validateRunnerOptions(options);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Options configuration error: providerOptions must be an object. Example: providerOptions: { maxTokens: 1000, temperature: 0.7 }');
+    });
+
+    it('should detect invalid maxTokens in providerOptions', () => {
+      const options = createMockOptions({
+        providerOptions: {
+          maxTokens: 'invalid' as any,
+        },
+      });
+
+      const result = validateRunnerOptions(options);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Options configuration error: providerOptions.maxTokens must be a number. Example: maxTokens: 1000');
+    });
+
+    it('should detect invalid temperature in providerOptions', () => {
+      const options = createMockOptions({
+        providerOptions: {
+          temperature: 'invalid' as any,
+        },
+      });
+
+      const result = validateRunnerOptions(options);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Options configuration error: providerOptions.temperature must be a number between 0 and 1. Example: temperature: 0.7');
+    });
+
+    it('should warn about extreme temperature values', () => {
+      const options = createMockOptions({
+        providerOptions: {
+          temperature: 5.0,
+        },
+      });
+
+      const result = validateRunnerOptions(options);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Options configuration warning: providerOptions.temperature should typically be between 0 and 1. Higher values increase randomness.');
+    });
+
+    it('should validate string retries type', () => {
+      const options = createMockOptions({
+        retries: 'invalid' as any,
+      });
+
+      const result = validateRunnerOptions(options);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Options configuration error: retries must be a number. Example: retries: 5');
+    });
+
+    it('should validate sessionId type', () => {
+      const options = createMockOptions({
+        sessionId: 123 as any,
+      });
+
+      const result = validateRunnerOptions(options);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Options configuration error: sessionId must be a string. Example: sessionId: "analysis-session-1"');
+    });
+
+    it('should validate output type', () => {
+      const options = createMockOptions({
+        output: 123 as any,
+      });
+
+      const result = validateRunnerOptions(options);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Options configuration error: output must be a string file path. Example: output: "./results.json"');
+    });
+
+    it('should validate logLevel values', () => {
+      const options = createMockOptions({
+        logLevel: 'invalid' as any,
+      });
+
+      const result = validateRunnerOptions(options);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Options configuration error: logLevel must be one of: none, error, warn, info, debug, prompts. Example: logLevel: "info"');
+    });
+
+    it('should accept valid logLevel values', () => {
+      const validLogLevels = ['none', 'error', 'warn', 'info', 'debug', 'prompts'];
+      
+      for (const logLevel of validLogLevels) {
+        const options = createMockOptions({
+          logLevel: logLevel as any,
+        });
+
+        const result = validateRunnerOptions(options);
+
+        expect(result.valid).toBe(true);
+      }
     });
   });
 });
