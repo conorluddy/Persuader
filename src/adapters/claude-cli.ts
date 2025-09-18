@@ -768,46 +768,6 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
     );
   }
 
-  /**
-   * Determine if an error indicates session corruption requiring fresh session
-   */
-  private isSessionCorruptionError(error: unknown): boolean {
-    if (!(error instanceof Error)) return false;
-
-    const message = error.message.toLowerCase();
-    return (
-      message.includes('exit code 1') ||
-      (message.includes('session') &&
-        (message.includes('not found') ||
-          message.includes('expired') ||
-          message.includes('invalid') ||
-          message.includes('corruption')))
-    );
-  }
-
-  /**
-   * Get recommended delay for specific error types (used by retry logic)
-   */
-  private getRetryDelay(error: unknown, attemptNumber: number): number {
-    if (!(error instanceof Error)) return 1000;
-
-    const message = error.message.toLowerCase();
-    const baseDelay = 1000; // 1 second base
-    const backoffMultiplier = Math.pow(2, attemptNumber - 1);
-
-    // Longer delays for rate limiting
-    if (message.includes('rate limit') || message.includes('429')) {
-      return Math.min(baseDelay * backoffMultiplier * 3, 30000); // Up to 30s for rate limits
-    }
-
-    // Shorter delays for session corruption (quick recovery)
-    if (message.includes('exit code 1') || message.includes('session')) {
-      return Math.min(baseDelay * backoffMultiplier * 0.5, 5000); // Up to 5s for session issues
-    }
-
-    // Standard exponential backoff for other errors
-    return Math.min(baseDelay * backoffMultiplier, 10000); // Up to 10s for other issues
-  }
 
   /**
    * Determine if an error is retryable
