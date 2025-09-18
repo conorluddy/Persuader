@@ -262,7 +262,7 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
 
       // Parse the response to ensure session was established
       const claudeResponse = parseClaudeCLIResponse(stdout);
-      
+
       // Handle error responses during session creation
       if (claudeResponse.is_error) {
         const errorContent = extractContentFromResponse(claudeResponse);
@@ -316,6 +316,8 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
     args: string[],
     input: string
   ): Promise<{ stdout: string; stderr: string }> {
+    const startTime = Date.now();
+
     return new Promise((resolve, reject) => {
       const child = spawn(this.binary, args, {
         stdio: ['pipe', 'pipe', 'pipe'],
@@ -347,7 +349,7 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
       });
 
       // Handle process completion
-      child.on('close', code => {
+      child.on('close', (code) => {
         if (!finished) {
           finished = true;
           clearTimeout(timeout);
@@ -355,17 +357,41 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
           if (code === 0) {
             resolve({ stdout, stderr });
           } else {
-            reject(
-              new Error(
-                `Claude CLI command failed with exit code ${code}: ${stderr || 'No error output'}`
-              )
+            // Enhanced error context for exit code failures
+            const errorDetails = {
+              exitCode: code,
+              stderr: stderr || 'No error output',
+              stdout: stdout ? stdout.substring(0, 500) : 'No output',
+              commandDuration: Date.now() - startTime,
+            };
+
+            // Log detailed error context for debugging
+            logError(
+              'Claude CLI process failed with detailed context',
+              errorDetails
             );
+
+            // Provide enhanced error message with potential causes and recommendations
+            let errorMessage = `Claude CLI command failed with exit code ${code}`;
+            if (code === 1) {
+              // Detect likely context length issues
+              const inputLength = input?.length || 0;
+              if (inputLength > 10000) {
+                errorMessage += ` (likely cause: context length exceeded with ${inputLength} character prompt - consider using Claude Sonnet instead of Haiku for large prompts)`;
+              } else {
+                errorMessage +=
+                  ' (possible causes: session corruption, rate limiting, or API authentication issues)';
+              }
+            }
+            errorMessage += `: ${stderr || 'No error output'}`;
+
+            reject(new Error(errorMessage));
           }
         }
       });
 
       // Handle process error
-      child.on('error', error => {
+      child.on('error', (error) => {
         if (!finished) {
           finished = true;
           clearTimeout(timeout);
@@ -439,7 +465,11 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
       // Always use JSON output for structured parsing
       args.push('--output-format', 'json');
 
+      // Remove default turn limit to allow unlimited conversation turns
+      args.push('--max-turns', '0');
+
       // Resume session if provided (for conversation continuity)
+      // Note: If this is a retry after a session corruption error, sessionId will be null
       if (sessionId) {
         args.push('--resume', sessionId);
       }
@@ -450,12 +480,17 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
       }
 
       // Add max tokens if specified
-      if (options.maxTokens) {
-        args.push('--max-turns', String(Math.ceil(options.maxTokens / 1000))); // Rough approximation
-      }
+      // disabled: hitting errors running into max-turns issues when using this in the wild
+      // maxTokens mapping to maxTurns seems wonky.
+      // if (options.maxTokens) {
+      //   args.push('--max-turns', String(Math.ceil(options.maxTokens / 1000))); // Rough approximation
+      // }
 
       // Construct command without prompt (will use stdin)
       const command = `${this.binary} ${args.join(' ')}`;
+
+      // Get model recommendation for this prompt size
+      const modelRec = ClaudeCLIAdapter.getModelRecommendation(prompt.length);
 
       debug('Executing Claude CLI command with stdin', {
         requestId,
@@ -463,6 +498,10 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
         command, // No need to hide content since prompt goes via stdin
         argsCount: args.length,
         promptLength: prompt.length,
+        estimatedTokens: modelRec.estimatedTokens,
+        recommendedModel: modelRec.recommendedModel,
+        modelRecommendationReason: modelRec.reason,
+        currentModel: options.model,
         timeout: this.timeout,
         maxBuffer: this.maxBuffer,
       });
@@ -496,12 +535,12 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
       });
 
       const claudeResponse = parseClaudeCLIResponse(stdout);
-      
+
       // Handle error responses from Claude CLI
       if (claudeResponse.is_error) {
         const errorContent = extractContentFromResponse(claudeResponse);
         const errorDuration = Date.now() - startTime;
-        
+
         llmError({
           provider: this.name,
           model: options.model || 'default',
@@ -509,7 +548,7 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
           requestId,
           isRetryable: this.isRetryableError(new Error(errorContent)),
         });
-        
+
         logError('Claude CLI returned error response', {
           requestId,
           errorMessage: errorContent,
@@ -518,10 +557,10 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
           failureDurationMs: errorDuration,
           retryable: this.isRetryableError(new Error(errorContent)),
         });
-        
+
         throw new Error(`Claude CLI error: ${errorContent}`);
       }
-      
+
       const content = extractContentFromResponse(claudeResponse);
       const tokenUsage = getTokenUsage(claudeResponse);
       const totalDuration = Date.now() - startTime;
@@ -535,7 +574,9 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
         tokenUsage,
         cost: claudeResponse.total_cost_usd,
         durationMs: totalDuration,
-        ...(claudeResponse.session_id && { sessionId: claudeResponse.session_id }),
+        ...(claudeResponse.session_id && {
+          sessionId: claudeResponse.session_id,
+        }),
         requestId,
         stopReason: 'end_turn', // Claude CLI doesn't provide this explicitly
       });
@@ -727,6 +768,7 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
     );
   }
 
+
   /**
    * Determine if an error is retryable
    */
@@ -742,8 +784,11 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
       message.includes(HTTP_SERVICE_UNAVAILABLE.toString()) ||
       message.includes(HTTP_GATEWAY_TIMEOUT.toString()) ||
       message.includes('econnreset') ||
-      message.includes('enotfound')
-      // Session-related errors should now be resolved with --resume flag
+      message.includes('enotfound') ||
+      // Exit code 1 failures are often retryable (session issues, temp API problems)
+      message.includes('exit code 1') ||
+      message.includes('session corruption') ||
+      message.includes('context length exceeded')
     );
   }
 
@@ -820,6 +865,38 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
 
     // Generic error with context
     return new Error(`${context}: ${originalMessage}`);
+  }
+
+  /**
+   * Estimate token count and recommend optimal model for prompt size
+   */
+  static getModelRecommendation(promptLength: number): {
+    estimatedTokens: number;
+    recommendedModel: string;
+    reason: string;
+  } {
+    // Rough token estimation: ~4 chars per token for English text
+    const estimatedTokens = Math.ceil(promptLength / 4);
+
+    if (estimatedTokens > 50000) {
+      return {
+        estimatedTokens,
+        recommendedModel: 'claude-3-5-sonnet-20241022',
+        reason: 'Large prompt requires Sonnet for reliable processing',
+      };
+    } else if (estimatedTokens > 20000) {
+      return {
+        estimatedTokens,
+        recommendedModel: 'claude-3-5-sonnet-20241022',
+        reason: 'Medium-large prompt works better with Sonnet than Haiku',
+      };
+    } else {
+      return {
+        estimatedTokens,
+        recommendedModel: 'claude-3-5-haiku-20241022',
+        reason: 'Small prompt suitable for efficient Haiku model',
+      };
+    }
   }
 
   /**
