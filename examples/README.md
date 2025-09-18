@@ -62,8 +62,12 @@ npm run example:exercise
 # Multi-stage workout program generation with session management
 npm run example:workout
 
+# Optimized workout generation (advanced patterns)
+npm run example:workout:optimized
+
 # Provider-specific examples showcasing unique capabilities
 npm run example:ollama      # Local creative writing with privacy
+npm run example:openai      # OpenAI provider integration
 npm run example:gemini      # Technical analysis with JSON mode
 npm run example:anthropic   # Music composition with advanced reasoning
 ```
@@ -155,7 +159,7 @@ Generates safe anatomical transitions between yoga poses, treating poses as node
 
 ```bash
 npm run example:yoga          # Full transition analysis
-npm run example:yoga:minimal  # Streamlined version
+# Note: There is no separate minimal version script - the main example includes efficient session usage
 ```
 
 **Learning Focus**:
@@ -252,8 +256,7 @@ example-name/
 
 ### Beginner: Provider Basics
 - **Local LLMs**: `npm run example:ollama` - Privacy-first creative writing
-- **Basic**: `npm run example:yoga` - Simple relationship extraction
-- **Minimal**: `npm run example:yoga:minimal` - Streamlined session usage
+- **Basic**: `npm run example:yoga` - Simple relationship extraction with efficient session usage
 
 ### Intermediate: Provider Features
 - **JSON Mode**: `npm run example:gemini` - Structured output with Gemini

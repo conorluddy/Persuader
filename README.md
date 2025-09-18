@@ -31,7 +31,7 @@ const UserSchema = z.object({
   email: z.string().email()
 });
 
-// Process data with validation
+// Process data with validation (uses default ClaudeCode provider)
 const result = await persuade({
   schema: UserSchema,
   context: "Extract user information accurately",
@@ -47,7 +47,19 @@ if (result.ok) {
 ### 🔌 Multiple Provider Support
 
 ```typescript
-import { createMockProvider, createOpenAIAdapter, createAnthropicSDKAdapter, createOllamaAdapter } from 'persuader';
+import { 
+  createMockProvider, 
+  createOpenAIAdapter,
+  createClaudeCLIAdapter,
+  createProviderAdapter
+} from 'persuader';
+
+// Import additional adapters from adapters module
+import { 
+  createAnthropicSDKAdapter, 
+  createOllamaAdapter,
+  createGeminiAdapter 
+} from 'persuader/adapters';
 
 // For testing (stable in v0.3.1!)
 const mockProvider = createMockProvider(); // Now works without arguments!
@@ -58,12 +70,16 @@ const openaiProvider = createOpenAIAdapter({ apiKey: 'your-key' });
 // For local/private deployment
 const ollamaProvider = createOllamaAdapter({ baseUrl: 'http://localhost:11434' });
 
+// Alternative: Use factory function
+const claudeProvider = createProviderAdapter('claude-cli');
+const geminiProvider = createProviderAdapter('gemini', { apiKey: 'your-key' });
+
 // Use any provider with the same interface
 const result = await persuade({
-  provider: mockProvider, // or openaiProvider, ollamaProvider, etc.
   schema: UserSchema,
-  input: "Your data..."
-});
+  input: "Your data...",
+  context: "Extract user information accurately"
+}, mockProvider); // Pass provider as second parameter
 ```
 
 ### 🔗 Schema-Free Sessions with initSession()
@@ -1210,7 +1226,7 @@ npm install persuader@latest
 
 # Basic Usage  
 import { persuade, createMockProvider } from 'persuader';
-const result = await persuade({ schema, input, context, provider: createMockProvider() });
+const result = await persuade({ schema, input, context }, createMockProvider());
 
 # CLI Usage
 persuader run --schema ./schema.ts --input ./data.json --verbose
