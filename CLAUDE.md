@@ -49,7 +49,16 @@ npm run lint             # Lint code with ESLint
 
 ### Demo and Examples
 ```bash
-npm run demo:yoga        # Run the yoga pose analysis demo
+# Core examples
+npm run example:yoga        # Yoga pose analysis demo
+npm run example:fitness     # Fitness program analysis
+npm run example:workout     # Workout generation
+
+# Provider-specific examples
+npm run example:openai      # OpenAI integration
+npm run example:anthropic   # Anthropic SDK
+npm run example:gemini      # Google Gemini
+npm run example:ollama      # Local Ollama
 ```
 
 ### Single Test Execution
@@ -64,8 +73,20 @@ npx vitest --grep "validation"        # Run tests matching pattern
 Persuader is a TypeScript framework for schema-driven LLM orchestration with validation-driven retry loops. The architecture follows a clear separation of concerns:
 
 ### Core Pipeline (`src/core/`)
-- **`runner.ts`** - The central orchestration engine that handles the complete prompt → LLM → validation → retry cycle
-- **`validation.ts`** - Zod schema validation integration with intelligent error feedback generation
+- **`runner/`** - Modular pipeline orchestration (6 focused modules under 100 lines each)
+  - `pipeline-orchestrator.ts` - Main execution coordinator
+  - `configuration-manager.ts` - Options validation & normalization
+  - `session-coordinator.ts` - Session lifecycle management
+  - `execution-engine.ts` - Core LLM execution logic
+  - `error-recovery.ts` - Intelligent retry strategies
+  - `result-processor.ts` - Response validation & metadata
+  - `index.ts` - Public API with `persuade()` and `initSession()`
+- **`validation/`** - Validation system (5 focused modules)
+  - `json-parser.ts` - JSON parsing with intelligent error detection
+  - `error-factory.ts` - Structured ValidationError creation
+  - `suggestion-generator.ts` - Smart validation suggestions with fuzzy matching
+  - `feedback-formatter.ts` - LLM-friendly error formatting
+  - `field-analyzer.ts` - Schema field analysis utilities
 - **`retry.ts`** - Smart retry logic with exponential backoff and validation-driven feedback
 - **`prompt.ts`** - Prompt building, template management, and progressive enhancement
 
@@ -75,12 +96,23 @@ Persuader is a TypeScript framework for schema-driven LLM orchestration with val
 
 ### Provider Adapters (`src/adapters/`)
 - **`claude-cli.ts`** - Integration with ClaudeCode using `claude -p --output-format json`
-- Provider adapter pattern allows for future OpenAI, Anthropic SDK, and local LLM support
+- **`openai.ts`** - OpenAI API integration with direct API calls
+- **`anthropic-sdk.ts`** - Anthropic SDK integration with streaming support
+- **`ollama.ts`** - Local Ollama integration for privacy-focused deployments
+- **`gemini.ts`** - Google Gemini integration with multimodal capabilities
+- **`vercel-ai-sdk.ts`** - Vercel AI SDK showcase and integration patterns
+- **`index.ts`** - Provider factory and adapter creation utilities
 
 ### CLI Implementation (`src/cli/`)
 - **`commands/run.ts`** - Main `persuader run` command implementation
+- **`utilities/`** - CLI utilities (5 focused modules)
+  - `workflow-orchestrator.ts` - Command execution coordination
+  - `config-validator.ts` - CLI option validation & schema loading
+  - `progress-reporter.ts` - Real-time progress & metrics
+  - `file-processor.ts` - File I/O with glob patterns
+  - `error-handler.ts` - Comprehensive CLI error management
 - Handles file processing, schema loading, progress tracking, and batch operations
-- Supports glob patterns, dry-run mode, and verbose logging
+- Supports glob patterns, dry-run mode, verbose logging, and debug mode
 
 ### Type System (`src/types/`)
 - **`pipeline.ts`** - Core pipeline types (Options, Result, ExecutionMetadata)
@@ -98,7 +130,7 @@ Persuader is a TypeScript framework for schema-driven LLM orchestration with val
 ## Key Development Patterns
 
 ### Pipeline Flow
-The core `persuade` function in `runner.ts` orchestrates:
+The core `persuade` function in `runner/index.ts` orchestrates:
 1. Schema validation and options processing
 2. Session creation/reuse (if provider supports it)
 3. Prompt building with context and lens
@@ -120,10 +152,10 @@ interface ProviderAdapter {
 ```
 
 ### Schema-First Validation
-All validation uses Zod schemas. Validation errors are converted to specific LLM feedback through `formatValidationErrorFeedback` in `validation.ts`. This enables intelligent retry loops where the LLM receives targeted corrections.
+All validation uses Zod schemas. Validation errors are converted to specific LLM feedback through `formatValidationErrorFeedback` in `validation/feedback-formatter.ts`. This enables intelligent retry loops where the LLM receives targeted corrections with fuzzy matching suggestions.
 
 ### Session Management
-Sessions are optional but recommended for batch processing. The session manager handles context reuse, reducing token costs and improving consistency. Currently implemented for ClaudeCode; other providers can implement session support.
+Sessions are optional but recommended for batch processing. The session manager handles context reuse, reducing token costs and improving consistency. New `initSession()` function enables schema-free session creation for exploratory workflows. Implemented for ClaudeCode; other providers can implement session support.
 
 ## Testing Architecture
 
@@ -136,7 +168,7 @@ Sessions are optional but recommended for batch processing. The session manager 
 ## Dependencies and Requirements
 
 ### Runtime Requirements
-- **Node.js**: 22.0.0+ (specified in package.json engines)
+- **Node.js**: 20.0.0+ (specified in package.json engines)
 - **ClaudeCode**: Required for the default adapter (`npm install -g @anthropic-ai/claude-code`)
 - **TypeScript**: ES2024 target with strict mode enabled
 
@@ -164,7 +196,7 @@ The `persuader run` command supports:
 - **Dry Run**: Configuration validation without LLM calls
 - Don't have more than a couple of node processes running at a time if possible
 
-## Enhanced Debug Features (v0.3.1+)
+## Enhanced Debug Features (v0.3.4+)
 
 ### Debug Mode Usage
 
