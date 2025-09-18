@@ -142,3 +142,46 @@ export interface TokenUsage {
   /** Estimated cost in USD if available */
   readonly estimatedCost?: number;
 }
+
+/**
+ * Options for initializing a schema-free session
+ *
+ * Enables flexible session creation without schema validation requirements,
+ * supporting context setup, exploratory interactions, and multi-step workflows.
+ */
+export interface InitSessionOptions {
+  /** Global context to maintain across the session */
+  readonly context: string;
+
+  /** Optional initial prompt to send during session creation */
+  readonly initialPrompt?: string;
+
+  /** Existing session ID to reuse, or omit to create new session */
+  readonly sessionId?: string;
+
+  /** Provider adapter to use for session creation */
+  readonly provider?: import('./provider.js').ProviderAdapter;
+
+  /** LLM model identifier to use */
+  readonly model?: string;
+
+  /** Additional provider-specific options */
+  readonly providerOptions?: Record<string, unknown>;
+}
+
+/**
+ * Result of schema-free session initialization
+ *
+ * Contains session identifier for future operations and optional response
+ * if initial prompt was provided during session creation.
+ */
+export interface InitSessionResult {
+  /** Session ID for continuing conversations */
+  readonly sessionId: string;
+
+  /** Raw response if initialPrompt was provided */
+  readonly response?: string;
+
+  /** Execution metadata for performance tracking */
+  readonly metadata: Pick<ExecutionMetadata, 'executionTimeMs' | 'startedAt' | 'completedAt' | 'provider' | 'model'>;
+}
