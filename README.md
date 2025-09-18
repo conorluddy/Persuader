@@ -66,6 +66,41 @@ const result = await persuade({
 });
 ```
 
+### 🔗 Schema-Free Sessions with initSession()
+
+Create persistent sessions for exploratory interactions and cost optimization:
+
+```typescript
+import { initSession, persuade } from 'persuader';
+
+// 1. Initialize session with context (no schema required)
+const { sessionId, response } = await initSession({
+  context: 'You are a data analysis expert',
+  initialPrompt: 'Introduce yourself and explain your approach'
+});
+
+console.log(response); // Raw conversational response
+
+// 2. Continue with validated calls using same context
+const analysis = await persuade({
+  schema: AnalysisSchema,
+  input: 'Analyze this dataset...',
+  sessionId // Reuses context, saves tokens
+});
+
+// 3. Mix raw and validated responses as needed
+const { response: followUp } = await initSession({
+  sessionId,
+  initialPrompt: 'What would you recommend next?'
+});
+```
+
+**Key Benefits:**
+- **💰 Cost Optimization**: Context reuse reduces token consumption by 60-80%
+- **🔀 Flexible Workflows**: Mix raw exploration with validated outputs
+- **🧠 Conversation Continuity**: Maintain context across multiple interactions
+- **🚀 No Schema Constraints**: Perfect for exploratory phases
+
 ## 🎯 Problems This Solves
 
 ### **"I need structured data from LLMs, but they keep giving me garbage"**
