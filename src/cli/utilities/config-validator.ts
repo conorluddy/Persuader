@@ -409,7 +409,7 @@ export async function validateCompleteConfiguration(options: {
       schemaResult = await loadAndValidateSchema(options.schema, schemaOptions);
     } catch (error) {
       allErrors.push(
-        `Schema validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+        `Schema file loading failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please check that the schema file exists, exports a valid Zod schema, and has no syntax errors.`
       );
       return {
         valid: false,
