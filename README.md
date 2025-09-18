@@ -1,13 +1,15 @@
 # Persuader
 
 [![npm version](https://img.shields.io/npm/v/persuader)](https://www.npmjs.com/package/persuader)
-[![Node.js Version](https://img.shields.io/node/v/persuader)](https://nodejs.org/)
+[![Node.js Version](https://img.shields.io/badge/Node.js-20%2B-green)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7%2B-blue)](https://www.typescriptlang.org/)
 [![codecov](https://codecov.io/gh/conorluddy/Persuader/graph/badge.svg?token=OVCH7YW0Z1)](https://codecov.io/gh/conorluddy/Persuader)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Devin DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/conorluddy/Persuader)
 
-Gently persuades your LLM to generate Zod-schema-fitting JSON. Pairs LLM knowledge with Zod conformity. Uses validation message and retry loops with increasing correction prompts to help steer your agents to deliver what you need.
+**Production-ready TypeScript framework for schema-driven LLM orchestration with validation-driven retry loops and guaranteed structured output.**
+
+Transform unreliable LLM responses into type-safe, validated data through intelligent retry loops. Combines Zod schema validation with sophisticated error feedback to achieve 95%+ success rates in data extraction and transformation tasks.
 
 
 ```
@@ -51,35 +53,43 @@ import {
   createMockProvider, 
   createOpenAIAdapter,
   createClaudeCLIAdapter,
-  createProviderAdapter
+  createProviderAdapter,
+  createAnthropicSDKAdapter,
+  createOllamaAdapter,
+  createGeminiAdapter,
+  createVercelAISDKAdapter
 } from 'persuader';
 
-// Import additional adapters from adapters module
-import { 
-  createAnthropicSDKAdapter, 
-  createOllamaAdapter,
-  createGeminiAdapter 
-} from 'persuader/adapters';
+// For testing - stable mock provider
+const mockProvider = createMockProvider();
 
-// For testing (stable in v0.3.1!)
-const mockProvider = createMockProvider(); // Now works without arguments!
+// For production with Claude CLI (default)
+const claudeProvider = createClaudeCLIAdapter();
 
-// For production with OpenAI
+// For OpenAI integration
 const openaiProvider = createOpenAIAdapter({ apiKey: 'your-key' });
 
-// For local/private deployment
+// For Anthropic SDK integration
+const anthropicProvider = createAnthropicSDKAdapter({ apiKey: 'your-key' });
+
+// For local Ollama deployment
 const ollamaProvider = createOllamaAdapter({ baseUrl: 'http://localhost:11434' });
 
-// Alternative: Use factory function
-const claudeProvider = createProviderAdapter('claude-cli');
-const geminiProvider = createProviderAdapter('gemini', { apiKey: 'your-key' });
+// For Google Gemini
+const geminiProvider = createGeminiAdapter({ apiKey: 'your-key' });
+
+// For Vercel AI SDK (supports multiple providers)
+const vercelProvider = createVercelAISDKAdapter({ 
+  provider: 'openai', 
+  apiKey: 'your-key' 
+});
 
 // Use any provider with the same interface
 const result = await persuade({
   schema: UserSchema,
   input: "Your data...",
   context: "Extract user information accurately"
-}, mockProvider); // Pass provider as second parameter
+}, claudeProvider); // Pass provider as second parameter
 ```
 
 ### 🔗 Schema-Free Sessions with initSession()
@@ -231,10 +241,8 @@ export async function extractUserData(text: string) {
 
 ```bash
 npm install persuader
-pip install claude-cli  # Required for Claude integration
+npm install -g @anthropic-ai/claude-code  # Required for Claude integration
 ```
-
-Persuader is a production-ready TypeScript framework that transforms unreliable LLM responses into type-safe, validated data through intelligent retry loops. It combines Zod schema validation with sophisticated error feedback to achieve remarkably high success rates in data extraction and transformation tasks.
 
 ## 🎯 Core Innovation
 
@@ -286,7 +294,7 @@ Core principles:
 
 ```typescript
 import { z } from 'zod';
-import { persuade, createClaudeCLIAdapter } from 'persuader';
+import { persuade } from 'persuader';
 
 // Define your expected data structure
 const UserSchema = z.object({
@@ -295,13 +303,13 @@ const UserSchema = z.object({
   age: z.number().min(0).max(150)
 });
 
-// Process unstructured data into validated output
+// Process unstructured data into validated output (uses Claude CLI by default)
 const result = await persuade({
   schema: UserSchema,
   input: "John Doe, 30 years old, email: john@example.com",
   context: "Extract user information accurately",
   retries: 3
-}, createClaudeCLIAdapter());
+});
 
 if (result.ok) {
   // result.value is fully typed and validated ✅
@@ -335,15 +343,12 @@ persuader run --schema ./schema.ts --input ./data.json --dry-run
 Reuse context across multiple operations for efficiency:
 
 ```typescript
-import { createSessionManager, createClaudeCLIAdapter } from 'persuader';
+import { initSession, persuade } from 'persuader';
 
-const sessionManager = createSessionManager();
-const provider = createClaudeCLIAdapter();
-
-// Create session with shared context
-const session = await sessionManager.createSession(provider, {
+// Create session with shared context (no schema required)
+const { sessionId } = await initSession({
   context: 'You are an expert data analyst with knowledge of user behavior patterns...',
-  model: 'claude-3-5-sonnet-20241022'
+  initialPrompt: 'Please introduce yourself and explain your analysis approach.'
 });
 
 // Process multiple items with shared context (saves tokens & time)
@@ -352,9 +357,9 @@ for (const item of userDataItems) {
   const result = await persuade({
     schema: UserAnalysisSchema,
     input: item,
-    sessionId: session.id,  // Reuse context
+    sessionId,  // Reuse context
     retries: 2
-  }, provider);
+  });
   
   if (result.ok) {
     results.push(result.value);
@@ -435,7 +440,7 @@ const result = await persuade(options, provider);
 
 ### Requirements
 
-- **Node.js**: Version 20.0.0 or higher (tested on 20+)
+- **Node.js**: Version 20.0.0 or higher (specified in package.json engines)
 - **TypeScript**: 5.7.2+ for development  
 - **Zod**: v4.1.8+ (latest) - now with improved performance and enhanced error handling
 - **ClaudeCode**: Required for LLM calls (`npm install -g @anthropic-ai/claude-code`)
@@ -456,7 +461,7 @@ import { persuade } from 'persuader';
 ### Installation
 
 ```bash
-# Production installation (latest v0.3.0)
+# Production installation (latest v0.3.4)
 npm install persuader@latest
 
 # Global CLI installation  
@@ -543,23 +548,32 @@ Persuader includes comprehensive examples demonstrating production patterns acro
 # Fitness program analysis with expert perspectives  
 npm run example:fitness
 
+# Compare fitness perspectives across different expert roles
+npm run example:fitness:compare
+
 # Yoga pose transition generation with complex validation
 npm run example:yoga
-
-# Multi-stage workout program generation  
-npm run example:workout
-
-# Exercise relationship extraction and analysis
-npm run example:exercise
 
 # Advanced multi-dimensional yoga analysis
 npm run example:yoga-advanced
 
-# Provider-specific examples (NEW in v0.2.0+)
+# Multi-stage workout program generation  
+npm run example:workout
+
+# Optimized workout generation with advanced patterns
+npm run example:workout:optimized
+
+# Exercise relationship extraction and analysis
+npm run example:exercise
+
+# Provider-specific examples
 npm run example:openai          # OpenAI integration demo
 npm run example:ollama          # Local Ollama LLM demo  
 npm run example:gemini          # Google Gemini API demo
 npm run example:anthropic       # Anthropic SDK demo
+
+# Note: Additional examples available in examples/ directory:
+# - vercel-ai-sdk-showcase/     # Vercel AI SDK integration patterns
 ```
 
 ### Example Highlights
@@ -593,55 +607,82 @@ Persuader follows a **clean, modular architecture** with strict separation of co
 
 ```
 src/
-├── core/                           # Core framework logic (NEW: Modular)
-│   ├── runner/                     # Pipeline orchestration (7 focused modules)
+├── core/                           # Core framework logic - Modular design
+│   ├── runner/                     # Pipeline orchestration (6 focused modules)
 │   │   ├── pipeline-orchestrator.ts   # Main execution coordinator  
 │   │   ├── configuration-manager.ts   # Options validation & normalization
 │   │   ├── session-coordinator.ts     # Session lifecycle management
 │   │   ├── execution-engine.ts        # Core LLM execution logic
 │   │   ├── error-recovery.ts          # Intelligent retry strategies
 │   │   ├── result-processor.ts        # Response validation & metadata
-│   │   └── index.ts                   # Clean public API with health checking
+│   │   └── index.ts                   # Public API with persuade() and initSession()
 │   ├── validation/                 # Validation system (5 focused modules)  
 │   │   ├── json-parser.ts             # JSON parsing with intelligent error detection
 │   │   ├── error-factory.ts           # Structured ValidationError creation
-│   │   ├── suggestion-generator.ts    # Smart validation suggestions
+│   │   ├── suggestion-generator.ts    # Smart validation suggestions with fuzzy matching
 │   │   ├── feedback-formatter.ts      # LLM-friendly error formatting
 │   │   ├── field-analyzer.ts          # Schema field analysis utilities
 │   │   └── index.ts                   # High-level validation API
-│   ├── retry.ts                    # Exponential backoff with feedback loops
-│   └── prompt.ts                   # Progressive prompt enhancement
+│   ├── retry.ts                    # Exponential backoff with validation feedback
+│   ├── prompt.ts                   # Progressive prompt enhancement
+│   └── validation.ts               # Legacy validation utilities
 ├── adapters/                       # LLM provider integrations
-│   ├── claude-cli.ts               # Claude CLI with metadata & session support
-│   └── index.ts                    # Factory pattern for provider creation
-├── cli/                           # Production-ready CLI (NEW: Modular utilities)
-│   ├── commands/run.ts             # Streamlined main run command
-│   └── utilities/                  # CLI utilities (5 focused modules)
-│       ├── workflow-orchestrator.ts   # Command execution coordination
-│       ├── config-validator.ts        # CLI option validation & schema loading
-│       ├── progress-reporter.ts       # Real-time progress & metrics
-│       ├── file-processor.ts          # File I/O with glob patterns
-│       ├── error-handler.ts           # Comprehensive CLI error management
-│       └── index.ts                   # CLI utilities public API
+│   ├── claude-cli.ts               # Claude CLI with session support
+│   ├── openai.ts                   # OpenAI API integration
+│   ├── anthropic-sdk.ts            # Anthropic SDK integration
+│   ├── ollama.ts                   # Local Ollama integration
+│   ├── gemini.ts                   # Google Gemini integration
+│   ├── vercel-ai-sdk.ts            # Vercel AI SDK showcase
+│   └── index.ts                    # Provider factory and utilities
+├── cli/                           # Production-ready CLI with modular utilities
+│   ├── commands/run.ts             # Main run command implementation
+│   ├── utilities/                  # CLI utilities (5 focused modules)
+│   │   ├── workflow-orchestrator.ts   # Command execution coordination
+│   │   ├── config-validator.ts        # CLI option validation & schema loading
+│   │   ├── progress-reporter.ts       # Real-time progress & metrics
+│   │   ├── file-processor.ts          # File I/O with glob patterns
+│   │   ├── error-handler.ts           # Comprehensive CLI error management
+│   │   └── index.ts                   # CLI utilities public API
+│   └── index.ts                    # CLI entry point
 ├── session/                        # Session management
-│   ├── manager.ts                  # File-based session persistence
-│   └── provider-session.ts        # Provider-specific session implementations
-├── shared/                        # Shared constants (NEW)
-│   └── constants/
-│       └── http.ts                 # HTTP status codes & magic numbers
+│   ├── manager.ts                  # Session lifecycle management
+│   ├── provider-session.ts        # Provider-specific session implementations
+│   └── index.ts                    # Session management exports
+├── shared/                        # Shared constants and utilities
+│   ├── constants/                  # Application constants
+│   │   ├── http.ts                    # HTTP status codes
+│   │   ├── values.ts                  # Default values and limits
+│   │   ├── branded-types.ts           # Type safety utilities
+│   │   └── index.ts                   # Constants exports
+│   └── index.ts                    # Shared utilities
 ├── types/                         # Comprehensive TypeScript definitions  
-│   ├── pipeline.ts                 # Core pipeline types (Options, Result)
+│   ├── pipeline.ts                 # Core pipeline types (Options, Result, ExecutionMetadata)
 │   ├── provider.ts                 # Provider adapter interfaces
-│   ├── validation.ts               # Enhanced validation error types
-│   ├── flow.ts                     # Advanced flow control patterns
-│   └── ...                        # 13 type modules for full type coverage
-├── utils/                         # Core utilities (NEW: Health checking)
-│   ├── file-io.ts                 # Robust I/O with glob patterns
+│   ├── validation.ts               # Validation error types
+│   ├── session.ts                  # Session management types
+│   ├── config.ts                   # Configuration types
+│   ├── errors.ts                   # Error type definitions
+│   └── index.ts                    # Type exports
+├── utils/                         # Core utilities
+│   ├── file-io.ts                 # File processing with glob patterns
 │   ├── schema-loader.ts           # Dynamic TypeScript schema loading
 │   ├── logger.ts                  # Structured JSONL logging  
-│   ├── schema-analyzer.ts         # Schema introspection for validation
-│   └── index.ts                   # Utilities API with health checking
+│   ├── schema-analyzer.ts         # Schema introspection
+│   ├── example-generator.ts       # Example generation utilities
+│   ├── jsonl-writer.ts            # JSONL output utilities
+│   └── index.ts                   # Utilities API
+├── schemas/                       # Internal schemas
+│   └── claude-cli-response.ts     # Claude CLI response validation
 └── examples/                      # Production-ready usage examples
+    ├── yoga/                      # Yoga pose analysis examples
+    ├── fitness-analysis/          # Fitness program analysis
+    ├── workout-generator/         # Multi-stage workout generation
+    ├── anthropic-music/           # Anthropic SDK music composition
+    ├── gemini-analysis/           # Google Gemini integration
+    ├── ollama-local/              # Local Ollama deployment
+    ├── openai-test/               # OpenAI API integration
+    ├── vercel-ai-sdk-showcase/    # Vercel AI SDK examples
+    └── README.md                  # Examples documentation
 ```
 
 ### Design Principles (Following CODESTYLE.md)
@@ -868,7 +909,7 @@ interface ExecutionMetadata {
 
 ## 🛠️ Production-Ready Features
 
-### ✅ Current Release (v0.3.1)
+### ✅ Current Release (v0.3.4)
 
 #### Core Framework
 - **🎯 Schema-First Validation**: Zod integration with intelligent error feedback that guides LLM corrections  
@@ -891,7 +932,7 @@ interface ExecutionMetadata {
 - **🤖 Anthropic SDK**: Direct Anthropic API integration with streaming support
 - **🤖 Ollama Support**: Local LLM integration for privacy-focused deployments
 - **🤖 Gemini Integration**: Google AI platform support with multimodal capabilities
-- **🧪 Enhanced Mock Provider**: Improved testing with configurable responses (stable in v0.3.1)
+- **🧪 Enhanced Mock Provider**: Improved testing with configurable responses (stable)
 - **📈 Rich Metadata**: Token usage, cost estimation, timing, and execution statistics
 - **🔧 Health Checks**: Provider availability validation before processing
 - **🎚️ Model Selection**: Support for different models with parameter customization
@@ -904,28 +945,27 @@ interface ExecutionMetadata {
 
 ### 🚀 Planned Features (Roadmap)
 
-#### ✅ v0.3.1 - Enhanced Debug Release (Current)
+#### ✅ v0.3.4 - Current Release
+- **🔗 Schema-Free Sessions**: `initSession()` function for flexible LLM interactions
+- **🚫 Unlimited Conversations**: Removed max-turns limit to prevent interruptions
+- **💬 Enhanced Error Messages**: Clear differentiation between validation failure types
 - **🔍 Advanced Debug Mode**: Full LLM prompt/response visibility with `--debug` flag
-- **🎯 Fuzzy Matching**: Intelligent enum validation with closest-match suggestions using Levenshtein distance
-- **📊 Enhanced Logging**: New `verboseDebug` level with complete execution transparency
-- **🛠️ Improved Validation**: Detailed validation error analysis with actionable corrections
-- **🐛 Mock Provider Fix**: Resolved critical bug where `createMockProvider()` required arguments
+- **🎯 Fuzzy Matching**: Intelligent enum validation with closest-match suggestions
+- **🧪 Stable Mock Provider**: Resolved critical issues, no longer requires arguments
 
-#### ✅ v0.2.0 - Multi-Provider Support (Released)
-- **✅ OpenAI Integration**: Direct API and Azure OpenAI support
-- **✅ Anthropic SDK**: Direct Anthropic API integration  
-- **✅ Local Models**: Support for Ollama and other local LLM providers
-- **✅ Gemini Integration**: Google AI platform support
+#### ✅ v0.3.x - Previous Releases
+- **✅ Multi-Provider Support**: OpenAI, Anthropic SDK, Ollama, Gemini integration
 - **✅ Provider Abstraction**: Unified interface across all providers
 - **✅ Enhanced Examples**: Provider-specific demonstrations and best practices
+- **✅ Modular Architecture**: Refactored to focused modules under 300 lines each
 
-#### v0.3.0 - Advanced Patterns
+#### v0.4.0 - Advanced Patterns (Planned)
 - **Multi-Stage Pipelines**: Chain multiple validation steps with dependencies
 - **Conditional Logic**: Flow control based on intermediate results
 - **Batch Optimization**: Smart request batching for high-volume processing
 - **Result Caching**: Intelligent caching layer with invalidation strategies
 
-#### v0.4.0 - Enterprise Features
+#### v0.5.0 - Enterprise Features (Planned)
 - **Observability**: Metrics, tracing, and monitoring integration
 - **Performance Optimization**: Request deduplication, parallel processing
 - **Advanced Session Management**: Long-lived sessions, session sharing
@@ -1221,7 +1261,7 @@ MIT License - Use freely in your projects, commercial or open source.
 ## 📋 Quick Reference
 
 ```bash
-# Installation (Latest v0.3.1)
+# Installation (Latest v0.3.4)
 npm install persuader@latest
 
 # Basic Usage  
