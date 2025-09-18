@@ -16,6 +16,8 @@ import { validateJson } from './validation/index.js';
 // Core pipeline types
 export type {
   ExecutionMetadata,
+  InitSessionOptions,
+  InitSessionResult,
   Options,
   Result,
 } from '../types/pipeline.js';
@@ -40,6 +42,7 @@ export {
   createMockProvider,
   formatResultMetadata,
   getExecutionStats,
+  initSession,
   persuade,
   validateRunnerOptions,
 } from './runner/index.js';
