@@ -70,15 +70,44 @@ npx vitest --grep "validation"        # Run tests matching pattern
 
 ## 📚 API Reference
 
-**[Complete API Documentation](./API.md)** - Comprehensive reference for all functions, classes, and utilities exported by Persuader. Essential for understanding what functionality is available to consuming packages beyond the core `persuade()` and `initSession()` functions.
+**[Complete API Documentation](./API.md)** - Comprehensive reference for all functions, classes, and utilities exported by Persuader. Essential for understanding what functionality is available to consuming packages beyond the core `persuade()`, `initSession()`, and `preload()` functions.
 
 Key exports include:
+- **Core Functions**: `persuade()`, `initSession()`, `preload()`
 - Provider adapters (`createClaudeCLIAdapter`, `createOpenAIAdapter`, etc.)
 - Validation utilities (`validateJson`, `retryWithFeedback`)
 - Session management (`createSessionManager`, `defaultSessionManager`)
 - Testing utilities (`createMockProvider`)
 - File I/O utilities (`loadSchema`, `readInputs`, `writeOutput`)
 - Comprehensive TypeScript types for all functionality
+
+## Core API Functions
+
+### `persuade()` - Schema-Driven LLM Orchestration
+Main function for validated data extraction with retry loops and error feedback.
+
+### `initSession()` - Session Creation
+Creates persistent sessions for context reuse and cost optimization.
+
+### `preload()` - Context Loading
+**NEW**: Load data into existing sessions without validation for progressive context building.
+
+```typescript
+// Typical workflow
+const { sessionId } = await initSession({ context: "You are an expert..." });
+
+await preload({ 
+  sessionId, 
+  input: "Large document or dataset...",
+  validateInput: OptionalSchema // Quality gate
+});
+
+const result = await persuade({
+  schema: OutputSchema,
+  input: "Extract insights from loaded data",
+  sessionId
+});
+```
 
 ## Architecture Overview
 

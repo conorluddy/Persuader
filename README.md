@@ -127,6 +127,45 @@ const { response: followUp } = await initSession({
 - **🧠 Conversation Continuity**: Maintain context across multiple interactions
 - **🚀 No Schema Constraints**: Perfect for exploratory phases
 
+### 📥 Context Loading with preload()
+
+Load large documents or datasets into existing sessions for later structured extraction:
+
+```typescript
+import { initSession, preload, persuade } from 'persuader';
+
+// 1. Create session for financial analysis
+const { sessionId } = await initSession({
+  context: 'You are a financial analyst with 10 years experience'
+});
+
+// 2. Preload large context data (no validation, just loading)
+await preload({
+  sessionId,
+  input: '50 pages of Q4 financial reports...', // Large document
+  context: 'Store this financial data for analysis'
+});
+
+await preload({
+  sessionId, 
+  input: 'Market analysis and competitor data...', // More context
+  validateInput: DataQualitySchema // Optional: validate before sending
+});
+
+// 3. Extract structured insights with rich context
+const insights = await persuade({
+  schema: FinancialInsightsSchema,
+  input: 'Summarize key insights and recommendations',
+  sessionId // All preloaded context available
+});
+```
+
+**Perfect for:**
+- **📚 Document Processing**: Load large PDFs, reports, datasets
+- **🔄 Multi-step Workflows**: Build context progressively  
+- **✅ Data Quality Gates**: Optional validation before LLM processing
+- **🎯 Focused Extraction**: Rich context + targeted schema validation
+
 ## 🎯 Problems This Solves
 
 ### **"I need structured data from LLMs, but they keep giving me garbage"**
@@ -273,9 +312,10 @@ When validation fails, Persuader automatically provides targeted corrections to 
 - **🎯 Schema-First Validation**: Zod integration with intelligent error feedback for retry loops
 - **🔄 Smart Retry Logic**: Validation errors become specific LLM corrections
 - **⚡ Session Management**: Optional context reuse for token efficiency and consistency  
+- **📥 Context Loading**: `preload()` function for loading large datasets into sessions without validation
 - **🛠️ Production CLI**: Batch processing with glob patterns, progress tracking, and dry-run mode
 - **🔒 Type Safety**: Full TypeScript support with strict mode and comprehensive error handling
-- **✅ Battle Tested**: 58 passing tests covering core pipeline, adapters, validation, and CLI
+- **✅ Battle Tested**: 58+ passing tests covering core pipeline, adapters, validation, and CLI
 - **📊 Observable**: JSONL logging, execution metrics, and comprehensive error reporting
 
 ### 📖 Code Philosophy
