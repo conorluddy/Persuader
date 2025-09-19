@@ -185,3 +185,59 @@ export interface InitSessionResult {
   /** Execution metadata for performance tracking */
   readonly metadata: Pick<ExecutionMetadata, 'executionTimeMs' | 'startedAt' | 'completedAt' | 'provider' | 'model'>;
 }
+
+/**
+ * Options for preloading data into an existing session
+ *
+ * Provides a streamlined way to load context data, documents, or other
+ * information into sessions for later structured extraction. Designed for
+ * multi-step workflows where you build rich context before validation.
+ */
+export interface PreloadOptions {
+  /** Input data to be loaded into the session */
+  readonly input: unknown;
+
+  /** Existing session ID to load data into (required) */
+  readonly sessionId: string;
+
+  /** Optional additional context for this preload operation */
+  readonly context?: string;
+
+  /** Lens/perspective to apply during preloading */
+  readonly lens?: string;
+
+  /** LLM model identifier to use */
+  readonly model?: string;
+
+  /** Optional schema to validate input data before sending to LLM */
+  readonly validateInput?: z.ZodSchema<unknown>;
+
+  /** Logging level for framework operations */
+  readonly logLevel?: LogLevel;
+
+  /** Additional provider-specific options */
+  readonly providerOptions?: Record<string, unknown>;
+}
+
+/**
+ * Result of a preload operation
+ *
+ * Contains the raw LLM response and execution metadata without output validation.
+ * Designed for context building rather than structured data extraction.
+ */
+export interface PreloadResult {
+  /** Whether the preload operation succeeded */
+  readonly ok: boolean;
+
+  /** Session ID that was used for preloading */
+  readonly sessionId: string;
+
+  /** Raw LLM response content (only present if ok is true) */
+  readonly rawResponse?: string;
+
+  /** Error information if operation failed */
+  readonly error?: ValidationError | ProviderError;
+
+  /** Execution metadata for performance tracking */
+  readonly metadata: ExecutionMetadata;
+}

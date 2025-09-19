@@ -10,7 +10,7 @@
 import { buildPrompt } from './prompt.js';
 import { retryWithFeedback } from './retry.js';
 // Internal imports for module health checking
-import { persuade } from './runner/index.js';
+import { persuade, preload } from './runner/index.js';
 import { validateJson } from './validation/index.js';
 
 // Core pipeline types
@@ -19,6 +19,8 @@ export type {
   InitSessionOptions,
   InitSessionResult,
   Options,
+  PreloadOptions,
+  PreloadResult,
   Result,
 } from '../types/pipeline.js';
 // Prompt building utilities
@@ -44,6 +46,7 @@ export {
   getExecutionStats,
   initSession,
   persuade,
+  preload,
   validateRunnerOptions,
 } from './runner/index.js';
 // Validation utilities - high-level API only
@@ -69,6 +72,7 @@ export function isCoreModuleReady(): boolean {
     // Basic smoke test - ensure main functions are available
     return (
       typeof persuade === 'function' &&
+      typeof preload === 'function' &&
       typeof validateJson === 'function' &&
       typeof buildPrompt === 'function' &&
       typeof retryWithFeedback === 'function'

@@ -8,8 +8,9 @@
 
 import { createClaudeCLIAdapter } from '../../adapters/claude-cli.js';
 import { TOKEN_ESTIMATION_DIVISOR } from '../../shared/constants/index.js';
-import type { Options, ProviderAdapter, Result } from '../../types/index.js';
+import type { Options, PreloadOptions, PreloadResult, ProviderAdapter, Result } from '../../types/index.js';
 import { orchestratePipeline } from './pipeline-orchestrator.js';
+import { orchestratePreload } from './preload-orchestrator.js';
 // Configuration validation functions are re-exported below
 import { getExecutionStats } from './result-processor.js';
 
@@ -216,12 +217,56 @@ export async function initSession(
   }
 }
 
+/**
+ * Preload data into an existing session without output validation
+ *
+ * This function provides a streamlined way to load context data, documents,
+ * or other information into an existing session for later structured extraction.
+ * Perfect for multi-step workflows where you want to build rich context before
+ * using persuade() for validated output.
+ *
+ * @param options Configuration for the preload operation
+ * @param provider LLM provider adapter to use for generation (defaults to Claude CLI)
+ * @returns Promise resolving to preload result with raw response
+ *
+ * @example
+ * ```typescript
+ * // Load financial data into session
+ * const result = await preload({
+ *   sessionId: 'financial-session',
+ *   input: 'Q4 earnings report: [large document]',
+ *   context: 'Store this financial data for analysis'
+ * });
+ *
+ * if (result.ok) {
+ *   console.log('Data loaded successfully');
+ *   
+ *   // Later extract structured insights
+ *   const analysis = await persuade({
+ *     schema: AnalysisSchema,
+ *     input: 'Summarize key financial insights',
+ *     sessionId: 'financial-session'
+ *   });
+ * }
+ * ```
+ */
+export async function preload(
+  options: PreloadOptions,
+  provider: ProviderAdapter = createClaudeCLIAdapter()
+): Promise<PreloadResult> {
+  return await orchestratePreload(options, provider);
+}
+
 // Re-export validation and configuration functions directly
 export {
   processRunnerConfiguration,
   validateAndNormalizeOptions,
   validateProviderAdapter,
   validateRunnerOptions,
+  // Preload configuration functions
+  processPreloadConfiguration,
+  validatePreloadOptions,
+  type ProcessedPreloadConfiguration,
 } from './configuration-manager.js';
 
 /**

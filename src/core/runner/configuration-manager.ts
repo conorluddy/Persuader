@@ -13,7 +13,7 @@ import {
   DEFAULT_RETRIES,
   DEFAULT_TEMPERATURE,
 } from '../../shared/constants/index.js';
-import type { Options, ProviderAdapter } from '../../types/index.js';
+import type { Options, PreloadOptions, ProviderAdapter } from '../../types/index.js';
 import { validateExample } from '../../utils/example-generator.js';
 import type { LogLevel } from '../../utils/logger.js';
 import { debug, info, warn } from '../../utils/logger.js';
@@ -464,4 +464,174 @@ function validateExampleOutput<T>(options: Options<T>): void {
       debug('User-provided example validated successfully');
     }
   }
+}
+
+// ============================================================================
+// PRELOAD CONFIGURATION PROCESSING
+// ============================================================================
+
+/**
+ * Processed preload configuration with all defaults applied
+ */
+export interface ProcessedPreloadConfiguration {
+  readonly input: unknown;
+  readonly sessionId: string;
+  readonly context: string | undefined;
+  readonly lens: string | undefined;
+  readonly model: string;
+  readonly validateInput: z.ZodSchema<unknown> | undefined;
+  readonly logLevel: LogLevel | undefined;
+  readonly providerOptions: {
+    readonly maxTokens: number;
+    readonly temperature: number;
+  } & Record<string, unknown>;
+}
+
+/**
+ * Processes and validates preload configuration options
+ *
+ * This function handles validation and default application for preload operations.
+ * It follows the same patterns as the main pipeline configuration but with
+ * simplified requirements (no schema validation, no retry configuration).
+ *
+ * @param options Raw preload options provided by the user
+ * @returns Validated and processed preload configuration
+ * @throws Error if options are invalid
+ */
+export function processPreloadConfiguration(
+  options: PreloadOptions
+): ProcessedPreloadConfiguration {
+  // Validate basic preload options structure
+  const validation = validatePreloadOptions(options);
+  if (!validation.valid) {
+    throw new Error(
+      `Preload configuration validation failed: ${validation.errors.join(' | ')}`
+    );
+  }
+
+  debug('Processing preload configuration', {
+    hasInput: Boolean(options.input),
+    sessionId: options.sessionId,
+    hasContext: Boolean(options.context),
+    hasLens: Boolean(options.lens),
+    hasInputValidation: Boolean(options.validateInput),
+    model: options.model,
+    logLevel: options.logLevel,
+  });
+
+  // Apply defaults and create processed configuration
+  const processedConfig: ProcessedPreloadConfiguration = {
+    input: options.input,
+    sessionId: options.sessionId,
+    context: options.context,
+    lens: options.lens,
+    model: options.model || DEFAULT_MODEL,
+    validateInput: options.validateInput,
+    logLevel: options.logLevel,
+    providerOptions: {
+      maxTokens: DEFAULT_MAX_TOKENS,
+      temperature: DEFAULT_TEMPERATURE,
+      ...options.providerOptions,
+    },
+  };
+
+  info('Preload configuration processed successfully', {
+    sessionId: processedConfig.sessionId,
+    model: processedConfig.model,
+    hasContext: Boolean(processedConfig.context),
+    hasLens: Boolean(processedConfig.lens),
+    hasInputValidation: Boolean(processedConfig.validateInput),
+    providerOptionsKeys: Object.keys(processedConfig.providerOptions),
+  });
+
+  return processedConfig;
+}
+
+/**
+ * Validates preload options structure and values
+ *
+ * @param options Preload options to validate
+ * @returns Validation result with specific error details
+ */
+export function validatePreloadOptions(
+  options: PreloadOptions
+): ConfigurationValidation {
+  const errors: string[] = [];
+
+  // Validate required fields
+  if (!options.input) {
+    errors.push('Preload configuration error: input is required');
+  }
+
+  if (!options.sessionId || typeof options.sessionId !== 'string') {
+    errors.push(
+      'Preload configuration error: sessionId is required and must be a string'
+    );
+  }
+
+  // Validate optional fields
+  if (options.context !== undefined && typeof options.context !== 'string') {
+    errors.push(
+      'Preload configuration error: context must be a string if provided'
+    );
+  }
+
+  if (options.lens !== undefined && typeof options.lens !== 'string') {
+    errors.push(
+      'Preload configuration error: lens must be a string if provided'
+    );
+  }
+
+  if (options.model !== undefined && typeof options.model !== 'string') {
+    errors.push(
+      'Preload configuration error: model must be a string if provided'
+    );
+  }
+
+  // Validate logLevel if provided
+  if (options.logLevel !== undefined) {
+    const validLogLevels = ['none', 'error', 'warn', 'info', 'debug', 'prompts'];
+    if (typeof options.logLevel !== 'string' || !validLogLevels.includes(options.logLevel)) {
+      errors.push(
+        `Preload configuration error: logLevel must be one of: ${validLogLevels.join(', ')}`
+      );
+    }
+  }
+
+  // Validate provider options if provided
+  if (options.providerOptions !== undefined) {
+    if (
+      typeof options.providerOptions !== 'object' ||
+      options.providerOptions === null ||
+      Array.isArray(options.providerOptions)
+    ) {
+      errors.push(
+        'Preload configuration error: providerOptions must be an object if provided'
+      );
+    }
+  }
+
+  // Validate input validation schema if provided
+  if (options.validateInput !== undefined) {
+    try {
+      // Basic check to ensure it looks like a Zod schema
+      if (
+        typeof options.validateInput !== 'object' ||
+        typeof options.validateInput.parse !== 'function'
+      ) {
+        errors.push(
+          'Preload configuration error: validateInput must be a valid Zod schema'
+        );
+      }
+    } catch {
+      errors.push(
+        'Preload configuration error: validateInput must be a valid Zod schema'
+      );
+    }
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+  };
 }

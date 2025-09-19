@@ -34,8 +34,8 @@ export interface PromptParts {
  * Options for building prompts
  */
 export interface PromptBuildOptions {
-  /** Zod schema to convert to prompt instructions */
-  readonly schema: z.ZodSchema<unknown>;
+  /** Zod schema to convert to prompt instructions (optional for preload operations) */
+  readonly schema?: z.ZodSchema<unknown>;
 
   /** Input data to be processed */
   readonly input: unknown;
@@ -73,9 +73,9 @@ export function buildPrompt(options: PromptBuildOptions): PromptParts {
     exampleOutput,
   } = options;
 
-  // Generate or use provided example output
+  // Generate or use provided example output (only if schema is provided)
   let concreteExample = exampleOutput;
-  if (!concreteExample) {
+  if (!concreteExample && schema) {
     debug('No example output provided, generating from schema');
     try {
       concreteExample = generateExampleFromSchema(schema);
@@ -86,8 +86,8 @@ export function buildPrompt(options: PromptBuildOptions): PromptParts {
     }
   }
 
-  // Generate schema description from Zod schema
-  const schemaDescription = generateSchemaDescription(schema);
+  // Generate schema description from Zod schema (only if schema provided)
+  const schemaDescription = schema ? generateSchemaDescription(schema) : undefined;
 
   // Build system prompt with schema instructions and attempt-based urgency
   const systemPrompt = buildSystemPrompt(
@@ -194,7 +194,7 @@ function generateObjectSchemaDescription(
  * Build system prompt with schema instructions
  */
 function buildSystemPrompt(
-  schemaDescription: string,
+  schemaDescription: string | undefined,
   context?: string,
   lens?: string,
   attemptNumber: number = 1,
@@ -218,7 +218,9 @@ function buildSystemPrompt(
         ? `Output MUST be valid JSON that parses correctly. No explanatory text, only the JSON response.`
         : `Output MUST be valid JSON that parses correctly`;
 
-  const baseInstructions = `You are a precise data extraction and transformation assistant. Your task is to process input data and return a valid JSON response that exactly matches the specified schema.
+  // Build different instructions based on whether schema is provided
+  const baseInstructions = schemaDescription
+    ? `You are a precise data extraction and transformation assistant. Your task is to process input data and return a valid JSON response that exactly matches the specified schema.
 
 ${urgencyEmoji}${urgencyLevel} REQUIREMENTS:
 1. ${jsonInstructions}
@@ -229,7 +231,14 @@ ${urgencyEmoji}${urgencyLevel} REQUIREMENTS:
 6. ${attemptNumber >= 3 ? 'This is your final attempt - follow the schema exactly' : 'Ensure proper JSON escaping for special characters'}
 
 SCHEMA REQUIREMENTS:
-${schemaDescription}`;
+${schemaDescription}`
+    : `You are a helpful assistant. Process the provided input data and provide a clear, informative response. 
+
+${urgencyEmoji}${urgencyLevel} REQUIREMENTS:
+1. Provide a clear and helpful response
+2. Be informative and accurate
+3. Focus on understanding and processing the input data
+4. ${attemptNumber >= 2 ? 'Be concise and direct in your response' : 'Provide detailed information as needed'}`;
 
   const contextSection = context ? `\n\nCONTEXT:\n${context}` : '';
 
