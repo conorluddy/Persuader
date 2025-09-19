@@ -57,9 +57,13 @@ export {
 // Re-export commonly used types for convenience
 export type {
   ExecutionMetadata,
+  InitSessionOptions,
+  InitSessionResult,
   Options,
   // Core pipeline
   Options as PipelineOptions,
+  PreloadOptions,
+  PreloadResult,
   Result,
   Result as PipelineResult,
   TokenUsage,

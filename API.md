@@ -46,6 +46,49 @@ const result = await persuade({
 
 **Returns:** `Promise<Result<T>>` with validated data and execution metadata
 
+### `preload(options: PreloadOptions, provider?: ProviderAdapter): Promise<PreloadResult>`
+
+Load data into an existing session without output validation for context building.
+
+```typescript
+import { preload, initSession } from 'persuader';
+
+// First, create a session
+const { sessionId } = await initSession({
+  context: 'You are a financial analyst',
+  initialPrompt: 'Ready to analyze financial data'
+});
+
+// Then preload context data
+const result = await preload({
+  sessionId,
+  input: 'Q4 earnings report: Revenue $1.2M, Expenses $800K, Profit $400K',
+  context: 'Store this financial data for analysis'
+});
+
+if (result.ok) {
+  console.log('Data preloaded successfully');
+}
+```
+
+**Parameters:**
+- `input: unknown` - Input data to load into the session
+- `sessionId: string` - Existing session ID (required)
+- `context?: string` - Optional additional context for this operation
+- `lens?: string` - Optional perspective/lens for processing
+- `model?: string` - LLM model to use
+- `validateInput?: ZodSchema<unknown>` - Optional schema to validate input before sending
+- `logLevel?: LogLevel` - Logging level for this operation
+- `providerOptions?: Record<string, unknown>` - Provider-specific options
+
+**Returns:** `Promise<PreloadResult>` with raw response and execution metadata
+
+**Use Cases:**
+- Loading large documents into session context
+- Building rich context before structured extraction
+- Progressive session enhancement with multiple data sources
+- Data quality validation before LLM processing
+
 ### `initSession(options: InitSessionOptions): Promise<InitSessionResult>`
 
 Initialize a session for context reuse across multiple operations.
