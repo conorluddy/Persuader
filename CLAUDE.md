@@ -68,6 +68,18 @@ npx vitest src/core/runner.test.ts    # Run specific test file
 npx vitest --grep "validation"        # Run tests matching pattern
 ```
 
+## 📚 API Reference
+
+**[Complete API Documentation](./API.md)** - Comprehensive reference for all functions, classes, and utilities exported by Persuader. Essential for understanding what functionality is available to consuming packages beyond the core `persuade()` and `initSession()` functions.
+
+Key exports include:
+- Provider adapters (`createClaudeCLIAdapter`, `createOpenAIAdapter`, etc.)
+- Validation utilities (`validateJson`, `retryWithFeedback`)
+- Session management (`createSessionManager`, `defaultSessionManager`)
+- Testing utilities (`createMockProvider`)
+- File I/O utilities (`loadSchema`, `readInputs`, `writeOutput`)
+- Comprehensive TypeScript types for all functionality
+
 ## Architecture Overview
 
 Persuader is a TypeScript framework for schema-driven LLM orchestration with validation-driven retry loops. The architecture follows a clear separation of concerns:

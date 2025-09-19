@@ -703,6 +703,8 @@ src/
 
 ## 🎨 API Reference
 
+> 📚 **[Complete API Documentation](./API.md)** - Comprehensive reference for all functions, classes, and utilities exported by Persuader.
+
 ### Core `persuade` Function
 
 The main entry point for schema-driven LLM orchestration with validation and retry logic:
