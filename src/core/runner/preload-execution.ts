@@ -15,7 +15,7 @@ import {
   llmResponse,
 } from '../../utils/logger.js';
 import {
-  buildPrompt,
+  buildPreloadPrompt,
   combinePromptParts,
   type PromptParts,
 } from '../prompt.js';
@@ -39,8 +39,8 @@ export async function executePreload(
   startTime: number
 ): Promise<import('../../types/index.js').PreloadResult> {
   try {
-    // Build prompt for preload (no schema guidance)
-    const promptParts = await buildPreloadPrompt(config);
+    // Build prompt for preload (minimal context loading)
+    const promptParts = await buildPreloadPromptParts(config);
 
     debug('Preload prompt built successfully', {
       promptPartsKeys: Object.keys(promptParts),
@@ -84,7 +84,7 @@ export async function executePreload(
 
     // Add tokenUsage only if available
     if (providerResponse.tokenUsage) {
-      (metadata as any).tokenUsage = providerResponse.tokenUsage;
+      (metadata as typeof metadata & { tokenUsage: typeof providerResponse.tokenUsage }).tokenUsage = providerResponse.tokenUsage;
     }
 
     const result: import('../../types/index.js').PreloadResult = {
@@ -149,13 +149,13 @@ export async function executePreload(
 /**
  * Builds the prompt for preload operations
  *
- * Creates a prompt optimized for context loading without schema validation
- * guidance. Focuses on clear instruction and context preservation.
+ * Creates a minimal prompt optimized for context loading without schema validation
+ * guidance. Uses the specialized buildPreloadPrompt function for efficiency.
  *
  * @param config Processed preload configuration
  * @returns Promise resolving to prompt parts
  */
-async function buildPreloadPrompt(
+async function buildPreloadPromptParts(
   config: ProcessedPreloadConfiguration
 ): Promise<PromptParts> {
   try {
@@ -166,12 +166,11 @@ async function buildPreloadPrompt(
       sessionId: config.sessionId,
     });
 
-    // Build prompt without schema (focus on context loading)
-    const promptParts = buildPrompt({
+    // Use specialized preload prompt builder for minimal, efficient prompting
+    const promptParts = buildPreloadPrompt({
       input: config.input,
       ...(config.context && { context: config.context }),
       ...(config.lens && { lens: config.lens }),
-      // No schema - this is for context building, not validation
     });
 
     info('Preload prompt built successfully', {
