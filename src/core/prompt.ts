@@ -87,7 +87,9 @@ export function buildPrompt(options: PromptBuildOptions): PromptParts {
   }
 
   // Generate schema description from Zod schema (only if schema provided)
-  const schemaDescription = schema ? generateSchemaDescription(schema) : undefined;
+  const schemaDescription = schema
+    ? generateSchemaDescription(schema)
+    : undefined;
 
   // Build system prompt with schema instructions and attempt-based urgency
   const systemPrompt = buildSystemPrompt(
@@ -175,7 +177,7 @@ function generateObjectSchemaDescription(
 
     const fieldDescriptions = fields
       .slice(0, 5)
-      .map(field => `"${field}"`)
+      .map((field) => `"${field}"`)
       .join(', ');
     const remainingCount = Math.max(0, fields.length - 5);
 
@@ -213,16 +215,31 @@ function buildSystemPrompt(
   // More explicit JSON requirements for later attempts
   const jsonInstructions =
     attemptNumber >= 3
-      ? `Your response must START with "{" and END with "}". No text before or after the JSON object.`
+      ? `
+      We need to retry again due to the previous responses not meeting validation requirements. 
+      Please respond with pure and valid JSON. 
+      It must START with "{" and END with "}". 
+      No text before or after the JSON object. 
+      Think hard about how to match these requirements so that we don't get another rejection.
+      `
       : attemptNumber >= 2
-        ? `Output MUST be valid JSON that parses correctly. No explanatory text, only the JSON response.`
-        : `Output MUST be valid JSON that parses correctly`;
+        ? `
+        We need to retry due to the previous response not meeting validation requirements. 
+        Please respond with pure and valid JSON. Output MUST be valid JSON that parses correctly. 
+        No explanatory text, only the JSON response.
+        `
+        : `
+        Please respond with pure and valid JSON adhering exactly to the provided Schema.
+        Output MUST be valid JSON that parses correctly and is wrapped in curly braces.
+        `;
 
   // Build different instructions based on whether schema is provided
   const baseInstructions = schemaDescription
-    ? `You are a precise data extraction and transformation assistant. Your task is to process input data and return a valid JSON response that exactly matches the specified schema.
+    ? `Your task is to process all input data and return a valid JSON response. 
+       The JSON response needs to match the specified schema.
+       Any response not in JSON and not matching the schema will be rejected.
 
-${urgencyEmoji}${urgencyLevel} REQUIREMENTS:
+${urgencyEmoji}${urgencyLevel} IMPORTANT REQUIREMENTS:
 1. ${jsonInstructions}
 2. Output MUST conform exactly to the provided schema
 3. All required fields MUST be present
@@ -231,8 +248,9 @@ ${urgencyEmoji}${urgencyLevel} REQUIREMENTS:
 6. ${attemptNumber >= 3 ? 'This is your final attempt - follow the schema exactly' : 'Ensure proper JSON escaping for special characters'}
 
 SCHEMA REQUIREMENTS:
-${schemaDescription}`
-    : `You are a helpful assistant. Process the provided input data and provide a clear, informative response. 
+${schemaDescription}
+`
+    : `You are a helpful assistant. Process the provided input data and provide a suitable response in JSON format only. 
 
 ${urgencyEmoji}${urgencyLevel} REQUIREMENTS:
 1. Provide a clear and helpful response
@@ -243,7 +261,7 @@ ${urgencyEmoji}${urgencyLevel} REQUIREMENTS:
   const contextSection = context ? `\n\nCONTEXT:\n${context}` : '';
 
   const lensSection = lens
-    ? `\n\nPERSPECTIVE:\nProcess the input from this perspective: ${lens}`
+    ? `\n\nPERSPECTIVE:\nProcess and think about the input from this perspective: ${lens}`
     : '';
 
   // Add concrete example to demonstrate exact output format
@@ -277,6 +295,62 @@ function getDefaultExamples(): string[] {
     'Example: {"field": "value", "number": 42, "flag": true}',
     'Example: {"items": [{"name": "item1"}, {"name": "item2"}]}',
   ];
+}
+
+/**
+ * Build minimal prompt parts optimized for preload/context loading operations
+ *
+ * This function creates streamlined prompts for context building without
+ * requesting detailed processing or responses from the LLM. The focus is
+ * on efficiently adding data to session context rather than generating output.
+ *
+ * @param options - Preload prompt building configuration  
+ * @returns Minimal prompt parts for context loading
+ */
+export function buildPreloadPrompt(options: Omit<PromptBuildOptions, 'schema'>): PromptParts {
+  const { input, context, lens } = options;
+
+  // Minimal system prompt for context loading
+  const systemPrompt = buildPreloadSystemPrompt(context, lens);
+
+  // Simple user prompt that just presents the data
+  const userPrompt = buildPreloadUserPrompt(input);
+
+  return {
+    systemPrompt,
+    userPrompt,
+    additionalContext: context ?? undefined,
+    // No examples needed for context loading
+  };
+}
+
+/**
+ * Build minimal system prompt for preload operations
+ */
+function buildPreloadSystemPrompt(context?: string, lens?: string): string {
+  const baseInstruction = `You are loading data into the session context. This data will be referenced in future interactions. Simply acknowledge receipt of the data with a brief "Context loaded" response.`;
+
+  const contextSection = context ? `\n\nCONTEXT:\n${context}` : '';
+
+  const lensSection = lens
+    ? `\n\nPERSPECTIVE:\nWhen processing future requests, consider this perspective: ${lens}`
+    : '';
+
+  return baseInstruction + contextSection + lensSection;
+}
+
+/**
+ * Build minimal user prompt for preload operations
+ */
+function buildPreloadUserPrompt(input: unknown): string {
+  const inputString =
+    typeof input === 'string' ? input : JSON.stringify(input, null, 2);
+
+  return `Load the following data into session context:
+
+${inputString}
+
+Respond with a brief acknowledgment.`;
 }
 
 /**
