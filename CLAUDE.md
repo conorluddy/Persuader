@@ -86,6 +86,11 @@ Key exports include:
 ### `persuade()` - Schema-Driven LLM Orchestration
 Main function for validated data extraction with retry loops and error feedback.
 
+**Key Parameters:**
+- `schema: ZodSchema<T>` - Zod schema for output validation
+- `input: unknown` - Input data to process  
+- `exampleOutput?: T` - Optional concrete example to guide LLM formatting (validates against schema before use)
+
 ### `initSession()` - Session Creation
 Creates persistent sessions for context reuse and cost optimization.
 
@@ -168,13 +173,28 @@ Persuader is a TypeScript framework for schema-driven LLM orchestration with val
 - **`logger.ts`** - Structured logging with JSONL session output for debugging
 - **`schema-analyzer.ts`** - Schema introspection for validation feedback
 
+## Recent Major Changes (v0.4.1)
+
+### Example Generation System Overhaul
+**BREAKING CHANGE**: Replaced automatic example generation with user-provided examples:
+
+- **❌ Removed**: `src/utils/example-generator.ts` - Was generating hardcoded fitness examples regardless of schema
+- **✅ Enhanced**: Manual example control via `exampleOutput` parameter in `Options<T>` interface
+- **✅ Added**: Pre-validation of user examples against schema in `configuration-manager.ts`
+- **✅ Improved**: JSON Schema integration using Zod v4 `z.toJSONSchema()` for better LLM guidance
+
+**Developer Impact:**
+- LLMs now receive comprehensive JSON Schema descriptions instead of potentially wrong examples
+- Users have full control over examples through the `exampleOutput` parameter
+- Examples are validated before any LLM calls to prevent runtime errors
+
 ## Key Development Patterns
 
 ### Pipeline Flow
 The core `persuade` function in `runner/index.ts` orchestrates:
-1. Schema validation and options processing
+1. **Schema validation and options processing** - Includes `exampleOutput` validation in `configuration-manager.ts`
 2. Session creation/reuse (if provider supports it)
-3. Prompt building with context and lens
+3. **Prompt building with context and lens** - Enhanced JSON Schema integration in `prompt.ts`
 4. LLM provider calls with retry logic
 5. Response validation against Zod schema
 6. Error feedback generation for retries

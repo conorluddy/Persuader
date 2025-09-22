@@ -31,7 +31,11 @@ const result = await persuade({
   input: "Create a blog post about TypeScript",
   schema,
   provider: createClaudeCLIAdapter(),
-  context: "You are a technical writer"
+  context: "You are a technical writer",
+  exampleOutput: {
+    title: "Advanced TypeScript Features",
+    description: "Exploring the latest TypeScript capabilities for modern development"
+  }
 });
 ```
 
@@ -43,8 +47,53 @@ const result = await persuade({
 - `lens?: string` - Optional perspective/lens for processing
 - `maxRetries?: number` - Maximum retry attempts (default: 3)
 - `sessionId?: string` - Optional session for context reuse
+- `exampleOutput?: T` - Optional concrete example of valid output to guide LLM formatting
 
 **Returns:** `Promise<Result<T>>` with validated data and execution metadata
+
+#### Enhanced Schema Guidance with `exampleOutput`
+
+The `exampleOutput` parameter significantly improves LLM output reliability by providing concrete examples:
+
+```typescript
+import { z } from 'zod';
+import { persuade, createClaudeCLIAdapter } from 'persuader';
+
+const ProductSchema = z.object({
+  rating: z.enum(['excellent', 'good', 'fair', 'poor']),
+  score: z.number().min(1).max(10),
+  features: z.array(z.string()).min(1).max(5),
+  recommended: z.boolean()
+});
+
+// Without exampleOutput - LLM might use inconsistent formatting
+const basicResult = await persuade({
+  input: "Review this smartphone: Great camera, fast processor, good battery life",
+  schema: ProductSchema,
+  context: "You are a product reviewer"
+});
+
+// With exampleOutput - LLM follows exact formatting
+const enhancedResult = await persuade({
+  input: "Review this smartphone: Great camera, fast processor, good battery life", 
+  schema: ProductSchema,
+  context: "You are a product reviewer",
+  exampleOutput: {
+    rating: "excellent",     // Shows exact enum formatting
+    score: 8,               // Demonstrates realistic numeric values
+    features: ["camera", "processor", "battery"], // Array structure and content style
+    recommended: true       // Boolean usage example
+  }
+});
+```
+
+**Key Benefits:**
+- **Enum Consistency**: Prevents "Good" vs "good" formatting issues
+- **Realistic Values**: Guides appropriate numeric ranges and content
+- **Structure Clarity**: Shows proper nesting and array formatting
+- **Validation**: Example is validated against schema before use
+
+**Validation**: The `exampleOutput` is validated against the provided schema before any LLM calls. If validation fails, an error is thrown immediately.
 
 ### `preload(options: PreloadOptions, provider?: ProviderAdapter): Promise<PreloadResult>`
 
