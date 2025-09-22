@@ -48,6 +48,7 @@ const result = await persuade({
 - `maxRetries?: number` - Maximum retry attempts (default: 3)
 - `sessionId?: string` - Optional session for context reuse
 - `exampleOutput?: T` - Optional concrete example of valid output to guide LLM formatting
+- `successMessage?: string` - Optional success feedback for session-based learning
 
 **Returns:** `Promise<Result<T>>` with validated data and execution metadata
 
@@ -94,6 +95,60 @@ const enhancedResult = await persuade({
 - **Validation**: Example is validated against schema before use
 
 **Validation**: The `exampleOutput` is validated against the provided schema before any LLM calls. If validation fails, an error is thrown immediately.
+
+#### Session-Based Learning with `successMessage`
+
+The `successMessage` parameter enables positive reinforcement for session-based learning workflows:
+
+```typescript
+import { initSession, persuade } from 'persuader';
+import { z } from 'zod';
+
+const AnalysisSchema = z.object({
+  summary: z.string().min(50),
+  keyPoints: z.array(z.string()).min(3),
+  confidence: z.number().min(0).max(1)
+});
+
+// Create session for multiple related requests
+const { sessionId } = await initSession({
+  context: "You are an expert data analyst providing structured insights."
+});
+
+// First request with success feedback
+const result1 = await persuade({
+  input: "Analyze Q1 sales data: Revenue up 15%, new customers increased 23%...",
+  schema: AnalysisSchema,
+  sessionId,
+  successMessage: "✅ Perfect analysis! Your structured format and depth are exactly what we need. Continue this approach."
+});
+
+// Subsequent requests benefit from reinforced patterns  
+const result2 = await persuade({
+  input: "Analyze Q2 sales data: Revenue up 8%, customer retention at 94%...",
+  schema: AnalysisSchema,
+  sessionId, // Same session
+  successMessage: "Great work! Maintain this level of detail and formatting consistency."
+});
+```
+
+**Success Feedback Triggers When:**
+1. ✅ Schema validation passes on the **first attempt**
+2. ✅ A `sessionId` is provided (session-based workflow) 
+3. ✅ A `successMessage` parameter is provided
+4. ✅ The provider supports success feedback (Claude CLI does)
+
+**Benefits:**
+- **Pattern Reinforcement**: Helps LLM understand successful output characteristics
+- **Consistency**: Reduces variance across multiple session requests
+- **Learning**: Builds on successful approaches throughout the conversation
+- **Complementary**: Works alongside error feedback for comprehensive learning
+
+**Best Practices:**
+- Be specific about what was done well: format, accuracy, approach
+- Use encouraging, positive language
+- Keep messages concise but meaningful
+- Maintain consistent feedback patterns for similar work types
 
 ### `preload(options: PreloadOptions, provider?: ProviderAdapter): Promise<PreloadResult>`
 

@@ -362,6 +362,7 @@ When validation fails, Persuader automatically provides targeted corrections to 
 - **🎯 Schema-First Validation**: Zod integration with intelligent error feedback for retry loops
 - **🔄 Smart Retry Logic**: Validation errors become specific LLM corrections
 - **⚡ Session Management**: Optional context reuse for token efficiency and consistency  
+- **🎓 Session-Based Learning**: Success feedback reinforces patterns for improved consistency
 - **📥 Context Loading**: `preload()` function for loading large datasets into sessions without validation
 - **🛠️ Production CLI**: Batch processing with glob patterns, progress tracking, and dry-run mode
 - **🔒 Type Safety**: Full TypeScript support with strict mode and comprehensive error handling
