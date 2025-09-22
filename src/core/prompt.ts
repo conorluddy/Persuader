@@ -2,12 +2,11 @@
  * Prompt Building Utilities
  *
  * Utilities for constructing prompts from schemas and inputs for LLM processing.
- * This module handles the conversion of Zod schemas to prompt instructions and
- * includes automatic example generation to improve LLM output reliability.
+ * This module handles the conversion of Zod schemas to prompt instructions.
+ * Users can provide examples via the exampleOutput parameter when needed.
  */
 
-import type { z } from 'zod';
-import { generateExampleFromSchema } from '../utils/example-generator.js';
+import { z } from 'zod';
 import { debug } from '../utils/logger.js';
 
 /**
@@ -73,18 +72,8 @@ export function buildPrompt(options: PromptBuildOptions): PromptParts {
     exampleOutput,
   } = options;
 
-  // Generate or use provided example output (only if schema is provided)
-  let concreteExample = exampleOutput;
-  if (!concreteExample && schema) {
-    debug('No example output provided, generating from schema');
-    try {
-      concreteExample = generateExampleFromSchema(schema);
-    } catch (error) {
-      debug('Failed to generate example from schema', {
-        error: error instanceof Error ? error.message : 'Unknown error',
-      });
-    }
-  }
+  // Use user-provided example output only (no automatic generation)
+  const concreteExample = exampleOutput;
 
   // Generate schema description from Zod schema (only if schema provided)
   const schemaDescription = schema
@@ -119,14 +108,41 @@ export function buildPrompt(options: PromptBuildOptions): PromptParts {
 }
 
 /**
- * Generate human-readable schema description from Zod schema
+ * Generate comprehensive schema description from Zod schema using JSON Schema
  *
  * @param schema - Zod schema to describe
- * @returns Human-readable schema description
+ * @returns Combined human-readable description and JSON Schema
  */
 function generateSchemaDescription(schema: z.ZodSchema<unknown>): string {
-  // This is a simplified implementation - in a full implementation,
-  // this would recursively traverse the Zod schema to generate comprehensive descriptions
+  try {
+    // Convert Zod schema to JSON Schema using Zod v4 method
+    const jsonSchema = z.toJSONSchema(schema, {
+      target: 'draft-2020-12',
+      unrepresentable: 'any',
+      cycles: 'ref',
+    });
+
+    // Generate human-readable summary
+    const humanDescription = generateHumanReadableDescription(schema);
+
+    // Combine human description with structured JSON Schema
+    return `${humanDescription}
+
+FULL SCHEMA SPECIFICATION:
+${JSON.stringify(jsonSchema, null, 2)}`;
+  } catch (error) {
+    debug('Failed to generate JSON schema', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    // Fallback to basic description
+    return generateBasicSchemaDescription(schema);
+  }
+}
+
+/**
+ * Generate human-readable description for the schema
+ */
+function generateHumanReadableDescription(schema: z.ZodSchema<unknown>): string {
   try {
     // Try to get schema description if available
     const description = (schema as { description?: string }).description;
@@ -134,11 +150,11 @@ function generateSchemaDescription(schema: z.ZodSchema<unknown>): string {
       return description;
     }
 
-    // Basic type detection
+    // Basic type detection for human-readable summary
     const schemaName = schema.constructor.name;
     switch (schemaName) {
       case 'ZodObject':
-        return generateObjectSchemaDescription(
+        return generateObjectDescription(
           schema as z.ZodObject<Record<string, z.ZodTypeAny>>
         );
       case 'ZodArray':
@@ -153,7 +169,6 @@ function generateSchemaDescription(schema: z.ZodSchema<unknown>): string {
         return 'A valid JSON value matching the specified schema';
     }
   } catch {
-    // Fallback if schema inspection fails
     return 'A valid JSON value matching the specified schema';
   }
 }
@@ -161,7 +176,7 @@ function generateSchemaDescription(schema: z.ZodSchema<unknown>): string {
 /**
  * Generate description for Zod object schemas
  */
-function generateObjectSchemaDescription(
+function generateObjectDescription(
   schema: z.ZodObject<Record<string, z.ZodTypeAny>>
 ): string {
   try {
@@ -187,9 +202,16 @@ function generateObjectSchemaDescription(
 
     return `A JSON object with fields: ${fieldDescriptions}`;
   } catch {
-    // Fallback if object inspection fails
     return 'A JSON object';
   }
+}
+
+/**
+ * Generate basic schema description as fallback
+ */
+function generateBasicSchemaDescription(schema: z.ZodSchema<unknown>): string {
+  const schemaName = schema.constructor.name;
+  return `A valid JSON value matching the ${schemaName} schema`;
 }
 
 /**
