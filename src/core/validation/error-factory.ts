@@ -8,7 +8,7 @@
  * and type safety concerns, with no validation logic or external dependencies.
  */
 
-import type { z } from 'zod';
+import { z } from 'zod';
 import type { ValidationError } from '../../types/errors.js';
 
 /**
@@ -116,10 +116,10 @@ export function createValidationError(
 }
 
 /**
- * Generate basic schema description from Zod schema type
+ * Generate detailed schema description from Zod schema for error messages
  *
  * Provides human-readable descriptions of schema expectations for error messages.
- * Uses schema constructor names to infer basic structure information.
+ * Uses JSON Schema conversion to provide detailed field and constraint information.
  *
  * @param schema - Zod schema to analyze
  * @returns Human-readable description of expected schema structure
@@ -128,7 +128,64 @@ export function generateSchemaDescription(
   schema: z.ZodSchema<unknown>
 ): string {
   try {
-    // Basic schema type classification based on constructor name
+    // Convert to JSON Schema for detailed type information
+    const jsonSchema = z.toJSONSchema(schema, {
+      target: 'draft-2020-12',
+      unrepresentable: 'any',
+    });
+
+    // Generate human-readable description based on JSON Schema
+    if (jsonSchema.type === 'object' && jsonSchema.properties) {
+      const properties = jsonSchema.properties as Record<string, any>;
+      const fieldNames = Object.keys(properties).slice(0, 3);
+      const required = Array.isArray(jsonSchema.required) ? jsonSchema.required : [];
+      
+      if (fieldNames.length === 0) {
+        return 'JSON object';
+      }
+      
+      const fieldList = fieldNames.join(', ');
+      const moreFields = Object.keys(properties).length > 3 
+        ? ` and ${Object.keys(properties).length - 3} more field${Object.keys(properties).length - 3 > 1 ? 's' : ''}` 
+        : '';
+      
+      const requiredInfo = required.length > 0 
+        ? ` (required: ${required.slice(0, 3).join(', ')}${required.length > 3 ? '...' : ''})` 
+        : '';
+      
+      return `JSON object with fields: ${fieldList}${moreFields}${requiredInfo}`;
+    }
+    
+    if (jsonSchema.type === 'array') {
+      return 'Array of items';
+    }
+    
+    if (jsonSchema.type === 'string') {
+      const constraints = [];
+      if (jsonSchema.minLength) constraints.push(`min length ${jsonSchema.minLength}`);
+      if (jsonSchema.maxLength) constraints.push(`max length ${jsonSchema.maxLength}`);
+      if (jsonSchema.enum) constraints.push(`one of: ${(jsonSchema.enum as string[]).slice(0, 3).join(', ')}`);
+      
+      return constraints.length > 0 
+        ? `String value (${constraints.join(', ')})` 
+        : 'String value';
+    }
+    
+    if (jsonSchema.type === 'number' || jsonSchema.type === 'integer') {
+      const constraints = [];
+      if (jsonSchema.minimum !== undefined) constraints.push(`min ${jsonSchema.minimum}`);
+      if (jsonSchema.maximum !== undefined) constraints.push(`max ${jsonSchema.maximum}`);
+      
+      return constraints.length > 0 
+        ? `Numeric value (${constraints.join(', ')})` 
+        : 'Numeric value';
+    }
+    
+    if (jsonSchema.type === 'boolean') {
+      return 'Boolean value (true/false)';
+    }
+
+    // Fallback to basic schema type classification
     const schemaName = schema.constructor.name;
     switch (schemaName) {
       case 'ZodObject':

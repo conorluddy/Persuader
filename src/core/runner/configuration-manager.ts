@@ -6,7 +6,7 @@
  * management with validation and error reporting.
  */
 
-import type { z } from 'zod';
+import { z } from 'zod';
 import {
   DEFAULT_MAX_TOKENS,
   DEFAULT_MODEL,
@@ -14,7 +14,6 @@ import {
   DEFAULT_TEMPERATURE,
 } from '../../shared/constants/index.js';
 import type { Options, PreloadOptions, ProviderAdapter } from '../../types/index.js';
-import { validateExample } from '../../utils/example-generator.js';
 import type { LogLevel } from '../../utils/logger.js';
 import { debug, info, warn } from '../../utils/logger.js';
 import { extractSchemaInfo } from '../../utils/schema-analyzer.js';
@@ -438,6 +437,38 @@ function logSchemaInformation<T>(options: Options<T>): void {
       hasSchema: false,
       inputType: typeof options.input,
     });
+  }
+}
+
+/**
+ * Validate that a user-provided example matches the schema
+ *
+ * @param schema - Schema to validate against
+ * @param example - Example to validate
+ * @returns Validation result with detailed errors if invalid
+ */
+function validateExample<T>(
+  schema: z.ZodSchema<T>,
+  example: unknown
+): { valid: boolean; errors: string[] } {
+  try {
+    schema.parse(example);
+    return { valid: true, errors: [] };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return {
+        valid: false,
+        errors: error.issues.map(
+          (err: z.ZodIssue) => `${err.path.join('.')}: ${err.message}`
+        ),
+      };
+    }
+    return {
+      valid: false,
+      errors: [
+        `Validation error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      ],
+    };
   }
 }
 

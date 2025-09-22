@@ -33,6 +33,8 @@ export interface SchemaInfo {
   shape?: Record<string, string>;
   /** Complexity score (1-10) */
   complexity: number;
+  /** Complete JSON Schema representation */
+  jsonSchema?: Record<string, unknown>;
 }
 
 /**
@@ -89,6 +91,17 @@ export function extractSchemaInfo(schema: z.ZodSchema<unknown>): SchemaInfo {
 
   // Calculate complexity score
   info.complexity = calculateComplexity(info);
+
+  // Add JSON Schema representation for comprehensive schema information
+  try {
+    info.jsonSchema = z.toJSONSchema(schema, {
+      target: 'draft-2020-12',
+      unrepresentable: 'any',
+    }) as Record<string, unknown>;
+  } catch {
+    // JSON Schema generation failed, but continue with other analysis
+    // This is optional supplementary data
+  }
 
   return info;
 }

@@ -498,7 +498,7 @@ describe('generateSchemaDescription', () => {
     
     const description = generateSchemaDescription(objectSchema);
     
-    expect(description).toBe('JSON object with specified fields');
+    expect(description).toBe('JSON object with fields: name (required: name)');
   });
 
   it('should describe ZodArray schemas', () => {
@@ -530,7 +530,7 @@ describe('generateSchemaDescription', () => {
     
     const description = generateSchemaDescription(booleanSchema);
     
-    expect(description).toBe('Boolean value');
+    expect(description).toBe('Boolean value (true/false)');
   });
 
   it('should handle unknown schema types', () => {
@@ -563,7 +563,8 @@ describe('generateSchemaDescription', () => {
     
     const description = generateSchemaDescription(customSchema);
     
-    expect(description).toBe('Value matching the specified schema');
+    // Enhanced function now correctly identifies string schemas via JSON Schema
+    expect(description).toBe('String value');
   });
 
   it('should handle schemas without constructor names', () => {
@@ -574,7 +575,8 @@ describe('generateSchemaDescription', () => {
     
     const description = generateSchemaDescription(schemaWithoutName);
     
-    expect(description).toBe('Value matching the specified schema');
+    // Enhanced function now correctly identifies string schemas via JSON Schema
+    expect(description).toBe('String value');
   });
 });
 

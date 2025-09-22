@@ -24,14 +24,11 @@ import type { Options, ProviderAdapter } from '../../../src/types/index.js';
 
 // Mock dependencies
 vi.mock('../../../src/utils/logger.js');
-vi.mock('../../../src/utils/example-generator.js');
 vi.mock('../../../src/utils/schema-analyzer.js');
 
 // Import mocked modules
-import * as exampleGeneratorModule from '../../../src/utils/example-generator.js';
 import * as schemaAnalyzerModule from '../../../src/utils/schema-analyzer.js';
 
-const validateExample = vi.mocked(exampleGeneratorModule.validateExample);
 const extractSchemaInfo = vi.mocked(schemaAnalyzerModule.extractSchemaInfo);
 
 // Test fixtures
@@ -61,7 +58,6 @@ describe('validateAndNormalizeOptions', () => {
     vi.clearAllMocks();
     
     // Default mock implementations
-    validateExample.mockReturnValue({ valid: true, errors: [] });
     extractSchemaInfo.mockReturnValue({
       name: 'TestSchema',
       type: 'object',
@@ -148,17 +144,12 @@ describe('validateAndNormalizeOptions', () => {
     });
 
     it('should throw error for invalid example output', () => {
-      validateExample.mockReturnValue({
-        valid: false,
-        errors: ['Name must be a string', 'Age must be a number'],
-      });
-
       const options = createMockOptions({
         exampleOutput: { name: 123, age: 'invalid' } as any,
       });
 
       expect(() => validateAndNormalizeOptions(options)).toThrow(
-        'Invalid exampleOutput provided: Name must be a string. Age must be a number'
+        'Invalid exampleOutput provided'
       );
     });
 
