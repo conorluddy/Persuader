@@ -97,6 +97,7 @@ export type {
   SessionManager,
   SessionManager as Sessions,
   SessionMetadata,
+  SessionSuccessFeedback,
 } from './session.js';
 // Utility types
 export type {

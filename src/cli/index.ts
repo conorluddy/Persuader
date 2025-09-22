@@ -65,6 +65,10 @@ For more information, visit: https://github.com/conorluddy/Persuader
     .option('--context <text>', 'Global context to provide to the LLM')
     .option('--lens <text>', 'Per-batch focusing hint for the LLM')
     .option(
+      '--success-message <text>',
+      'Success feedback message sent after validation (for session-based learning)'
+    )
+    .option(
       '--retries <n>',
       'Maximum retry attempts for validation failures',
       '5'
@@ -91,6 +95,9 @@ Run Command Examples:
 
   $ persuader run -s ./schema.ts -i ./data.json --lens "Focus on pricing"
     Add specific focusing hint for this batch
+
+  $ persuader run -s ./schema.ts -i ./data.json --session-id my-session --success-message "Perfect! Continue this approach."
+    Use success feedback for session-based learning
 
   $ persuader run -s ./schema.ts -i ./data.json --retries 3 --verbose
     Use custom retry count with detailed logging
