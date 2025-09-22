@@ -83,6 +83,42 @@ export interface ProviderAdapter {
    * Get provider health status
    */
   getHealth?(): Promise<ProviderHealth>;
+
+  /**
+   * Send success feedback to the provider session (optional)
+   *
+   * Provides positive reinforcement after successful validation to help the LLM
+   * learn and maintain successful patterns in session-based workflows.
+   *
+   * This method is optional and should only be implemented for providers that
+   * support session-based learning and can benefit from success reinforcement.
+   *
+   * @param sessionId - Session ID to send feedback to
+   * @param successMessage - Positive feedback message
+   * @param metadata - Optional metadata about the success
+   * @returns Promise that resolves when feedback is sent
+   * @throws ProviderError if feedback fails to send
+   *
+   * @example
+   * ```typescript
+   * await provider.sendSuccessFeedback(
+   *   sessionId,
+   *   "✅ Perfect! Your analysis format and depth are exactly what we need.",
+   *   { attemptNumber: 1, validatedOutput: result }
+   * );
+   * ```
+   */
+  sendSuccessFeedback?(
+    sessionId: string,
+    successMessage: string,
+    metadata?: {
+      readonly attemptNumber?: number;
+      readonly validatedOutput?: unknown;
+      readonly timestamp?: Date;
+      readonly tokenUsage?: import('./pipeline.js').TokenUsage;
+      readonly executionTimeMs?: number;
+    }
+  ): Promise<void>;
 }
 
 /**

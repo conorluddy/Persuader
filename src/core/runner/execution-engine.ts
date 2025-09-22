@@ -10,6 +10,7 @@ import type {
   ProviderAdapter,
   ProviderError,
   ValidationError,
+  SessionSuccessFeedback,
 } from '../../types/index.js';
 import { 
   debug, 
@@ -29,6 +30,7 @@ import {
 import { retryWithFeedback } from '../retry.js';
 import { formatValidationErrorFeedback, validateJson } from '../validation.js';
 import type { ProcessedConfiguration } from './configuration-manager.js';
+import { defaultSessionManager } from '../../session/manager.js';
 
 /**
  * Execution result from the retry engine
@@ -237,7 +239,9 @@ async function executeAttempt<T>(
     const validationResult = validateProviderResponse(
       config,
       providerResponse.content || '',
-      attemptNumber
+      attemptNumber,
+      sessionId,
+      provider
     );
 
     return validationResult;
@@ -410,12 +414,16 @@ async function callProvider<T>(
  * @param config Pipeline configuration
  * @param responseContent Provider response content
  * @param attemptNumber Current attempt number
+ * @param sessionId Optional session ID for success feedback
+ * @param provider Optional provider adapter for sending feedback
  * @returns Validation result
  */
 function validateProviderResponse<T>(
   config: ProcessedConfiguration<T>,
   responseContent: string,
-  attemptNumber: number
+  attemptNumber: number,
+  sessionId?: string,
+  provider?: ProviderAdapter
 ): { success: boolean; value?: T; error?: ValidationError } {
   debug('Validating response against schema', {
     contentLength: responseContent.length,
@@ -430,6 +438,27 @@ function validateProviderResponse<T>(
       resultType: typeof validationResult.value,
       hasValue: Boolean(validationResult.value),
     });
+
+    // Send success feedback if conditions are met
+    if (
+      config.successMessage &&
+      sessionId &&
+      attemptNumber === 1 // Only on first successful attempt
+    ) {
+      sendSuccessFeedback(
+        config,
+        sessionId,
+        validationResult.value,
+        attemptNumber,
+        provider
+      ).catch((error) => {
+        // Don't fail the main operation if success feedback fails
+        debug('Failed to send success feedback', {
+          sessionId,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      });
+    }
 
     return {
       success: true,
@@ -458,5 +487,90 @@ function validateProviderResponse<T>(
       success: false,
       error: validationResult.error,
     };
+  }
+}
+
+/**
+ * Sends success feedback to session for learning reinforcement
+ *
+ * @template T The expected output type
+ * @param config Pipeline configuration
+ * @param sessionId Session ID to send feedback to
+ * @param validatedOutput The validated output that succeeded
+ * @param attemptNumber Current attempt number
+ * @param provider Provider adapter to potentially send feedback through
+ */
+async function sendSuccessFeedback<T>(
+  config: ProcessedConfiguration<T>,
+  sessionId: string,
+  validatedOutput: T,
+  attemptNumber: number,
+  provider?: ProviderAdapter
+): Promise<void> {
+  try {
+    debug('Sending success feedback to session', {
+      sessionId,
+      attemptNumber,
+      hasSuccessMessage: Boolean(config.successMessage),
+      messageLength: config.successMessage?.length || 0,
+      hasProviderFeedback: Boolean(provider?.sendSuccessFeedback),
+    });
+
+    if (!config.successMessage) {
+      debug('Skipping success feedback - no success message provided');
+      return;
+    }
+
+    const successFeedback: SessionSuccessFeedback = {
+      message: config.successMessage,
+      validatedOutput,
+      attemptNumber,
+      timestamp: new Date(),
+      metadata: {
+        schemaName: config.schema.constructor.name || 'ZodSchema',
+      },
+    };
+
+    // Store feedback in session manager
+    await defaultSessionManager.addSuccessFeedback(sessionId, successFeedback);
+
+    // Also send feedback directly to the provider if supported
+    if (provider?.sendSuccessFeedback) {
+      try {
+        await provider.sendSuccessFeedback(sessionId, config.successMessage, {
+          attemptNumber,
+          validatedOutput,
+          timestamp: successFeedback.timestamp,
+        });
+        debug('Success feedback sent to provider', {
+          provider: provider.name,
+          sessionId,
+          attemptNumber,
+        });
+      } catch (providerError) {
+        // Log provider feedback failure but don't fail the main operation
+        debug('Provider success feedback failed, continuing with session storage only', {
+          provider: provider.name,
+          sessionId,
+          error: providerError instanceof Error ? providerError.message : 'Unknown error',
+        });
+      }
+    }
+
+    info('Success feedback sent to session', {
+      sessionId,
+      attemptNumber,
+      messageLength: config.successMessage.length,
+      feedbackTimestamp: successFeedback.timestamp.toISOString(),
+      sentToProvider: Boolean(provider?.sendSuccessFeedback),
+    });
+  } catch (error) {
+    logError('Failed to send success feedback to session', {
+      sessionId,
+      attemptNumber,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      errorType: error instanceof Error ? error.constructor.name : 'Unknown',
+    });
+    throw error;
   }
 }

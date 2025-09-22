@@ -76,6 +76,50 @@ export interface Options<T = unknown> {
    * ```
    */
   readonly exampleOutput?: T;
+
+  /**
+   * Optional success feedback message sent to LLM after successful validation
+   *
+   * Provides positive reinforcement to help the LLM understand what constitutes
+   * successful output, especially beneficial in session-based workflows where
+   * multiple requests can build on successful patterns.
+   *
+   * Success feedback is only sent when:
+   * - Schema validation passes on the first successful attempt
+   * - A sessionId is provided (session-based workflow)
+   * - The successMessage parameter is not empty
+   *
+   * The feedback becomes part of the session context for subsequent requests,
+   * helping maintain consistency and quality across the conversation.
+   *
+   * @example
+   * ```typescript
+   * // Basic usage with positive reinforcement
+   * const result = await persuade({
+   *   schema: analysisSchema,
+   *   input: "Analyze this data...",
+   *   sessionId: "analysis-session",
+   *   successMessage: "✅ Perfect! Your analysis format and depth are exactly what we need."
+   * });
+   *
+   * // Session-based workflow with pattern reinforcement
+   * const result1 = await persuade({
+   *   schema: reportSchema,
+   *   input: "Generate report for Q1...",
+   *   sessionId: "reporting-session",
+   *   successMessage: "Excellent! Continue using this detailed reporting structure."
+   * });
+   *
+   * // Subsequent requests benefit from success reinforcement
+   * const result2 = await persuade({
+   *   schema: reportSchema,
+   *   input: "Generate report for Q2...",
+   *   sessionId: "reporting-session", // Same session
+   *   successMessage: "Great work! Maintain this level of detail and formatting."
+   * });
+   * ```
+   */
+  readonly successMessage?: string;
 }
 
 /**

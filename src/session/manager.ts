@@ -21,6 +21,7 @@ import type {
   SessionFilter,
   SessionManager as SessionManagerInterface,
   SessionMetadata,
+  SessionSuccessFeedback,
 } from '../types/session.js';
 
 /**
@@ -95,6 +96,7 @@ export class SessionManager implements SessionManagerInterface {
         tags: metadata?.tags || [],
         active: metadata?.active ?? true,
       },
+      successFeedback: [],
     };
 
     await this.saveSession(session);
@@ -258,6 +260,60 @@ export class SessionManager implements SessionManagerInterface {
     }
 
     return stats;
+  }
+
+  /**
+   * Add success feedback to a session
+   *
+   * Appends positive reinforcement feedback to the session's learning history.
+   * This feedback helps maintain successful patterns across multiple requests.
+   *
+   * @param sessionId - Session to add feedback to
+   * @param feedback - Success feedback information
+   * @returns Updated session with new feedback
+   */
+  async addSuccessFeedback(
+    sessionId: string,
+    feedback: SessionSuccessFeedback
+  ): Promise<Session> {
+    const existingSession = await this.getSession(sessionId);
+    if (!existingSession) {
+      throw new Error(`Session ${sessionId} not found`);
+    }
+
+    const updatedSuccessFeedback = [
+      ...(existingSession.successFeedback || []),
+      feedback,
+    ];
+
+    const updatedSession = await this.updateSession(sessionId, {
+      successFeedback: updatedSuccessFeedback,
+    });
+
+    return updatedSession;
+  }
+
+  /**
+   * Get success feedback history for a session
+   *
+   * Retrieves all success feedback messages for learning context.
+   * Useful for understanding what patterns have been successful.
+   *
+   * @param sessionId - Session to get feedback for
+   * @param limit - Maximum number of feedback entries to return (most recent first)
+   * @returns Array of success feedback entries
+   */
+  async getSuccessFeedback(
+    sessionId: string,
+    limit?: number
+  ): Promise<readonly SessionSuccessFeedback[]> {
+    const session = await this.getSession(sessionId);
+    if (!session || !session.successFeedback) {
+      return [];
+    }
+
+    const feedback = [...session.successFeedback].reverse(); // Most recent first
+    return limit ? feedback.slice(0, limit) : feedback;
   }
 
   /**
