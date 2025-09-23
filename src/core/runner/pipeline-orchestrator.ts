@@ -8,6 +8,7 @@
  */
 
 import { createClaudeCLIAdapter } from '../../adapters/claude-cli.js';
+import { defaultSessionManager } from '../../session/manager.js';
 import type {
   ExecutionMetadata,
   Options,
@@ -90,7 +91,8 @@ export async function orchestratePipeline<T>(
     const executionResult = await executeWithRetry(
       config,
       provider,
-      sessionResult.sessionId
+      sessionResult.sessionId,
+      defaultSessionManager
     );
 
     // Step 4: Process and format final result

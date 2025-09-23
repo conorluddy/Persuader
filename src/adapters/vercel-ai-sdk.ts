@@ -202,7 +202,7 @@ export class VercelAISDKAdapter implements ProviderAdapter {
     prompt: string,
     options: ProviderPromptOptions
   ): Promise<ProviderResponse> {
-    const requestId = `ai-sdk-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const requestId = `ai-sdk-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
     const startTime = Date.now();
 
     // Extract schema from options if available (custom option)

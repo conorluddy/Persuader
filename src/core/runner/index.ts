@@ -202,7 +202,7 @@ export async function initSession(
     };
 
     // Generate a unique identifier for this stateless interaction
-    const sessionId = `stateless-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const sessionId = `stateless-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
 
     return {
       sessionId,

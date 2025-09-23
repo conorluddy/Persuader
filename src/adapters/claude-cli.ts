@@ -421,7 +421,7 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
     prompt: string,
     options: ProviderPromptOptions
   ): Promise<ProviderResponse> {
-    const requestId = `claude-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const requestId = `claude-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
     const startTime = Date.now();
 
     // Log the incoming request with full details
@@ -775,7 +775,7 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
       readonly executionTimeMs?: number;
     }
   ): Promise<void> {
-    const requestId = `success-feedback-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const requestId = `success-feedback-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
     const startTime = Date.now();
 
     debug('Sending success feedback to Claude CLI session', {

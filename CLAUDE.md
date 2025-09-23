@@ -73,7 +73,7 @@ npx vitest --grep "validation"        # Run tests matching pattern
 **[Complete API Documentation](./API.md)** - Comprehensive reference for all functions, classes, and utilities exported by Persuader. Essential for understanding what functionality is available to consuming packages beyond the core `persuade()`, `initSession()`, and `preload()` functions.
 
 Key exports include:
-- **Core Functions**: `persuade()`, `initSession()`, `preload()`
+- **Core Functions**: `persuade()`, `initSession()`, `preload()`, `getSessionMetrics()`
 - Provider adapters (`createClaudeCLIAdapter`, `createOpenAIAdapter`, etc.)
 - Validation utilities (`validateJson`, `retryWithFeedback`)
 - Session management (`createSessionManager`, `defaultSessionManager`)
@@ -95,7 +95,34 @@ Main function for validated data extraction with retry loops and error feedback.
 Creates persistent sessions for context reuse and cost optimization.
 
 ### `preload()` - Context Loading
-**NEW**: Load data into existing sessions without validation for progressive context building.
+Load data into existing sessions without validation for progressive context building.
+
+### `getSessionMetrics()` - Session Analytics
+**NEW**: Retrieve comprehensive performance metrics for sessions to optimize workflows and track costs.
+
+**Key Features:**
+- **Success Rate Tracking**: Monitor validation success rates across operations
+- **Performance Analysis**: Execution times, retry patterns, and optimization opportunities  
+- **Cost Monitoring**: Token usage aggregation and efficiency metrics
+- **Learning Analytics**: Evaluate success feedback effectiveness
+
+```typescript
+import { getSessionMetrics, initSession, persuade } from 'persuader';
+
+const { sessionId } = await initSession({ 
+  context: "You are an expert analyst",
+  successMessage: "Great work! Keep this approach." 
+});
+
+// ... run multiple operations with success feedback ...
+
+const metrics = await getSessionMetrics(sessionId);
+if (metrics) {
+  console.log(`Success rate: ${(metrics.successRate * 100).toFixed(1)}%`);
+  console.log(`Avg attempts: ${metrics.avgAttemptsToSuccess.toFixed(1)}`);
+  console.log(`Total tokens: ${metrics.totalTokenUsage?.totalTokens}`);
+}
+```
 
 ```typescript
 // Typical workflow

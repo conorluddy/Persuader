@@ -387,6 +387,65 @@ import { defaultSessionManager } from 'persuader';
 const session = await defaultSessionManager.createSession(provider, context);
 ```
 
+### `getSessionMetrics(sessionId: string): Promise<SessionMetrics | null>`
+
+Retrieve comprehensive performance metrics for a session.
+
+```typescript
+import { getSessionMetrics, persuade, initSession } from 'persuader';
+import { z } from 'zod';
+
+// Initialize session and run operations
+const { sessionId } = await initSession({ 
+  context: "You are an expert analyst",
+  successMessage: "Great analysis!" 
+});
+
+const schema = z.object({
+  insights: z.array(z.string()),
+  confidence: z.number()
+});
+
+// Run operations with success feedback
+await persuade({
+  schema,
+  input: "Analyze market trends...",
+  sessionId,
+  successMessage: "Excellent analysis! Keep this detailed approach."
+});
+
+// Get comprehensive metrics
+const metrics = await getSessionMetrics(sessionId);
+if (metrics) {
+  console.log(`Success rate: ${(metrics.successRate * 100).toFixed(1)}%`);
+  console.log(`Average attempts: ${metrics.avgAttemptsToSuccess.toFixed(1)}`);
+  console.log(`Total operations: ${metrics.successfulValidations}`);
+  console.log(`Operations with retries: ${metrics.operationsWithRetries}`);
+  console.log(`Execution time: ${metrics.avgExecutionTimeMs}ms`);
+  console.log(`Token usage: ${metrics.totalTokenUsage?.totalTokens}`);
+}
+```
+
+**Returns:** `Promise<SessionMetrics | null>` containing:
+
+- `totalAttempts: number` - Total validation attempts across all operations
+- `successfulValidations: number` - Number of successful validations
+- `avgAttemptsToSuccess: number` - Average attempts needed for success
+- `successRate: number` - Success rate as percentage (0-1)
+- `lastSuccessTimestamp?: Date` - Most recent successful validation
+- `totalExecutionTimeMs: number` - Total execution time across all attempts
+- `avgExecutionTimeMs: number` - Average execution time per attempt
+- `totalTokenUsage?: TokenUsage` - Aggregated token consumption
+- `operationsWithRetries: number` - Count of operations requiring retries
+- `maxAttemptsForOperation: number` - Maximum attempts needed for any single operation
+
+**Use Cases:**
+- **Performance Analysis**: Identify optimization opportunities
+- **Success Pattern Recognition**: Understand what works best
+- **Cost Monitoring**: Track token usage and execution times
+- **Quality Metrics**: Monitor success rates and retry patterns
+- **Learning Effectiveness**: Evaluate session-based learning progress
+
 ## Validation & Retry
 
 ### `validateJson<T>(input: string, schema: ZodSchema<T>): ValidationResult<T>`
@@ -615,10 +674,16 @@ const result = await persuader.process(input, schema, processor);
 - `RetryResult<T>` - Retry operation result
 - `RetryWithFeedbackOptions<T>` - Retry configuration
 
+### Session Types
+
+- `SessionMetrics` - Comprehensive session performance metrics
+- `SessionConfig` - Session management configuration  
+- `SessionManager` - Session management interface
+- `SessionSuccessFeedback` - Success feedback tracking data
+
 ### Configuration Types
 
 - All provider adapter configuration types (`ClaudeCLIAdapterConfig`, `OpenAIAdapterConfig`, etc.)
-- `SessionConfig` - Session management configuration
 - `PromptBuildOptions` - Prompt construction options
 - `WriteOutputOptions` - File output configuration
 

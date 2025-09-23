@@ -9,7 +9,7 @@
  */
 
 import { z } from 'zod';
-import { initSession, persuade } from '../../src/index.js';
+import { initSession, persuade, getSessionMetrics } from '../../src/index.js';
 
 // Define a schema for data extraction
 const PersonSchema = z.object({
@@ -75,7 +75,42 @@ async function demonstrateSuccessFeedback() {
     console.log(''); // Add spacing between results
   }
 
-  console.log('🎉 Demo completed! Success feedback helps maintain consistency across multiple extractions.');
+  // 📊 NEW: Demonstrate session metrics analysis
+  console.log('📊 Session Performance Analytics\n');
+  
+  try {
+    const metrics = await getSessionMetrics(sessionId);
+    if (metrics) {
+      console.log('🎯 Session Metrics Summary:');
+      console.log(`   📈 Success Rate: ${(metrics.successRate * 100).toFixed(1)}%`);
+      console.log(`   ⚡ Average Attempts: ${metrics.avgAttemptsToSuccess.toFixed(1)}`);
+      console.log(`   🔄 Operations with Retries: ${metrics.operationsWithRetries}`);
+      console.log(`   ⏱️  Average Execution Time: ${metrics.avgExecutionTimeMs.toFixed(0)}ms`);
+      console.log(`   📊 Total Operations: ${metrics.successfulValidations}`);
+      
+      if (metrics.totalTokenUsage) {
+        console.log(`   💰 Token Usage: ${metrics.totalTokenUsage.totalTokens} total`);
+        console.log(`      • Input: ${metrics.totalTokenUsage.inputTokens}`);
+        console.log(`      • Output: ${metrics.totalTokenUsage.outputTokens}`);
+      }
+      
+      if (metrics.lastSuccessTimestamp) {
+        console.log(`   🕒 Last Success: ${metrics.lastSuccessTimestamp.toLocaleTimeString()}`);
+      }
+      
+      console.log('\n💡 Use metrics to:');
+      console.log('   • Identify optimization opportunities');
+      console.log('   • Track cost and performance over time');
+      console.log('   • Monitor success feedback effectiveness');
+      console.log('   • Optimize prompts and schemas for better results');
+    } else {
+      console.log('⚠️  No metrics available for this session.');
+    }
+  } catch (error) {
+    console.warn('⚠️  Could not retrieve session metrics:', error);
+  }
+
+  console.log('\n🎉 Demo completed! Success feedback + metrics provide comprehensive session optimization.');
   console.log('\n💡 Key Benefits of Success Feedback:');
   console.log('   • Reinforces successful patterns in session-based workflows');
   console.log('   • Reduces variance in output quality over multiple requests');
@@ -109,8 +144,18 @@ const result = await persuade({
     Continue using this structured approach with clear categorization and precise details.\`
 });`);
 
-  // Pattern 3: CLI usage
-  console.log('\n3️⃣  CLI Usage:');
+  // Pattern 3: Session metrics analysis
+  console.log('\n3️⃣  Session Metrics Analysis:');
+  console.log(`
+const metrics = await getSessionMetrics(sessionId);
+if (metrics) {
+  console.log(\`Success rate: \${(metrics.successRate * 100).toFixed(1)}%\`);
+  console.log(\`Average attempts: \${metrics.avgAttemptsToSuccess.toFixed(1)}\`);
+  console.log(\`Token usage: \${metrics.totalTokenUsage?.totalTokens}\`);
+}`);
+
+  // Pattern 4: CLI usage
+  console.log('\n4️⃣  CLI Usage:');
   console.log(`
 persuader run \\
   --schema ./schema.ts \\

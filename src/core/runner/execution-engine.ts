@@ -12,6 +12,7 @@ import type {
   ValidationError,
   SessionSuccessFeedback,
   SessionMetrics,
+  SessionManager,
 } from '../../types/index.js';
 import { 
   debug, 
@@ -31,7 +32,6 @@ import {
 import { retryWithFeedback } from '../retry.js';
 import { formatValidationErrorFeedback, validateJson } from '../validation.js';
 import type { ProcessedConfiguration } from './configuration-manager.js';
-import { defaultSessionManager } from '../../session/manager.js';
 
 /**
  * Execution result from the retry engine
@@ -60,7 +60,8 @@ export interface ExecutionResult<T> {
 export async function executeWithRetry<T>(
   config: ProcessedConfiguration<T>,
   provider: ProviderAdapter,
-  sessionId?: string
+  sessionId?: string,
+  sessionManager?: SessionManager
 ): Promise<ExecutionResult<T>> {
   // Build initial prompt from configuration
   const initialPromptParts = await buildInitialPrompt(config);
@@ -92,7 +93,8 @@ export async function executeWithRetry<T>(
         sessionId,
         initialPromptParts,
         attemptNumber,
-        previousError
+        previousError,
+        sessionManager
       );
 
       if (attemptResult.success) {
@@ -196,7 +198,8 @@ async function executeAttempt<T>(
   sessionId: string | undefined,
   initialPromptParts: PromptParts,
   attemptNumber: number,
-  previousError?: ValidationError | ProviderError
+  previousError?: ValidationError | ProviderError,
+  sessionManager?: SessionManager
 ): Promise<{
   success: boolean;
   value?: T;
@@ -243,32 +246,35 @@ async function executeAttempt<T>(
       providerResponse.content || '',
       attemptNumber,
       sessionId,
-      provider
+      provider,
+      sessionManager
     );
 
     // Record attempt metrics for session tracking
-    if (sessionId) {
+    if (sessionId && sessionManager) {
       const executionTimeMs = Date.now() - attemptStartTime;
       await recordAttemptMetrics(
         sessionId,
         attemptNumber,
         validationResult.success,
         executionTimeMs,
-        providerResponse.tokenUsage
+        providerResponse.tokenUsage,
+        sessionManager
       );
     }
 
     return validationResult;
   } catch (attemptError) {
     // Record failed attempt metrics for session tracking
-    if (sessionId) {
+    if (sessionId && sessionManager) {
       const executionTimeMs = Date.now() - attemptStartTime;
       await recordAttemptMetrics(
         sessionId,
         attemptNumber,
         false, // success = false for provider errors
-        executionTimeMs
-        // No token usage on provider errors
+        executionTimeMs,
+        undefined, // No token usage on provider errors
+        sessionManager
       );
     }
 
@@ -449,7 +455,8 @@ async function validateProviderResponse<T>(
   responseContent: string,
   attemptNumber: number,
   sessionId?: string,
-  provider?: ProviderAdapter
+  provider?: ProviderAdapter,
+  sessionManager?: SessionManager
 ): Promise<{ success: boolean; value?: T; error?: ValidationError }> {
   debug('Validating response against schema', {
     contentLength: responseContent.length,
@@ -473,7 +480,8 @@ async function validateProviderResponse<T>(
           sessionId,
           validationResult.value,
           attemptNumber,
-          provider
+          provider,
+          sessionManager
         );
       } catch (error) {
         // Log but don't fail the main operation if success feedback fails
@@ -530,7 +538,8 @@ async function sendSuccessFeedback<T>(
   sessionId: string,
   validatedOutput: T,
   attemptNumber: number,
-  provider?: ProviderAdapter
+  provider?: ProviderAdapter,
+  sessionManager?: SessionManager
 ): Promise<void> {
   try {
     debug('Sending success feedback to session', {
@@ -557,7 +566,9 @@ async function sendSuccessFeedback<T>(
     };
 
     // Store feedback in session manager
-    await defaultSessionManager.addSuccessFeedback(sessionId, successFeedback);
+    if (sessionManager) {
+      await sessionManager.addSuccessFeedback?.(sessionId, successFeedback);
+    }
 
     // Also send feedback directly to the provider if supported
     if (provider?.sendSuccessFeedback) {
@@ -614,7 +625,8 @@ async function recordAttemptMetrics(
   attemptNumber: number,
   success: boolean,
   executionTimeMs: number,
-  tokenUsage?: { inputTokens: number; outputTokens: number; totalTokens: number }
+  tokenUsage?: { inputTokens: number; outputTokens: number; totalTokens: number },
+  sessionManager?: SessionManager
 ): Promise<void> {
   try {
     debug('Recording attempt metrics', {
@@ -625,7 +637,12 @@ async function recordAttemptMetrics(
       hasTokenUsage: Boolean(tokenUsage),
     });
 
-    const session = await defaultSessionManager.getSession(sessionId);
+    if (!sessionManager) {
+      debug('No session manager provided for metrics recording', { sessionId });
+      return;
+    }
+
+    const session = await sessionManager.getSession(sessionId);
     if (!session) {
       debug('Session not found for metrics recording', { sessionId });
       return;
@@ -681,7 +698,7 @@ async function recordAttemptMetrics(
     };
 
     // Update session with new metrics
-    await defaultSessionManager.updateSession(sessionId, { metrics: updatedMetrics });
+    await sessionManager.updateSession(sessionId, { metrics: updatedMetrics });
 
     debug('Attempt metrics recorded successfully', {
       sessionId,
