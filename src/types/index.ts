@@ -56,6 +56,7 @@ export {
 // Core pipeline types
 // Re-export commonly used types for convenience
 export type {
+  EnhancementConfiguration,
   ExecutionMetadata,
   InitSessionOptions,
   InitSessionResult,

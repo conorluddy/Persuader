@@ -13,10 +13,21 @@ import {
   DEFAULT_RETRIES,
   DEFAULT_TEMPERATURE,
 } from '../../shared/constants/index.js';
-import type { Options, PreloadOptions, ProviderAdapter } from '../../types/index.js';
+import type { Options, PreloadOptions, ProviderAdapter, EnhancementConfiguration } from '../../types/index.js';
 import type { LogLevel } from '../../utils/logger.js';
 import { debug, info, warn } from '../../utils/logger.js';
 import { extractSchemaInfo } from '../../utils/schema-analyzer.js';
+
+/**
+ * Processed enhancement configuration with defaults applied
+ */
+export interface ProcessedEnhancementConfiguration {
+  readonly rounds: number;
+  readonly strategy: 'expand-array' | 'expand-detail' | 'expand-variety' | 'custom';
+  readonly minImprovement: number;
+  readonly customPrompt?: (currentResult: unknown, round: number) => string;
+  readonly evaluateImprovement?: (baseline: unknown, enhanced: unknown) => number;
+}
 
 /**
  * Processed configuration with all defaults applied
@@ -32,6 +43,7 @@ export interface ProcessedConfiguration<T> {
   readonly model: string;
   readonly exampleOutput?: T;
   readonly successMessage?: string;
+  readonly enhancement?: ProcessedEnhancementConfiguration;
   readonly logLevel?: LogLevel;
   readonly providerOptions: {
     readonly maxTokens: number;
@@ -53,6 +65,7 @@ export interface NormalizedOptions<T> {
   readonly model?: string;
   readonly exampleOutput?: T;
   readonly successMessage?: string;
+  readonly enhancement?: number | EnhancementConfiguration;
   readonly logLevel?: LogLevel;
   readonly providerOptions?: Record<string, unknown>;
 }
@@ -112,6 +125,7 @@ export function validateAndNormalizeOptions<T>(
       exampleOutput: options.exampleOutput,
     }),
     ...(options.successMessage !== undefined && { successMessage: options.successMessage }),
+    ...(options.enhancement !== undefined && { enhancement: options.enhancement }),
     ...(options.logLevel !== undefined && { logLevel: options.logLevel }),
     ...(options.providerOptions !== undefined && {
       providerOptions: options.providerOptions,
@@ -127,6 +141,7 @@ export function validateAndNormalizeOptions<T>(
     hasModel: normalizedOptions.model !== undefined,
     hasExampleOutput: Boolean(normalizedOptions.exampleOutput),
     hasSuccessMessage: Boolean(normalizedOptions.successMessage),
+    hasEnhancement: Boolean(normalizedOptions.enhancement),
     hasProviderOptions: Boolean(normalizedOptions.providerOptions),
   });
 
@@ -146,6 +161,12 @@ export function validateAndNormalizeOptions<T>(
 export function processRunnerConfiguration<T>(
   normalizedOptions: NormalizedOptions<T>
 ): ProcessedConfiguration<T> {
+  // Process enhancement configuration if provided
+  let processedEnhancement: ProcessedEnhancementConfiguration | undefined;
+  if (normalizedOptions.enhancement !== undefined) {
+    processedEnhancement = processEnhancementConfiguration(normalizedOptions.enhancement);
+  }
+
   // Apply default configuration values
   const processedConfig: ProcessedConfiguration<T> = {
     schema: normalizedOptions.schema,
@@ -167,6 +188,7 @@ export function processRunnerConfiguration<T>(
       exampleOutput: normalizedOptions.exampleOutput,
     }),
     ...(normalizedOptions.successMessage && { successMessage: normalizedOptions.successMessage }),
+    ...(processedEnhancement && { enhancement: processedEnhancement }),
     ...(normalizedOptions.logLevel && { logLevel: normalizedOptions.logLevel }),
   };
 
@@ -179,6 +201,9 @@ export function processRunnerConfiguration<T>(
     hasLens: Boolean(processedConfig.lens),
     hasExampleOutput: Boolean(processedConfig.exampleOutput),
     hasSuccessMessage: Boolean(processedConfig.successMessage),
+    hasEnhancement: Boolean(processedConfig.enhancement),
+    enhancementRounds: processedConfig.enhancement?.rounds,
+    enhancementStrategy: processedConfig.enhancement?.strategy,
   });
 
   return processedConfig;
@@ -347,6 +372,14 @@ export function validateRunnerOptions<T>(
     }
   }
 
+  // Validate enhancement configuration if provided
+  if (options.enhancement !== undefined) {
+    const enhancementErrors = validateEnhancementConfiguration(options.enhancement);
+    if (enhancementErrors.length > 0) {
+      errors.push(...enhancementErrors);
+    }
+  }
+
   // Validate exampleOutput matches schema type if both provided
   if (options.exampleOutput !== undefined && options.schema) {
     try {
@@ -450,6 +483,110 @@ function logSchemaInformation<T>(options: Options<T>): void {
       inputType: typeof options.input,
     });
   }
+}
+
+/**
+ * Process enhancement configuration with defaults
+ *
+ * @param enhancement Raw enhancement configuration (number or object)
+ * @returns Processed enhancement configuration with defaults applied
+ */
+function processEnhancementConfiguration(
+  enhancement: number | EnhancementConfiguration
+): ProcessedEnhancementConfiguration {
+  // Handle simple number format (rounds only)
+  if (typeof enhancement === 'number') {
+    return {
+      rounds: enhancement,
+      strategy: 'expand-array',
+      minImprovement: 0.2,
+    };
+  }
+
+  // Process full configuration object
+  return {
+    rounds: enhancement.rounds,
+    strategy: enhancement.strategy || 'expand-array',
+    minImprovement: enhancement.minImprovement ?? 0.2,
+    ...(enhancement.customPrompt && { customPrompt: enhancement.customPrompt }),
+    ...(enhancement.evaluateImprovement && { evaluateImprovement: enhancement.evaluateImprovement }),
+  };
+}
+
+/**
+ * Validate enhancement configuration
+ *
+ * @param enhancement Enhancement configuration to validate
+ * @returns Array of validation error messages
+ */
+function validateEnhancementConfiguration(
+  enhancement: number | EnhancementConfiguration | undefined
+): string[] {
+  const errors: string[] = [];
+
+  if (enhancement === undefined) {
+    return errors;
+  }
+
+  // Validate simple number format
+  if (typeof enhancement === 'number') {
+    if (enhancement < 0) {
+      errors.push('Options configuration error: enhancement rounds must be non-negative');
+    }
+    if (enhancement > 5) {
+      errors.push('Options configuration warning: enhancement rounds should not exceed 5 for reasonable execution time');
+    }
+    return errors;
+  }
+
+  // Validate configuration object
+  if (typeof enhancement !== 'object' || enhancement === null) {
+    errors.push('Options configuration error: enhancement must be a number or configuration object');
+    return errors;
+  }
+
+  // Validate rounds
+  if (typeof enhancement.rounds !== 'number') {
+    errors.push('Options configuration error: enhancement.rounds must be a number');
+  } else if (enhancement.rounds < 0) {
+    errors.push('Options configuration error: enhancement.rounds must be non-negative');
+  } else if (enhancement.rounds > 5) {
+    errors.push('Options configuration warning: enhancement.rounds should not exceed 5 for reasonable execution time');
+  }
+
+  // Validate strategy
+  if (enhancement.strategy !== undefined) {
+    const validStrategies = ['expand-array', 'expand-detail', 'expand-variety', 'custom'];
+    if (!validStrategies.includes(enhancement.strategy)) {
+      errors.push(`Options configuration error: enhancement.strategy must be one of: ${validStrategies.join(', ')}`);
+    }
+
+    // If strategy is 'custom', customPrompt must be provided
+    if (enhancement.strategy === 'custom' && typeof enhancement.customPrompt !== 'function') {
+      errors.push('Options configuration error: enhancement.customPrompt function is required when strategy is "custom"');
+    }
+  }
+
+  // Validate minImprovement
+  if (enhancement.minImprovement !== undefined) {
+    if (typeof enhancement.minImprovement !== 'number') {
+      errors.push('Options configuration error: enhancement.minImprovement must be a number');
+    } else if (enhancement.minImprovement < 0 || enhancement.minImprovement > 1) {
+      errors.push('Options configuration error: enhancement.minImprovement must be between 0 and 1');
+    }
+  }
+
+  // Validate customPrompt
+  if (enhancement.customPrompt !== undefined && typeof enhancement.customPrompt !== 'function') {
+    errors.push('Options configuration error: enhancement.customPrompt must be a function');
+  }
+
+  // Validate evaluateImprovement
+  if (enhancement.evaluateImprovement !== undefined && typeof enhancement.evaluateImprovement !== 'function') {
+    errors.push('Options configuration error: enhancement.evaluateImprovement must be a function');
+  }
+
+  return errors;
 }
 
 /**

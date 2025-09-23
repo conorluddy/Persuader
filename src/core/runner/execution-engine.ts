@@ -32,6 +32,7 @@ import {
 import { retryWithFeedback } from '../retry.js';
 import { formatValidationErrorFeedback, validateJson } from '../validation.js';
 import type { ProcessedConfiguration } from './configuration-manager.js';
+import { buildEnhancementPrompt, evaluateImprovement } from './enhancement-utilities.js';
 
 /**
  * Execution result from the retry engine
@@ -126,6 +127,24 @@ export async function executeWithRetry<T>(
       }
     },
   });
+
+  // Apply enhancement rounds if configured and initial execution succeeded
+  if (retryResult.success && config.enhancement && config.enhancement.rounds > 0) {
+    const enhancedResult = await applyEnhancementRounds(
+      config,
+      provider,
+      sessionId,
+      retryResult.value as T,
+      sessionManager
+    );
+    
+    return {
+      success: true,
+      value: enhancedResult.value,
+      error: undefined,
+      attempts: retryResult.attempts + enhancedResult.enhancementAttempts,
+    };
+  }
 
   return {
     success: retryResult.success,
@@ -609,6 +628,186 @@ async function sendSuccessFeedback<T>(
     });
     throw error;
   }
+}
+
+/**
+ * Apply enhancement rounds to improve initial successful result
+ * 
+ * @template T The expected output type
+ * @param config Processed pipeline configuration with enhancement settings
+ * @param provider Provider adapter for LLM calls
+ * @param sessionId Optional session ID for context reuse
+ * @param baseline The initial valid result to improve
+ * @param sessionManager Optional session manager for metrics
+ * @returns Enhanced result with attempt count
+ */
+async function applyEnhancementRounds<T>(
+  config: ProcessedConfiguration<T>,
+  provider: ProviderAdapter,
+  sessionId: string | undefined,
+  baseline: T,
+  sessionManager?: SessionManager
+): Promise<{ value: T; enhancementAttempts: number }> {
+  if (!config.enhancement) {
+    return { value: baseline, enhancementAttempts: 0 };
+  }
+
+  info('Starting enhancement rounds', {
+    rounds: config.enhancement.rounds,
+    strategy: config.enhancement.strategy,
+    minImprovement: config.enhancement.minImprovement,
+    hasSessionId: Boolean(sessionId),
+  });
+
+  let currentBest = baseline;
+  let enhancementAttempts = 0;
+
+  for (let round = 1; round <= config.enhancement.rounds; round++) {
+    try {
+      debug(`Starting enhancement round ${round}/${config.enhancement.rounds}`, {
+        round,
+        totalRounds: config.enhancement.rounds,
+        strategy: config.enhancement.strategy,
+      });
+
+      // Build enhancement prompt
+      const enhancementPrompt = buildEnhancementPrompt(
+        config.enhancement,
+        currentBest,
+        round
+      );
+
+      // Combine with original context
+      const fullPrompt = combineEnhancementPrompt(
+        config,
+        enhancementPrompt,
+        currentBest
+      );
+
+      // Call provider for enhancement
+      const enhancementStartTime = Date.now();
+      const providerResponse = await callProvider(
+        provider,
+        sessionId,
+        fullPrompt,
+        config,
+        round + 100  // Use high attempt number to distinguish from retries
+      );
+
+      enhancementAttempts++;
+
+      // Validate enhanced response
+      const validationResult = validateJson(config.schema, providerResponse.content || '');
+
+      if (validationResult.success) {
+        // Evaluate improvement
+        const improvementScore = evaluateImprovement(
+          config.enhancement,
+          currentBest,
+          validationResult.value
+        );
+
+        info(`Enhancement round ${round} completed`, {
+          round,
+          improvementScore,
+          meetsThreshold: improvementScore >= config.enhancement.minImprovement,
+          threshold: config.enhancement.minImprovement,
+        });
+
+        // Accept enhancement if it meets improvement threshold
+        if (improvementScore >= config.enhancement.minImprovement) {
+          info(`Enhancement accepted - improvement threshold met`, {
+            round,
+            improvementScore,
+            threshold: config.enhancement.minImprovement,
+          });
+          currentBest = validationResult.value;
+
+          // Record enhancement success in session metrics
+          if (sessionId && sessionManager) {
+            const executionTimeMs = Date.now() - enhancementStartTime;
+            await recordAttemptMetrics(
+              sessionId,
+              round + 100,
+              true,
+              executionTimeMs,
+              providerResponse.tokenUsage,
+              sessionManager
+            );
+          }
+        } else {
+          debug(`Enhancement rejected - below improvement threshold`, {
+            round,
+            improvementScore,
+            threshold: config.enhancement.minImprovement,
+          });
+        }
+      } else {
+        warn(`Enhancement round ${round} failed validation`, {
+          round,
+          errorCode: validationResult.error.code,
+          errorMessage: validationResult.error.message,
+        });
+      }
+    } catch (error) {
+      warn(`Enhancement round ${round} failed with error`, {
+        round,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      // Continue with next round or return current best
+    }
+  }
+
+  info('Enhancement rounds completed', {
+    totalRounds: config.enhancement.rounds,
+    enhancementAttempts,
+    baselineImproved: currentBest !== baseline,
+  });
+
+  return {
+    value: currentBest,
+    enhancementAttempts,
+  };
+}
+
+/**
+ * Combine enhancement prompt with original context
+ * 
+ * @template T The expected output type
+ * @param config Pipeline configuration
+ * @param enhancementPrompt The enhancement-specific prompt
+ * @param currentResult The current valid result
+ * @returns Combined prompt for enhancement
+ */
+function combineEnhancementPrompt<T>(
+  config: ProcessedConfiguration<T>,
+  enhancementPrompt: string,
+  currentResult: T
+): string {
+  const parts: string[] = [];
+
+  // Add original context if provided
+  if (config.context) {
+    parts.push(`[CONTEXT]\n${config.context}`);
+  }
+
+  // Add schema information
+  parts.push(`[SCHEMA]\nThe output must strictly conform to the following structure:`);
+  parts.push(JSON.stringify(config.schema, null, 2));
+
+  // Add current result as baseline
+  parts.push(`[CURRENT RESULT]\nHere is the current valid result:`);
+  parts.push(JSON.stringify(currentResult, null, 2));
+
+  // Add enhancement instruction
+  parts.push(`[ENHANCEMENT REQUEST]\n${enhancementPrompt}`);
+
+  // Add lens if provided
+  if (config.lens) {
+    parts.push(`[LENS]\n${config.lens}`);
+  }
+
+  return parts.join('\n\n');
 }
 
 /**

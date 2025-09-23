@@ -49,6 +49,7 @@ const result = await persuade({
 - `sessionId?: string` - Optional session for context reuse
 - `exampleOutput?: T` - Optional concrete example of valid output to guide LLM formatting
 - `successMessage?: string` - Optional success feedback for session-based learning
+- `enhancement?: number | EnhancementConfiguration` - Optional enhancement rounds to improve initial successful results
 
 **Returns:** `Promise<Result<T>>` with validated data and execution metadata
 
@@ -149,6 +150,126 @@ const result2 = await persuade({
 - Use encouraging, positive language
 - Keep messages concise but meaningful
 - Maintain consistent feedback patterns for similar work types
+
+#### Enhancement Rounds with `enhancement`
+
+The `enhancement` parameter enables automatic improvement of initial successful results through additional LLM calls with encouraging prompts. This bridges the gap between "acceptable" and "excellent" results while maintaining reliability.
+
+```typescript
+import { persuade } from 'persuader';
+import { z } from 'zod';
+
+const TransitionsSchema = z.object({
+  transitions: z.array(z.object({
+    name: z.string(),
+    description: z.string(),
+    difficulty: z.enum(['beginner', 'intermediate', 'advanced'])
+  })).min(3) // Hard minimum
+});
+
+// Simple enhancement - try to improve twice
+const result = await persuade({
+  input: "Generate BJJ transitions from mount position",
+  schema: TransitionsSchema,
+  enhancement: 2, // Try 2 enhancement rounds after initial success
+  context: "You are a BJJ expert"
+});
+
+// Advanced enhancement configuration
+const advancedResult = await persuade({
+  input: "Create a workout plan",
+  schema: WorkoutSchema,
+  enhancement: {
+    rounds: 1,
+    strategy: 'expand-detail',
+    minImprovement: 0.3, // Require 30% improvement to accept
+    customPrompt: (currentResult, round) => 
+      `Great start! Can you add more detailed exercise descriptions and progression tips?`
+  }
+});
+```
+
+**Enhancement Configuration:**
+
+**Simple Format (Number):**
+- `enhancement: 2` - Try 2 enhancement rounds with default strategy
+
+**Advanced Format (Object):**
+- `rounds: number` - Number of enhancement attempts (0 disables enhancement)
+- `strategy?: 'expand-array' | 'expand-detail' | 'expand-variety' | 'custom'` - Enhancement approach
+- `minImprovement?: number` - Minimum improvement score (0-1) to accept enhancement (default: 0.2)
+- `customPrompt?: (currentResult: unknown, round: number) => string` - Custom prompt builder
+- `evaluateImprovement?: (baseline: unknown, enhanced: unknown) => number` - Custom improvement scorer
+
+**Enhancement Strategies:**
+
+1. **`expand-array`** (default): Encourages more items in arrays
+   - Good for: Lists, collections, multiple examples
+   - Prompt style: "Great start! Could you add 5-10 more diverse items?"
+
+2. **`expand-detail`**: Encourages more detailed descriptions  
+   - Good for: Explanations, instructions, comprehensive content
+   - Prompt style: "Good response! Could you add more detailed information and context?"
+
+3. **`expand-variety`**: Encourages more diverse content
+   - Good for: Reducing repetition, exploring different perspectives  
+   - Prompt style: "Nice variety! Could you include more unique and distinctive examples?"
+
+4. **`custom`**: Uses your custom prompt function
+   - Requires: `customPrompt` function that builds enhancement prompts
+   - Full control over enhancement messaging
+
+**How Enhancement Works:**
+
+1. **Initial Success**: First, get a valid result that passes schema validation
+2. **Save Baseline**: Store the successful result as guaranteed fallback
+3. **Enhancement Rounds**: Make additional LLM calls with encouraging prompts
+4. **Improvement Evaluation**: Score enhancements against baseline using strategy-specific metrics
+5. **Best Result Wins**: Return the best result, never worse than baseline
+6. **Risk-Free**: Enhancement never compromises the initial valid result
+
+**Example Use Cases:**
+
+```typescript
+// BJJ Transitions: Get minimum 3, enhance to 15-20 for comprehensive coverage
+const transitions = await persuade({
+  schema: z.object({ transitions: z.array(TransitionType).min(3) }),
+  input: "Transitions from side control",
+  enhancement: 2, // Default expand-array strategy
+});
+
+// Workout Plans: Enhance detail and instruction quality
+const workout = await persuade({
+  schema: WorkoutSchema,
+  input: "Upper body strength workout",
+  enhancement: {
+    rounds: 1,
+    strategy: 'expand-detail'
+  }
+});
+
+// Product Analysis: Reduce repetitive insights
+const analysis = await persuade({
+  schema: AnalysisSchema, 
+  input: "Analyze market trends",
+  enhancement: {
+    rounds: 1,
+    strategy: 'expand-variety',
+    minImprovement: 0.25 // Require 25% improvement
+  }
+});
+```
+
+**Performance Considerations:**
+- Enhancement adds extra LLM calls (cost and time)
+- Each round is independent - failures don't affect baseline
+- Use `minImprovement` threshold to avoid unnecessary enhancements
+- Consider enhancement rounds in token budgets for workflows
+
+**Enhancement vs Retries:**
+- **Retries**: Fix validation failures, get from invalid → valid
+- **Enhancement**: Improve valid results, get from acceptable → excellent
+- Both work together: retries ensure validation, enhancement improves quality
 
 ### `preload(options: PreloadOptions, provider?: ProviderAdapter): Promise<PreloadResult>`
 
@@ -658,6 +779,7 @@ const result = await persuader.process(input, schema, processor);
 - `ExecutionMetadata` - Performance and execution details
 - `InitSessionOptions` - Session initialization configuration
 - `InitSessionResult` - Session creation result
+- `EnhancementConfiguration` - Enhancement rounds configuration
 
 ### Provider Types
 
