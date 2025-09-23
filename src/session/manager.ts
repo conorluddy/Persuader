@@ -281,8 +281,11 @@ export class SessionManager implements SessionManagerInterface {
       throw new Error(`Session ${sessionId} not found`);
     }
 
+    // Limit feedback array to prevent unbounded growth (FIFO eviction)
+    const MAX_FEEDBACK_ITEMS = 50; // Configurable limit
+    const existingFeedback = existingSession.successFeedback || [];
     const updatedSuccessFeedback = [
-      ...(existingSession.successFeedback || []),
+      ...existingFeedback.slice(Math.max(0, existingFeedback.length - MAX_FEEDBACK_ITEMS + 1)),
       feedback,
     ];
 

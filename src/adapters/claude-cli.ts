@@ -791,7 +791,7 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
       const feedbackPrompt = `${successMessage}\n\nPlease acknowledge this feedback briefly and remember this successful approach for future similar requests.`;
 
       await this.sendPrompt(sessionId, feedbackPrompt, {
-        maxTokens: 100, // Keep acknowledgment brief
+        maxTokens: 30, // Reduced to 30 tokens for brief acknowledgments
         temperature: 0.1, // Low temperature for consistent acknowledgment
       });
 

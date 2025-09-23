@@ -453,7 +453,8 @@ function validateProviderResponse<T>(
         provider
       ).catch((error) => {
         // Don't fail the main operation if success feedback fails
-        debug('Failed to send success feedback', {
+        // Log at warn level for better observability
+        warn('Failed to send success feedback', {
           sessionId,
           error: error instanceof Error ? error.message : 'Unknown error',
         });
