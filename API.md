@@ -133,7 +133,7 @@ const result2 = await persuade({
 ```
 
 **Success Feedback Triggers When:**
-1. ✅ Schema validation passes on the **first attempt**
+1. ✅ Schema validation passes (on **any successful attempt**)
 2. ✅ A `sessionId` is provided (session-based workflow) 
 3. ✅ A `successMessage` parameter is provided
 4. ✅ The provider supports success feedback (Claude CLI does)

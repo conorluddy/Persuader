@@ -119,8 +119,8 @@ persuader run \\
   --success-message "Perfect! Continue this approach."
 `);
 
-  console.log('\n🎯 Success feedback is only sent when:');
-  console.log('   • Schema validation passes on first attempt');
+  console.log('\n🎯 Success feedback is sent when:');
+  console.log('   • Schema validation passes (on any successful attempt)');
   console.log('   • A sessionId is provided (session-based workflow)');  
   console.log('   • A successMessage parameter is provided');
   console.log('   • The provider supports success feedback (Claude CLI does)');
