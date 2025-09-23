@@ -1,6 +1,6 @@
 {
   "name": "persuader",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "type": "module",
   "description": "Session-based LLM orchestration with validation-driven retry loops and guaranteed schema-adhering output.",
   "main": "./dist/index.cjs",
