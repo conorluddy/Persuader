@@ -31,6 +31,7 @@ export interface ProcessedConfiguration<T> {
   readonly retries: number;
   readonly model: string;
   readonly exampleOutput?: T;
+  readonly successMessage?: string;
   readonly logLevel?: LogLevel;
   readonly providerOptions: {
     readonly maxTokens: number;
@@ -51,6 +52,7 @@ export interface NormalizedOptions<T> {
   readonly retries?: number;
   readonly model?: string;
   readonly exampleOutput?: T;
+  readonly successMessage?: string;
   readonly logLevel?: LogLevel;
   readonly providerOptions?: Record<string, unknown>;
 }
@@ -109,6 +111,7 @@ export function validateAndNormalizeOptions<T>(
     ...(options.exampleOutput !== undefined && {
       exampleOutput: options.exampleOutput,
     }),
+    ...(options.successMessage !== undefined && { successMessage: options.successMessage }),
     ...(options.logLevel !== undefined && { logLevel: options.logLevel }),
     ...(options.providerOptions !== undefined && {
       providerOptions: options.providerOptions,
@@ -123,6 +126,7 @@ export function validateAndNormalizeOptions<T>(
     hasRetries: normalizedOptions.retries !== undefined,
     hasModel: normalizedOptions.model !== undefined,
     hasExampleOutput: Boolean(normalizedOptions.exampleOutput),
+    hasSuccessMessage: Boolean(normalizedOptions.successMessage),
     hasProviderOptions: Boolean(normalizedOptions.providerOptions),
   });
 
@@ -162,6 +166,7 @@ export function processRunnerConfiguration<T>(
     ...(normalizedOptions.exampleOutput && {
       exampleOutput: normalizedOptions.exampleOutput,
     }),
+    ...(normalizedOptions.successMessage && { successMessage: normalizedOptions.successMessage }),
     ...(normalizedOptions.logLevel && { logLevel: normalizedOptions.logLevel }),
   };
 
@@ -173,6 +178,7 @@ export function processRunnerConfiguration<T>(
     hasContext: Boolean(processedConfig.context),
     hasLens: Boolean(processedConfig.lens),
     hasExampleOutput: Boolean(processedConfig.exampleOutput),
+    hasSuccessMessage: Boolean(processedConfig.successMessage),
   });
 
   return processedConfig;
@@ -289,6 +295,12 @@ export function validateRunnerOptions<T>(
   if (options.output !== undefined && typeof options.output !== 'string') {
     errors.push(
       'Options configuration error: output must be a string file path. Example: output: "./results.json"'
+    );
+  }
+
+  if (options.successMessage !== undefined && typeof options.successMessage !== 'string') {
+    errors.push(
+      'Options configuration error: successMessage must be a string. Example: successMessage: "✅ Perfect! Continue using this approach."'
     );
   }
 

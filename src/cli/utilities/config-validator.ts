@@ -153,6 +153,10 @@ export async function validatePipelineConfig(
     if (rawOptions.lens) {
       (pipelineOptions as { lens?: string }).lens = rawOptions.lens as string;
     }
+    if (rawOptions.successMessage) {
+      (pipelineOptions as { successMessage?: string }).successMessage =
+        rawOptions.successMessage as string;
+    }
     if (rawOptions.sessionId) {
       (pipelineOptions as { sessionId?: string }).sessionId =
         rawOptions.sessionId as string;
@@ -760,6 +764,14 @@ export function validateRunOptions(options: {
   if (options.lens !== undefined) {
     errors.push(
       ...validateOptionValue('lens', options.lens, {
+        type: 'string',
+      })
+    );
+  }
+
+  if ((options as any).successMessage !== undefined) {
+    errors.push(
+      ...validateOptionValue('successMessage', (options as any).successMessage, {
         type: 'string',
       })
     );

@@ -21,6 +21,8 @@ import type {
   SessionFilter,
   SessionManager as SessionManagerInterface,
   SessionMetadata,
+  SessionMetrics,
+  SessionSuccessFeedback,
 } from '../types/session.js';
 
 /**
@@ -95,6 +97,7 @@ export class SessionManager implements SessionManagerInterface {
         tags: metadata?.tags || [],
         active: metadata?.active ?? true,
       },
+      successFeedback: [],
     };
 
     await this.saveSession(session);
@@ -258,6 +261,157 @@ export class SessionManager implements SessionManagerInterface {
     }
 
     return stats;
+  }
+
+  /**
+   * Add success feedback to a session
+   *
+   * Appends positive reinforcement feedback to the session's learning history.
+   * This feedback helps maintain successful patterns across multiple requests.
+   *
+   * @param sessionId - Session to add feedback to
+   * @param feedback - Success feedback information
+   * @returns Updated session with new feedback
+   */
+  async addSuccessFeedback(
+    sessionId: string,
+    feedback: SessionSuccessFeedback
+  ): Promise<Session> {
+    const existingSession = await this.getSession(sessionId);
+    if (!existingSession) {
+      throw new Error(`Session ${sessionId} not found`);
+    }
+
+    // Limit feedback array to prevent unbounded growth (FIFO eviction)
+    const MAX_FEEDBACK_ITEMS = 50; // Configurable limit
+    const existingFeedback = existingSession.successFeedback || [];
+    const updatedSuccessFeedback = [
+      ...existingFeedback.slice(Math.max(0, existingFeedback.length - MAX_FEEDBACK_ITEMS + 1)),
+      feedback,
+    ];
+
+    const updatedSession = await this.updateSession(sessionId, {
+      successFeedback: updatedSuccessFeedback,
+    });
+
+    return updatedSession;
+  }
+
+  /**
+   * Get success feedback history for a session
+   *
+   * Retrieves all success feedback messages for learning context.
+   * Useful for understanding what patterns have been successful.
+   *
+   * @param sessionId - Session to get feedback for
+   * @param limit - Maximum number of feedback entries to return (most recent first)
+   * @returns Array of success feedback entries
+   */
+  async getSuccessFeedback(
+    sessionId: string,
+    limit?: number
+  ): Promise<readonly SessionSuccessFeedback[]> {
+    const session = await this.getSession(sessionId);
+    if (!session || !session.successFeedback) {
+      return [];
+    }
+
+    const feedback = [...session.successFeedback].reverse(); // Most recent first
+    return limit ? feedback.slice(0, limit) : feedback;
+  }
+
+  /**
+   * Get performance metrics for a session
+   *
+   * Calculates success rates, average attempts, and other performance metrics
+   * for analyzing session effectiveness and optimization opportunities.
+   *
+   * @param sessionId - Session to get metrics for
+   * @returns Session performance metrics
+   */
+  async getSessionMetrics(sessionId: string): Promise<SessionMetrics | null> {
+    const session = await this.getSession(sessionId);
+    if (!session) {
+      return null;
+    }
+
+    // Return cached metrics if available
+    if (session.metrics) {
+      return session.metrics;
+    }
+
+    // Calculate metrics from session data
+    const successFeedback = session.successFeedback || [];
+    const successfulValidations = successFeedback.length;
+    
+    // Basic metrics calculation
+    let totalAttempts = 0;
+    let totalExecutionTimeMs = 0;
+    let totalInputTokens = 0;
+    let totalOutputTokens = 0;
+    let operationsWithRetries = 0;
+    let maxAttemptsForOperation = 0;
+    let attemptsSum = 0;
+    let lastSuccessTimestamp: Date | undefined;
+
+    for (const feedback of successFeedback) {
+      const attemptNumber = feedback.attemptNumber;
+      totalAttempts += attemptNumber;
+      attemptsSum += attemptNumber;
+      
+      if (attemptNumber > 1) {
+        operationsWithRetries++;
+      }
+      
+      if (attemptNumber > maxAttemptsForOperation) {
+        maxAttemptsForOperation = attemptNumber;
+      }
+
+      if (feedback.metadata?.executionTimeMs) {
+        totalExecutionTimeMs += feedback.metadata.executionTimeMs;
+      }
+
+      if (feedback.metadata?.tokenUsage) {
+        totalInputTokens += feedback.metadata.tokenUsage.inputTokens;
+        totalOutputTokens += feedback.metadata.tokenUsage.outputTokens;
+      }
+
+      if (!lastSuccessTimestamp || feedback.timestamp > lastSuccessTimestamp) {
+        lastSuccessTimestamp = feedback.timestamp;
+      }
+    }
+
+    const avgAttemptsToSuccess = successfulValidations > 0 ? attemptsSum / successfulValidations : 0;
+    const successRate = totalAttempts > 0 ? successfulValidations / totalAttempts : 0;
+    const avgExecutionTimeMs = successfulValidations > 0 ? totalExecutionTimeMs / successfulValidations : 0;
+
+    const baseMetrics = {
+      totalAttempts,
+      successfulValidations,
+      avgAttemptsToSuccess,
+      successRate,
+      totalExecutionTimeMs,
+      avgExecutionTimeMs,
+      operationsWithRetries,
+      maxAttemptsForOperation,
+    };
+
+    const metrics: SessionMetrics = {
+      ...baseMetrics,
+      ...(lastSuccessTimestamp ? { lastSuccessTimestamp } : {}),
+      ...((totalInputTokens > 0 || totalOutputTokens > 0) ? {
+        totalTokenUsage: {
+          inputTokens: totalInputTokens,
+          outputTokens: totalOutputTokens,
+          totalTokens: totalInputTokens + totalOutputTokens,
+        }
+      } : {}),
+    };
+
+    // Cache the metrics in the session
+    await this.updateSession(sessionId, { metrics });
+
+    return metrics;
   }
 
   /**

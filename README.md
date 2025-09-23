@@ -362,6 +362,8 @@ When validation fails, Persuader automatically provides targeted corrections to 
 - **🎯 Schema-First Validation**: Zod integration with intelligent error feedback for retry loops
 - **🔄 Smart Retry Logic**: Validation errors become specific LLM corrections
 - **⚡ Session Management**: Optional context reuse for token efficiency and consistency  
+- **🎓 Session-Based Learning**: Success feedback reinforces patterns for improved consistency
+- **📊 Session Analytics**: Comprehensive performance metrics for optimization and cost monitoring
 - **📥 Context Loading**: `preload()` function for loading large datasets into sessions without validation
 - **🛠️ Production CLI**: Batch processing with glob patterns, progress tracking, and dry-run mode
 - **🔒 Type Safety**: Full TypeScript support with strict mode and comprehensive error handling
@@ -456,6 +458,66 @@ for (const item of userDataItems) {
   }
 }
 ```
+
+### 📊 Session Analytics & Performance Tracking
+
+Monitor session performance and optimize your LLM workflows with comprehensive metrics:
+
+```typescript
+import { getSessionMetrics, initSession, persuade } from 'persuader';
+import { z } from 'zod';
+
+// Initialize session with success feedback for learning
+const { sessionId } = await initSession({
+  context: "You are an expert data analyst",
+  successMessage: "Excellent analysis! Keep this detailed approach."
+});
+
+const AnalysisSchema = z.object({
+  insights: z.array(z.string()).min(3),
+  confidence: z.number().min(0).max(1),
+  recommendations: z.array(z.string())
+});
+
+// Run multiple operations with success reinforcement
+await persuade({
+  schema: AnalysisSchema,
+  input: "Q1 sales data: Revenue up 15%, customer acquisition up 23%...",
+  sessionId,
+  successMessage: "Perfect structured analysis! Your format is exactly what we need."
+});
+
+await persuade({
+  schema: AnalysisSchema, 
+  input: "Q2 sales data: Revenue up 8%, retention at 94%...",
+  sessionId,
+  successMessage: "Outstanding work! Maintain this consistency and depth."
+});
+
+// Get comprehensive performance metrics
+const metrics = await getSessionMetrics(sessionId);
+if (metrics) {
+  console.log(`📈 Success Rate: ${(metrics.successRate * 100).toFixed(1)}%`);
+  console.log(`⚡ Avg Attempts: ${metrics.avgAttemptsToSuccess.toFixed(1)}`);
+  console.log(`🔄 Operations with Retries: ${metrics.operationsWithRetries}`);
+  console.log(`⏱️  Avg Execution Time: ${metrics.avgExecutionTimeMs}ms`);
+  console.log(`💰 Total Tokens: ${metrics.totalTokenUsage?.totalTokens || 0}`);
+  console.log(`📊 Total Operations: ${metrics.successfulValidations}`);
+}
+```
+
+**Session Metrics Include:**
+- **Success Rate**: Percentage of operations that succeeded
+- **Retry Analysis**: Operations requiring multiple attempts  
+- **Performance Timing**: Execution times for optimization
+- **Token Usage**: Cost tracking and efficiency monitoring
+- **Learning Effectiveness**: Success feedback impact measurement
+
+**Use Cases:**
+- **🎯 Optimization**: Identify which prompts/schemas need improvement
+- **💰 Cost Monitoring**: Track token usage across sessions
+- **📊 Quality Metrics**: Monitor success rates and consistency
+- **🧠 Learning Analysis**: Evaluate success feedback effectiveness
 
 ## 💎 Architecture
 

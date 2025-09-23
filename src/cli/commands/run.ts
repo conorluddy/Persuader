@@ -28,6 +28,7 @@ export interface RunOptions {
   sessionId?: string;
   context?: string;
   lens?: string;
+  successMessage?: string;
   retries: string;
   model?: string;
   dryRun?: boolean;

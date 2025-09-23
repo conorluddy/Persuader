@@ -285,7 +285,7 @@ export class OpenAIAdapter implements ProviderAdapter {
     prompt: string,
     options: ProviderPromptOptions
   ): Promise<ProviderResponse> {
-    const requestId = `openai-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const requestId = `openai-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
     const startTime = Date.now();
 
     // Log the incoming request with full details

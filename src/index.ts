@@ -29,6 +29,7 @@ export {
   type ExecutionMetadata,
   formatResultMetadata,
   getExecutionStats,
+  getSessionMetrics,
   initSession,
   type InitSessionOptions,
   type InitSessionResult,
@@ -63,6 +64,7 @@ export type {
   ProviderError as CoreProviderError,
   ProviderPromptOptions,
   SessionConfig,
+  SessionMetrics,
   ValidationError,
 } from './types/index.js';
 // Utilities (selective exports)

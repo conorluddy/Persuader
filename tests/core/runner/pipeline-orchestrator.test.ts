@@ -159,7 +159,8 @@ describe('orchestratePipeline', () => {
       expect(executeWithRetry).toHaveBeenCalledWith(
         createMockProcessedConfig(),
         mockProvider,
-        'session-123'
+        'session-123',
+        expect.any(Object) // sessionManager parameter
       );
       expect(processResult).toHaveBeenCalled();
     });
@@ -189,7 +190,8 @@ describe('orchestratePipeline', () => {
       expect(executeWithRetry).toHaveBeenCalledWith(
         createMockProcessedConfig(),
         mockProvider,
-        undefined
+        undefined,
+        expect.any(Object) // sessionManager parameter
       );
     });
   });
@@ -480,7 +482,8 @@ describe('orchestratePipeline', () => {
       expect(executeWithRetry).toHaveBeenCalledWith(
         mockConfig,
         mockProvider,
-        'flow-session'
+        'flow-session',
+        expect.any(Object) // sessionManager parameter
       );
       expect(processResult).toHaveBeenCalledWith(
         executionResult,

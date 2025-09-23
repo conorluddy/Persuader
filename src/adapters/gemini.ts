@@ -293,7 +293,7 @@ export class GeminiAdapter implements ProviderAdapter {
     prompt: string,
     options: ProviderPromptOptions
   ): Promise<ProviderResponse> {
-    const requestId = `gemini-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const requestId = `gemini-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
     const startTime = Date.now();
     const model = options.model || this.defaultModel;
 

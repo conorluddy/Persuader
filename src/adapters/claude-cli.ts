@@ -421,7 +421,7 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
     prompt: string,
     options: ProviderPromptOptions
   ): Promise<ProviderResponse> {
-    const requestId = `claude-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const requestId = `claude-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
     const startTime = Date.now();
 
     // Log the incoming request with full details
@@ -752,6 +752,75 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
 
     // Future enhancement: Could potentially use claude config or other CLI commands
     // to explicitly clean up sessions if such functionality becomes available
+  }
+
+  /**
+   * Send success feedback to the Claude CLI session
+   *
+   * Provides positive reinforcement after successful validation to help the LLM
+   * learn and maintain successful patterns in session-based workflows.
+   *
+   * @param sessionId - Session ID to send feedback to
+   * @param successMessage - Positive feedback message
+   * @param metadata - Optional metadata about the success
+   */
+  async sendSuccessFeedback(
+    sessionId: string,
+    successMessage: string,
+    metadata?: {
+      readonly attemptNumber?: number;
+      readonly validatedOutput?: unknown;
+      readonly timestamp?: Date;
+      readonly tokenUsage?: import('../types/pipeline.js').TokenUsage;
+      readonly executionTimeMs?: number;
+    }
+  ): Promise<void> {
+    const requestId = `success-feedback-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+    const startTime = Date.now();
+
+    debug('Sending success feedback to Claude CLI session', {
+      requestId,
+      sessionId,
+      messageLength: successMessage.length,
+      attemptNumber: metadata?.attemptNumber,
+      timestamp: metadata?.timestamp?.toISOString(),
+    });
+
+    try {
+      // Send the success feedback as a simple prompt to reinforce the pattern
+      const feedbackPrompt = `${successMessage}\n\nPlease acknowledge this feedback briefly and remember this successful approach for future similar requests.`;
+
+      await this.sendPrompt(sessionId, feedbackPrompt, {
+        maxTokens: 30, // Reduced to 30 tokens for brief acknowledgments
+        temperature: 0.1, // Low temperature for consistent acknowledgment
+      });
+
+      const duration = Date.now() - startTime;
+
+      info('Success feedback sent to Claude CLI session', {
+        requestId,
+        sessionId,
+        messageLength: successMessage.length,
+        duration,
+        attemptNumber: metadata?.attemptNumber,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      const duration = Date.now() - startTime;
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+      logError('Failed to send success feedback to Claude CLI session', {
+        requestId,
+        sessionId,
+        errorMessage,
+        messageLength: successMessage.length,
+        duration,
+        attemptNumber: metadata?.attemptNumber,
+      });
+
+      // Re-throw the error to let the caller handle it
+      throw new Error(`Failed to send success feedback: ${errorMessage}`);
+    }
   }
 
   // Helper methods removed - using schema-based parsing instead

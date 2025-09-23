@@ -10,6 +10,9 @@ import type {
   ProviderAdapter,
   ProviderError,
   ValidationError,
+  SessionSuccessFeedback,
+  SessionMetrics,
+  SessionManager,
 } from '../../types/index.js';
 import { 
   debug, 
@@ -57,7 +60,8 @@ export interface ExecutionResult<T> {
 export async function executeWithRetry<T>(
   config: ProcessedConfiguration<T>,
   provider: ProviderAdapter,
-  sessionId?: string
+  sessionId?: string,
+  sessionManager?: SessionManager
 ): Promise<ExecutionResult<T>> {
   // Build initial prompt from configuration
   const initialPromptParts = await buildInitialPrompt(config);
@@ -89,7 +93,8 @@ export async function executeWithRetry<T>(
         sessionId,
         initialPromptParts,
         attemptNumber,
-        previousError
+        previousError,
+        sessionManager
       );
 
       if (attemptResult.success) {
@@ -193,12 +198,14 @@ async function executeAttempt<T>(
   sessionId: string | undefined,
   initialPromptParts: PromptParts,
   attemptNumber: number,
-  previousError?: ValidationError | ProviderError
+  previousError?: ValidationError | ProviderError,
+  sessionManager?: SessionManager
 ): Promise<{
   success: boolean;
   value?: T;
   error?: ValidationError | ProviderError;
 }> {
+  const attemptStartTime = Date.now();
   try {
     // Build progressive prompt with attempt-specific enhancements
     const finalPromptParts = buildProgressivePrompt(
@@ -234,14 +241,43 @@ async function executeAttempt<T>(
     });
 
     // Validate response against schema
-    const validationResult = validateProviderResponse(
+    const validationResult = await validateProviderResponse(
       config,
       providerResponse.content || '',
-      attemptNumber
+      attemptNumber,
+      sessionId,
+      provider,
+      sessionManager
     );
+
+    // Record attempt metrics for session tracking
+    if (sessionId && sessionManager) {
+      const executionTimeMs = Date.now() - attemptStartTime;
+      await recordAttemptMetrics(
+        sessionId,
+        attemptNumber,
+        validationResult.success,
+        executionTimeMs,
+        providerResponse.tokenUsage,
+        sessionManager
+      );
+    }
 
     return validationResult;
   } catch (attemptError) {
+    // Record failed attempt metrics for session tracking
+    if (sessionId && sessionManager) {
+      const executionTimeMs = Date.now() - attemptStartTime;
+      await recordAttemptMetrics(
+        sessionId,
+        attemptNumber,
+        false, // success = false for provider errors
+        executionTimeMs,
+        undefined, // No token usage on provider errors
+        sessionManager
+      );
+    }
+
     logError(`Attempt ${attemptNumber} failed with provider error`, {
       attemptNumber,
       errorMessage:
@@ -410,13 +446,18 @@ async function callProvider<T>(
  * @param config Pipeline configuration
  * @param responseContent Provider response content
  * @param attemptNumber Current attempt number
+ * @param sessionId Optional session ID for success feedback
+ * @param provider Optional provider adapter for sending feedback
  * @returns Validation result
  */
-function validateProviderResponse<T>(
+async function validateProviderResponse<T>(
   config: ProcessedConfiguration<T>,
   responseContent: string,
-  attemptNumber: number
-): { success: boolean; value?: T; error?: ValidationError } {
+  attemptNumber: number,
+  sessionId?: string,
+  provider?: ProviderAdapter,
+  sessionManager?: SessionManager
+): Promise<{ success: boolean; value?: T; error?: ValidationError }> {
   debug('Validating response against schema', {
     contentLength: responseContent.length,
     attemptNumber,
@@ -430,6 +471,27 @@ function validateProviderResponse<T>(
       resultType: typeof validationResult.value,
       hasValue: Boolean(validationResult.value),
     });
+
+    // Send success feedback if conditions are met (after every successful validation)
+    if (config.successMessage && sessionId) {
+      try {
+        await sendSuccessFeedback(
+          config,
+          sessionId,
+          validationResult.value,
+          attemptNumber,
+          provider,
+          sessionManager
+        );
+      } catch (error) {
+        // Log but don't fail the main operation if success feedback fails
+        warn('Failed to send success feedback', {
+          sessionId,
+          attemptNumber,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+    }
 
     return {
       success: true,
@@ -458,5 +520,200 @@ function validateProviderResponse<T>(
       success: false,
       error: validationResult.error,
     };
+  }
+}
+
+/**
+ * Sends success feedback to session for learning reinforcement
+ *
+ * @template T The expected output type
+ * @param config Pipeline configuration
+ * @param sessionId Session ID to send feedback to
+ * @param validatedOutput The validated output that succeeded
+ * @param attemptNumber Current attempt number
+ * @param provider Provider adapter to potentially send feedback through
+ */
+async function sendSuccessFeedback<T>(
+  config: ProcessedConfiguration<T>,
+  sessionId: string,
+  validatedOutput: T,
+  attemptNumber: number,
+  provider?: ProviderAdapter,
+  sessionManager?: SessionManager
+): Promise<void> {
+  try {
+    debug('Sending success feedback to session', {
+      sessionId,
+      attemptNumber,
+      hasSuccessMessage: Boolean(config.successMessage),
+      messageLength: config.successMessage?.length || 0,
+      hasProviderFeedback: Boolean(provider?.sendSuccessFeedback),
+    });
+
+    if (!config.successMessage) {
+      debug('Skipping success feedback - no success message provided');
+      return;
+    }
+
+    const successFeedback: SessionSuccessFeedback = {
+      message: config.successMessage,
+      validatedOutput,
+      attemptNumber,
+      timestamp: new Date(),
+      metadata: {
+        schemaName: config.schema.constructor.name || 'ZodSchema',
+      },
+    };
+
+    // Store feedback in session manager
+    if (sessionManager) {
+      await sessionManager.addSuccessFeedback?.(sessionId, successFeedback);
+    }
+
+    // Also send feedback directly to the provider if supported
+    if (provider?.sendSuccessFeedback) {
+      try {
+        await provider.sendSuccessFeedback(sessionId, config.successMessage, {
+          attemptNumber,
+          validatedOutput,
+          timestamp: successFeedback.timestamp,
+        });
+        debug('Success feedback sent to provider', {
+          provider: provider.name,
+          sessionId,
+          attemptNumber,
+        });
+      } catch (providerError) {
+        // Log provider feedback failure but don't fail the main operation
+        debug('Provider success feedback failed, continuing with session storage only', {
+          provider: provider.name,
+          sessionId,
+          error: providerError instanceof Error ? providerError.message : 'Unknown error',
+        });
+      }
+    }
+
+    info('Success feedback sent to session', {
+      sessionId,
+      attemptNumber,
+      messageLength: config.successMessage.length,
+      feedbackTimestamp: successFeedback.timestamp.toISOString(),
+      sentToProvider: Boolean(provider?.sendSuccessFeedback),
+    });
+  } catch (error) {
+    logError('Failed to send success feedback to session', {
+      sessionId,
+      attemptNumber,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      errorType: error instanceof Error ? error.constructor.name : 'Unknown',
+    });
+    throw error;
+  }
+}
+
+/**
+ * Records attempt metrics for session tracking
+ *
+ * @param sessionId Session ID to record metrics for
+ * @param attemptNumber Current attempt number
+ * @param success Whether the attempt was successful
+ * @param executionTimeMs Time taken for this attempt
+ * @param tokenUsage Token usage information (if available)
+ */
+async function recordAttemptMetrics(
+  sessionId: string,
+  attemptNumber: number,
+  success: boolean,
+  executionTimeMs: number,
+  tokenUsage?: { inputTokens: number; outputTokens: number; totalTokens: number },
+  sessionManager?: SessionManager
+): Promise<void> {
+  try {
+    debug('Recording attempt metrics', {
+      sessionId,
+      attemptNumber,
+      success,
+      executionTimeMs,
+      hasTokenUsage: Boolean(tokenUsage),
+    });
+
+    if (!sessionManager) {
+      debug('No session manager provided for metrics recording', { sessionId });
+      return;
+    }
+
+    const session = await sessionManager.getSession(sessionId);
+    if (!session) {
+      debug('Session not found for metrics recording', { sessionId });
+      return;
+    }
+
+    const currentMetrics = session.metrics || {
+      totalAttempts: 0,
+      successfulValidations: 0,
+      avgAttemptsToSuccess: 0,
+      successRate: 0,
+      lastSuccessTimestamp: undefined,
+      totalExecutionTimeMs: 0,
+      avgExecutionTimeMs: 0,
+      totalTokenUsage: undefined,
+      operationsWithRetries: 0,
+      maxAttemptsForOperation: 0,
+    };
+
+    // Update metrics
+    const newTotalAttempts = currentMetrics.totalAttempts + 1;
+    const newSuccessfulValidations = success ? currentMetrics.successfulValidations + 1 : currentMetrics.successfulValidations;
+    const newTotalExecutionTime = currentMetrics.totalExecutionTimeMs + executionTimeMs;
+    const newOperationsWithRetries = (attemptNumber > 1 && success) ? currentMetrics.operationsWithRetries + 1 : currentMetrics.operationsWithRetries;
+    const newMaxAttemptsForOperation = Math.max(currentMetrics.maxAttemptsForOperation, attemptNumber);
+
+    // Update token usage if provided
+    let newTotalTokenUsage = currentMetrics.totalTokenUsage;
+    if (tokenUsage) {
+      newTotalTokenUsage = {
+        inputTokens: (currentMetrics.totalTokenUsage?.inputTokens || 0) + tokenUsage.inputTokens,
+        outputTokens: (currentMetrics.totalTokenUsage?.outputTokens || 0) + tokenUsage.outputTokens,
+        totalTokens: (currentMetrics.totalTokenUsage?.totalTokens || 0) + tokenUsage.totalTokens,
+      };
+    }
+
+    const baseMetrics = {
+      totalAttempts: newTotalAttempts,
+      successfulValidations: newSuccessfulValidations,
+      avgAttemptsToSuccess: newSuccessfulValidations > 0 ? newTotalAttempts / newSuccessfulValidations : 0,
+      successRate: newTotalAttempts > 0 ? newSuccessfulValidations / newTotalAttempts : 0,
+      totalExecutionTimeMs: newTotalExecutionTime,
+      avgExecutionTimeMs: newTotalAttempts > 0 ? newTotalExecutionTime / newTotalAttempts : 0,
+      operationsWithRetries: newOperationsWithRetries,
+      maxAttemptsForOperation: newMaxAttemptsForOperation,
+    };
+
+    const updatedMetrics: SessionMetrics = {
+      ...baseMetrics,
+      ...(success || currentMetrics.lastSuccessTimestamp ? { 
+        lastSuccessTimestamp: success ? new Date() : currentMetrics.lastSuccessTimestamp! 
+      } : {}),
+      ...(newTotalTokenUsage ? { totalTokenUsage: newTotalTokenUsage } : {}),
+    };
+
+    // Update session with new metrics
+    await sessionManager.updateSession(sessionId, { metrics: updatedMetrics });
+
+    debug('Attempt metrics recorded successfully', {
+      sessionId,
+      attemptNumber,
+      success,
+      newTotalAttempts,
+      newSuccessfulValidations,
+      successRate: updatedMetrics.successRate,
+    });
+  } catch (error) {
+    warn('Failed to record attempt metrics', {
+      sessionId,
+      attemptNumber,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    // Don't throw - metrics recording should not fail the main operation
   }
 }

@@ -94,6 +94,7 @@ describe('validateAndNormalizeOptions', () => {
         retries: 3,
         model: 'custom-model',
         exampleOutput: { name: 'John', age: 25 },
+        successMessage: 'Great work! Continue this approach.',
         logLevel: 'debug',
         providerOptions: { customOption: true },
       });
@@ -110,6 +111,7 @@ describe('validateAndNormalizeOptions', () => {
         retries: 3,
         model: 'custom-model',
         exampleOutput: { name: 'John', age: 25 },
+        successMessage: 'Great work! Continue this approach.',
         logLevel: 'debug',
         providerOptions: { customOption: true },
       });
@@ -243,6 +245,7 @@ describe('processRunnerConfiguration', () => {
       sessionId: 'session-123',
       output: 'output.json',
       exampleOutput: { name: 'John', age: 25 },
+      successMessage: 'Great work! Continue this approach.',
       logLevel: 'info' as const,
     };
 
@@ -253,6 +256,7 @@ describe('processRunnerConfiguration', () => {
     expect(result.sessionId).toBe('session-123');
     expect(result.output).toBe('output.json');
     expect(result.exampleOutput).toEqual({ name: 'John', age: 25 });
+    expect(result.successMessage).toBe('Great work! Continue this approach.');
     expect(result.logLevel).toBe('info');
   });
 
@@ -381,6 +385,15 @@ describe('validateRunnerOptions', () => {
 
       expect(result.valid).toBe(false);
       expect(result.errors).toContain('Options configuration error: lens must be a string. Example: lens: "Focus on accuracy and detail"');
+    });
+
+    it('should detect invalid successMessage type', () => {
+      const options = createMockOptions({ successMessage: 123 as any });
+
+      const result = validateRunnerOptions(options);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Options configuration error: successMessage must be a string. Example: successMessage: "✅ Perfect! Continue using this approach."');
     });
 
     it('should accumulate multiple errors', () => {
