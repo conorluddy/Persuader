@@ -236,7 +236,7 @@ async function executeAttempt<T>(
     });
 
     // Validate response against schema
-    const validationResult = validateProviderResponse(
+    const validationResult = await validateProviderResponse(
       config,
       providerResponse.content || '',
       attemptNumber,
@@ -418,13 +418,13 @@ async function callProvider<T>(
  * @param provider Optional provider adapter for sending feedback
  * @returns Validation result
  */
-function validateProviderResponse<T>(
+async function validateProviderResponse<T>(
   config: ProcessedConfiguration<T>,
   responseContent: string,
   attemptNumber: number,
   sessionId?: string,
   provider?: ProviderAdapter
-): { success: boolean; value?: T; error?: ValidationError } {
+): Promise<{ success: boolean; value?: T; error?: ValidationError }> {
   debug('Validating response against schema', {
     contentLength: responseContent.length,
     attemptNumber,
@@ -439,26 +439,24 @@ function validateProviderResponse<T>(
       hasValue: Boolean(validationResult.value),
     });
 
-    // Send success feedback if conditions are met
-    if (
-      config.successMessage &&
-      sessionId &&
-      attemptNumber === 1 // Only on first successful attempt
-    ) {
-      sendSuccessFeedback(
-        config,
-        sessionId,
-        validationResult.value,
-        attemptNumber,
-        provider
-      ).catch((error) => {
-        // Don't fail the main operation if success feedback fails
-        // Log at warn level for better observability
+    // Send success feedback if conditions are met (after every successful validation)
+    if (config.successMessage && sessionId) {
+      try {
+        await sendSuccessFeedback(
+          config,
+          sessionId,
+          validationResult.value,
+          attemptNumber,
+          provider
+        );
+      } catch (error) {
+        // Log but don't fail the main operation if success feedback fails
         warn('Failed to send success feedback', {
           sessionId,
+          attemptNumber,
           error: error instanceof Error ? error.message : 'Unknown error',
         });
-      });
+      }
     }
 
     return {

@@ -43,9 +43,9 @@ persuader run \
 
 ## When Success Feedback Triggers
 
-Success feedback is only sent when **all** conditions are met:
+Success feedback is sent when **all** conditions are met:
 
-1. ✅ Schema validation passes on the first attempt
+1. ✅ Schema validation passes (on any successful attempt)
 2. ✅ A `sessionId` is provided (session-based workflow)
 3. ✅ A `successMessage` parameter is provided
 4. ✅ The provider supports success feedback (Claude CLI does)

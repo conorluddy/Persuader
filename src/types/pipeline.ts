@@ -84,8 +84,8 @@ export interface Options<T = unknown> {
    * successful output, especially beneficial in session-based workflows where
    * multiple requests can build on successful patterns.
    *
-   * Success feedback is only sent when:
-   * - Schema validation passes on the first successful attempt
+   * Success feedback is sent when:
+   * - Schema validation passes (on any successful attempt)
    * - A sessionId is provided (session-based workflow)
    * - The successMessage parameter is not empty
    *
