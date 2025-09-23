@@ -1,6 +1,6 @@
 {
   "name": "persuader",
-  "version": "0.6.0",
+  "version": "0.7.1",
   "type": "module",
   "description": "Session-based LLM orchestration with validation-driven retry loops and guaranteed schema-adhering output.",
   "main": "./dist/index.cjs",
@@ -48,7 +48,8 @@
     "example:openai": "tsx examples/openai-test/index.ts",
     "example:ollama": "tsx examples/ollama-local/index.ts",
     "example:gemini": "tsx examples/gemini-analysis/index.ts",
-    "example:anthropic": "tsx examples/anthropic-music/index.ts"
+    "example:anthropic": "tsx examples/anthropic-music/index.ts",
+    "example:enhancement": "tsx examples/enhancement-rounds/index.ts"
   },
   "keywords": [
     "llm",

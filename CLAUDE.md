@@ -90,6 +90,7 @@ Main function for validated data extraction with retry loops and error feedback.
 - `schema: ZodSchema<T>` - Zod schema for output validation
 - `input: unknown` - Input data to process  
 - `exampleOutput?: T` - Optional concrete example to guide LLM formatting (validates against schema before use)
+- `enhancement?: number | EnhancementConfiguration` - Optional enhancement rounds to improve initial successful results
 
 ### `initSession()` - Session Creation
 Creates persistent sessions for context reuse and cost optimization.
@@ -283,6 +284,48 @@ The `persuader run` command supports:
 - **Progress Tracking**: Spinners and verbose logging
 - **Dry Run**: Configuration validation without LLM calls
 - Don't have more than a couple of node processes running at a time if possible
+
+## Enhancement Rounds (v0.6.0+)
+
+The Enhancement Rounds feature allows `persuade()` to automatically improve initial successful results through additional LLM calls with encouraging prompts. This bridges the gap between "acceptable" and "excellent" results while maintaining complete reliability.
+
+```typescript
+// Simple enhancement - try to improve twice after initial success
+const result = await persuade({
+  schema: TransitionsSchema,
+  input: "Generate BJJ transitions from mount position",
+  enhancement: 2, // Try 2 enhancement rounds
+  context: "You are a BJJ expert"
+});
+
+// Advanced enhancement configuration
+const advancedResult = await persuade({
+  schema: WorkoutSchema,
+  input: "Create a workout plan",
+  enhancement: {
+    rounds: 1,
+    strategy: 'expand-detail',
+    minImprovement: 0.3, // Require 30% improvement to accept
+    customPrompt: (currentResult, round) => 
+      `Great start! Can you add more detailed exercise descriptions and progression tips?`
+  }
+});
+```
+
+**Enhancement Strategies:**
+- **`expand-array`** (default): Encourages more items in arrays/collections
+- **`expand-detail`**: Prompts for more comprehensive descriptions  
+- **`expand-variety`**: Reduces repetition, increases content diversity
+- **`custom`**: Full control with user-provided prompt and evaluation functions
+
+**How It Works:**
+1. Get initial valid result that passes schema validation
+2. Save baseline as guaranteed fallback
+3. Make additional LLM calls with encouraging prompts
+4. Score enhancements against baseline using strategy-specific metrics
+5. Return best result, never worse than baseline
+
+Run the example: `npm run example:enhancement`
 
 ## Enhanced Debug Features (v0.3.4+)
 

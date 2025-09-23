@@ -365,6 +365,7 @@ When validation fails, Persuader automatically provides targeted corrections to 
 - **🎓 Session-Based Learning**: Success feedback reinforces patterns for improved consistency
 - **📊 Session Analytics**: Comprehensive performance metrics for optimization and cost monitoring
 - **📥 Context Loading**: `preload()` function for loading large datasets into sessions without validation
+- **🎯 Enhancement Rounds**: Automatically improve initial valid results with risk-free enhancement calls
 - **🛠️ Production CLI**: Batch processing with glob patterns, progress tracking, and dry-run mode
 - **🔒 Type Safety**: Full TypeScript support with strict mode and comprehensive error handling
 - **✅ Battle Tested**: 58+ passing tests covering core pipeline, adapters, validation, and CLI
@@ -458,6 +459,77 @@ for (const item of userDataItems) {
   }
 }
 ```
+
+### 🎯 Enhancement Rounds - Improve Valid Results
+
+The Enhancement Rounds feature automatically improves initial successful results through additional LLM calls with encouraging prompts. This bridges the gap between "acceptable" and "excellent" results while maintaining reliability.
+
+```typescript
+import { persuade } from 'persuader';
+import { z } from 'zod';
+
+const TransitionsSchema = z.object({
+  transitions: z.array(z.object({
+    name: z.string(),
+    description: z.string(),
+    difficulty: z.enum(['beginner', 'intermediate', 'advanced'])
+  })).min(3) // Hard minimum for schema validation
+});
+
+// Simple enhancement - try to improve twice after initial success
+const result = await persuade({
+  schema: TransitionsSchema,
+  input: "Generate BJJ transitions from mount position",
+  enhancement: 2, // Try 2 enhancement rounds after initial valid result
+  context: "You are a BJJ expert"
+});
+
+// Advanced enhancement configuration
+const advancedResult = await persuade({
+  schema: WorkoutSchema,
+  input: "Create a workout plan",
+  enhancement: {
+    rounds: 1,
+    strategy: 'expand-detail',
+    minImprovement: 0.3, // Require 30% improvement to accept
+    customPrompt: (currentResult, round) => 
+      `Great start! Can you add more detailed exercise descriptions and progression tips?`
+  }
+});
+```
+
+**Enhancement Strategies:**
+
+- **`expand-array`** (default): Encourages more items in arrays/collections
+  - Good for: Lists, transitions, examples that benefit from quantity
+  - Example: Transform 3 BJJ transitions → 15-20 comprehensive transitions
+
+- **`expand-detail`**: Encourages more detailed descriptions  
+  - Good for: Instructions, explanations, comprehensive content
+  - Example: Basic workout plan → Detailed plan with form cues and progressions
+
+- **`expand-variety`**: Encourages more diverse content
+  - Good for: Reducing repetition, exploring different perspectives
+  - Example: Similar exercise recommendations → Diverse, creative alternatives
+
+- **`custom`**: Full control with your custom prompt and evaluation functions
+  - For specialized domain improvements and custom scoring
+
+**How Enhancement Works:**
+
+1. **Initial Success**: First, get a valid result that passes schema validation (guaranteed)
+2. **Save Baseline**: Store the successful result as guaranteed fallback
+3. **Enhancement Rounds**: Make additional LLM calls with encouraging, strategy-specific prompts
+4. **Improvement Evaluation**: Score enhancements against baseline using quantitative metrics
+5. **Best Result Wins**: Return the best result, never worse than the original valid baseline
+6. **Risk-Free**: Enhancement never compromises the initial valid result
+
+**Perfect Use Cases:**
+- **Content Generation**: Get minimum viable content, then enhance for quality
+- **Data Extraction**: Extract required fields, then enhance for completeness  
+- **Analysis**: Get basic insights, then enhance for depth and nuance
+
+Run the example: `npm run example:enhancement`
 
 ### 📊 Session Analytics & Performance Tracking
 
@@ -724,6 +796,9 @@ npm run example:ollama          # Local Ollama LLM demo
 npm run example:gemini          # Google Gemini API demo
 npm run example:anthropic       # Anthropic SDK demo
 
+# Feature-specific examples
+npm run example:enhancement     # Enhancement Rounds comprehensive demo
+
 # Note: Additional examples available in examples/ directory:
 # - vercel-ai-sdk-showcase/     # Vercel AI SDK integration patterns
 ```
@@ -750,6 +825,7 @@ Each example demonstrates:
 - **Complex schema validation** with detailed error messages
 - **Session optimization** for multi-step workflows
 - **Domain expertise modeling** for real-world applications
+- **Enhancement strategies** for improving valid results automatically
 
 **👉 [View Complete Examples Documentation](./examples/README.md)**
 
