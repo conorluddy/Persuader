@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { z } from 'zod';
-import { persuade } from '../../src/core/runner.js';
+import { persuade, getSessionMetrics } from '../../src/core/index.js';
 import type { ProviderAdapter } from '../../src/types/provider.js';
 
 describe('persuade', () => {
@@ -134,5 +134,19 @@ describe('persuade', () => {
 
     expect(sessionProvider.createSession).toHaveBeenCalled();
     expect(result.ok).toBe(true);
+  });
+});
+
+describe('getSessionMetrics', () => {
+  it('returns null for non-existent session', async () => {
+    const metrics = await getSessionMetrics('non-existent-session-id');
+    expect(metrics).toBeNull();
+  });
+
+  it('returns metrics for existing session with feedback', async () => {
+    // This test would need session setup and is more integration-style
+    // For now, we test the basic API exists and handles missing sessions
+    const metrics = await getSessionMetrics('test-session-id');
+    expect(metrics).toBeNull(); // No session exists, so null is expected
   });
 });

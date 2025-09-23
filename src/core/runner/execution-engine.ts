@@ -11,6 +11,7 @@ import type {
   ProviderError,
   ValidationError,
   SessionSuccessFeedback,
+  SessionMetrics,
 } from '../../types/index.js';
 import { 
   debug, 
@@ -201,6 +202,7 @@ async function executeAttempt<T>(
   value?: T;
   error?: ValidationError | ProviderError;
 }> {
+  const attemptStartTime = Date.now();
   try {
     // Build progressive prompt with attempt-specific enhancements
     const finalPromptParts = buildProgressivePrompt(
@@ -244,8 +246,32 @@ async function executeAttempt<T>(
       provider
     );
 
+    // Record attempt metrics for session tracking
+    if (sessionId) {
+      const executionTimeMs = Date.now() - attemptStartTime;
+      await recordAttemptMetrics(
+        sessionId,
+        attemptNumber,
+        validationResult.success,
+        executionTimeMs,
+        providerResponse.tokenUsage
+      );
+    }
+
     return validationResult;
   } catch (attemptError) {
+    // Record failed attempt metrics for session tracking
+    if (sessionId) {
+      const executionTimeMs = Date.now() - attemptStartTime;
+      await recordAttemptMetrics(
+        sessionId,
+        attemptNumber,
+        false, // success = false for provider errors
+        executionTimeMs
+        // No token usage on provider errors
+      );
+    }
+
     logError(`Attempt ${attemptNumber} failed with provider error`, {
       attemptNumber,
       errorMessage:
@@ -571,5 +597,106 @@ async function sendSuccessFeedback<T>(
       errorType: error instanceof Error ? error.constructor.name : 'Unknown',
     });
     throw error;
+  }
+}
+
+/**
+ * Records attempt metrics for session tracking
+ *
+ * @param sessionId Session ID to record metrics for
+ * @param attemptNumber Current attempt number
+ * @param success Whether the attempt was successful
+ * @param executionTimeMs Time taken for this attempt
+ * @param tokenUsage Token usage information (if available)
+ */
+async function recordAttemptMetrics(
+  sessionId: string,
+  attemptNumber: number,
+  success: boolean,
+  executionTimeMs: number,
+  tokenUsage?: { inputTokens: number; outputTokens: number; totalTokens: number }
+): Promise<void> {
+  try {
+    debug('Recording attempt metrics', {
+      sessionId,
+      attemptNumber,
+      success,
+      executionTimeMs,
+      hasTokenUsage: Boolean(tokenUsage),
+    });
+
+    const session = await defaultSessionManager.getSession(sessionId);
+    if (!session) {
+      debug('Session not found for metrics recording', { sessionId });
+      return;
+    }
+
+    const currentMetrics = session.metrics || {
+      totalAttempts: 0,
+      successfulValidations: 0,
+      avgAttemptsToSuccess: 0,
+      successRate: 0,
+      lastSuccessTimestamp: undefined,
+      totalExecutionTimeMs: 0,
+      avgExecutionTimeMs: 0,
+      totalTokenUsage: undefined,
+      operationsWithRetries: 0,
+      maxAttemptsForOperation: 0,
+    };
+
+    // Update metrics
+    const newTotalAttempts = currentMetrics.totalAttempts + 1;
+    const newSuccessfulValidations = success ? currentMetrics.successfulValidations + 1 : currentMetrics.successfulValidations;
+    const newTotalExecutionTime = currentMetrics.totalExecutionTimeMs + executionTimeMs;
+    const newOperationsWithRetries = (attemptNumber > 1 && success) ? currentMetrics.operationsWithRetries + 1 : currentMetrics.operationsWithRetries;
+    const newMaxAttemptsForOperation = Math.max(currentMetrics.maxAttemptsForOperation, attemptNumber);
+
+    // Update token usage if provided
+    let newTotalTokenUsage = currentMetrics.totalTokenUsage;
+    if (tokenUsage) {
+      newTotalTokenUsage = {
+        inputTokens: (currentMetrics.totalTokenUsage?.inputTokens || 0) + tokenUsage.inputTokens,
+        outputTokens: (currentMetrics.totalTokenUsage?.outputTokens || 0) + tokenUsage.outputTokens,
+        totalTokens: (currentMetrics.totalTokenUsage?.totalTokens || 0) + tokenUsage.totalTokens,
+      };
+    }
+
+    const baseMetrics = {
+      totalAttempts: newTotalAttempts,
+      successfulValidations: newSuccessfulValidations,
+      avgAttemptsToSuccess: newSuccessfulValidations > 0 ? newTotalAttempts / newSuccessfulValidations : 0,
+      successRate: newTotalAttempts > 0 ? newSuccessfulValidations / newTotalAttempts : 0,
+      totalExecutionTimeMs: newTotalExecutionTime,
+      avgExecutionTimeMs: newTotalAttempts > 0 ? newTotalExecutionTime / newTotalAttempts : 0,
+      operationsWithRetries: newOperationsWithRetries,
+      maxAttemptsForOperation: newMaxAttemptsForOperation,
+    };
+
+    const updatedMetrics: SessionMetrics = {
+      ...baseMetrics,
+      ...(success || currentMetrics.lastSuccessTimestamp ? { 
+        lastSuccessTimestamp: success ? new Date() : currentMetrics.lastSuccessTimestamp! 
+      } : {}),
+      ...(newTotalTokenUsage ? { totalTokenUsage: newTotalTokenUsage } : {}),
+    };
+
+    // Update session with new metrics
+    await defaultSessionManager.updateSession(sessionId, { metrics: updatedMetrics });
+
+    debug('Attempt metrics recorded successfully', {
+      sessionId,
+      attemptNumber,
+      success,
+      newTotalAttempts,
+      newSuccessfulValidations,
+      successRate: updatedMetrics.successRate,
+    });
+  } catch (error) {
+    warn('Failed to record attempt metrics', {
+      sessionId,
+      attemptNumber,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    // Don't throw - metrics recording should not fail the main operation
   }
 }

@@ -21,6 +21,7 @@ import type {
   SessionFilter,
   SessionManager as SessionManagerInterface,
   SessionMetadata,
+  SessionMetrics,
   SessionSuccessFeedback,
 } from '../types/session.js';
 
@@ -317,6 +318,100 @@ export class SessionManager implements SessionManagerInterface {
 
     const feedback = [...session.successFeedback].reverse(); // Most recent first
     return limit ? feedback.slice(0, limit) : feedback;
+  }
+
+  /**
+   * Get performance metrics for a session
+   *
+   * Calculates success rates, average attempts, and other performance metrics
+   * for analyzing session effectiveness and optimization opportunities.
+   *
+   * @param sessionId - Session to get metrics for
+   * @returns Session performance metrics
+   */
+  async getSessionMetrics(sessionId: string): Promise<SessionMetrics | null> {
+    const session = await this.getSession(sessionId);
+    if (!session) {
+      return null;
+    }
+
+    // Return cached metrics if available
+    if (session.metrics) {
+      return session.metrics;
+    }
+
+    // Calculate metrics from session data
+    const successFeedback = session.successFeedback || [];
+    const successfulValidations = successFeedback.length;
+    
+    // Basic metrics calculation
+    let totalAttempts = 0;
+    let totalExecutionTimeMs = 0;
+    let totalInputTokens = 0;
+    let totalOutputTokens = 0;
+    let operationsWithRetries = 0;
+    let maxAttemptsForOperation = 0;
+    let attemptsSum = 0;
+    let lastSuccessTimestamp: Date | undefined;
+
+    for (const feedback of successFeedback) {
+      const attemptNumber = feedback.attemptNumber;
+      totalAttempts += attemptNumber;
+      attemptsSum += attemptNumber;
+      
+      if (attemptNumber > 1) {
+        operationsWithRetries++;
+      }
+      
+      if (attemptNumber > maxAttemptsForOperation) {
+        maxAttemptsForOperation = attemptNumber;
+      }
+
+      if (feedback.metadata?.executionTimeMs) {
+        totalExecutionTimeMs += feedback.metadata.executionTimeMs;
+      }
+
+      if (feedback.metadata?.tokenUsage) {
+        totalInputTokens += feedback.metadata.tokenUsage.inputTokens;
+        totalOutputTokens += feedback.metadata.tokenUsage.outputTokens;
+      }
+
+      if (!lastSuccessTimestamp || feedback.timestamp > lastSuccessTimestamp) {
+        lastSuccessTimestamp = feedback.timestamp;
+      }
+    }
+
+    const avgAttemptsToSuccess = successfulValidations > 0 ? attemptsSum / successfulValidations : 0;
+    const successRate = totalAttempts > 0 ? successfulValidations / totalAttempts : 0;
+    const avgExecutionTimeMs = successfulValidations > 0 ? totalExecutionTimeMs / successfulValidations : 0;
+
+    const baseMetrics = {
+      totalAttempts,
+      successfulValidations,
+      avgAttemptsToSuccess,
+      successRate,
+      totalExecutionTimeMs,
+      avgExecutionTimeMs,
+      operationsWithRetries,
+      maxAttemptsForOperation,
+    };
+
+    const metrics: SessionMetrics = {
+      ...baseMetrics,
+      ...(lastSuccessTimestamp ? { lastSuccessTimestamp } : {}),
+      ...((totalInputTokens > 0 || totalOutputTokens > 0) ? {
+        totalTokenUsage: {
+          inputTokens: totalInputTokens,
+          outputTokens: totalOutputTokens,
+          totalTokens: totalInputTokens + totalOutputTokens,
+        }
+      } : {}),
+    };
+
+    // Cache the metrics in the session
+    await this.updateSession(sessionId, { metrics });
+
+    return metrics;
   }
 
   /**

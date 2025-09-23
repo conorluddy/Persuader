@@ -44,6 +44,7 @@ export {
   createMockProvider,
   formatResultMetadata,
   getExecutionStats,
+  getSessionMetrics,
   initSession,
   persuade,
   preload,

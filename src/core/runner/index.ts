@@ -8,11 +8,12 @@
 
 import { createClaudeCLIAdapter } from '../../adapters/claude-cli.js';
 import { TOKEN_ESTIMATION_DIVISOR } from '../../shared/constants/index.js';
-import type { Options, PreloadOptions, PreloadResult, ProviderAdapter, Result } from '../../types/index.js';
+import type { Options, PreloadOptions, PreloadResult, ProviderAdapter, Result, SessionMetrics } from '../../types/index.js';
 import { orchestratePipeline } from './pipeline-orchestrator.js';
 import { orchestratePreload } from './preload-orchestrator.js';
 // Configuration validation functions are re-exported below
 import { getExecutionStats } from './result-processor.js';
+import { defaultSessionManager } from '../../session/manager.js';
 
 /**
  * Main orchestration function for the Persuader pipeline
@@ -309,6 +310,30 @@ export function createMockProvider(
       };
     },
   };
+}
+
+/**
+ * Get session performance metrics for analysis and optimization
+ *
+ * Retrieves comprehensive success rate and performance data for a session.
+ * Useful for analyzing learning effectiveness, identifying patterns, and
+ * optimizing session-based workflows.
+ *
+ * @param sessionId Session ID to get metrics for
+ * @returns Promise resolving to session metrics or null if session not found
+ *
+ * @example
+ * ```typescript
+ * const metrics = await getSessionMetrics('my-session-id');
+ * if (metrics) {
+ *   console.log(`Success rate: ${(metrics.successRate * 100).toFixed(1)}%`);
+ *   console.log(`Average attempts: ${metrics.avgAttemptsToSuccess.toFixed(1)}`);
+ *   console.log(`Total operations: ${metrics.successfulValidations}`);
+ * }
+ * ```
+ */
+export async function getSessionMetrics(sessionId: string): Promise<SessionMetrics | null> {
+  return await defaultSessionManager.getSessionMetrics?.(sessionId) ?? null;
 }
 
 /**

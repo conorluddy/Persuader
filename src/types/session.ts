@@ -40,6 +40,48 @@ export interface SessionSuccessFeedback {
 }
 
 /**
+ * Session performance and success metrics
+ *
+ * Tracks success rates and performance data for session-based learning.
+ * Provides insights into validation patterns and optimization opportunities.
+ */
+export interface SessionMetrics {
+  /** Total number of validation attempts across all operations */
+  readonly totalAttempts: number;
+
+  /** Number of successful validations */
+  readonly successfulValidations: number;
+
+  /** Average number of attempts needed to achieve success */
+  readonly avgAttemptsToSuccess: number;
+
+  /** Success rate as a percentage (0-1) */
+  readonly successRate: number;
+
+  /** Timestamp of the most recent successful validation */
+  readonly lastSuccessTimestamp?: Date;
+
+  /** Total execution time across all attempts (milliseconds) */
+  readonly totalExecutionTimeMs: number;
+
+  /** Average execution time per attempt (milliseconds) */
+  readonly avgExecutionTimeMs: number;
+
+  /** Total token usage across all attempts */
+  readonly totalTokenUsage?: {
+    readonly inputTokens: number;
+    readonly outputTokens: number;
+    readonly totalTokens: number;
+  };
+
+  /** Number of operations that required retry attempts */
+  readonly operationsWithRetries: number;
+
+  /** Maximum number of attempts needed for any single operation */
+  readonly maxAttemptsForOperation: number;
+}
+
+/**
  * Session information for context persistence
  */
 export interface Session {
@@ -63,6 +105,9 @@ export interface Session {
 
   /** Success feedback history for session-based learning */
   readonly successFeedback?: readonly SessionSuccessFeedback[];
+
+  /** Performance and success metrics for this session */
+  readonly metrics?: SessionMetrics;
 }
 
 /**
@@ -163,6 +208,17 @@ export interface SessionManager {
     sessionId: string,
     limit?: number
   ): Promise<readonly SessionSuccessFeedback[]>;
+
+  /**
+   * Get performance metrics for a session
+   *
+   * Calculates success rates, average attempts, and other performance metrics
+   * for analyzing session effectiveness and optimization opportunities.
+   *
+   * @param sessionId - Session to get metrics for
+   * @returns Session performance metrics
+   */
+  getSessionMetrics?(sessionId: string): Promise<SessionMetrics | null>;
 }
 
 /**
