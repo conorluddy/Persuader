@@ -20,8 +20,6 @@ const PersonSchema = z.object({
   interests: z.array(z.string()).min(1, 'Must have at least one interest'),
 });
 
-type Person = z.infer<typeof PersonSchema>;
-
 // Sample input data for extraction
 const inputTexts = [
   "Hi, I'm Sarah Johnson, a 28-year-old software engineer from Seattle. I love hiking, reading, and playing piano.",
