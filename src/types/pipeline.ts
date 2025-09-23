@@ -120,6 +120,80 @@ export interface Options<T = unknown> {
    * ```
    */
   readonly successMessage?: string;
+
+  /**
+   * Optional enhancement rounds configuration
+   * 
+   * After initial successful validation, attempt to improve the result through
+   * additional LLM calls with encouraging prompts. This feature bridges the gap
+   * between "acceptable" and "excellent" results while maintaining reliability.
+   * 
+   * Enhancement rounds only run after the first successful validation - they never
+   * compromise the initial valid result. If enhancement attempts fail or produce
+   * worse results, the original valid result is returned.
+   * 
+   * @example
+   * ```typescript
+   * // Simple enhancement with default strategy
+   * const result = await persuade({
+   *   schema: TransitionsSchema,
+   *   input: "Generate transitions from mount",
+   *   enhancementRounds: 2  // Try to improve twice
+   * });
+   * 
+   * // Advanced configuration with custom strategy
+   * const result = await persuade({
+   *   schema: WorkoutSchema,
+   *   input: "Create workout plan",
+   *   enhancement: {
+   *     rounds: 1,
+   *     strategy: 'expand-detail',
+   *     minImprovement: 0.25  // Require 25% improvement
+   *   }
+   * });
+   * ```
+   */
+  readonly enhancement?: number | EnhancementConfiguration;
+}
+
+/**
+ * Configuration for enhancement rounds
+ * 
+ * Defines how the system should attempt to improve initial successful results
+ * through additional LLM interactions with encouraging prompts.
+ */
+export interface EnhancementConfiguration {
+  /** Number of enhancement rounds to attempt after initial success */
+  readonly rounds: number;
+  
+  /** 
+   * Enhancement strategy to use
+   * - 'expand-array': Encourage more items in arrays
+   * - 'expand-detail': Encourage more detailed descriptions
+   * - 'expand-variety': Encourage more diverse content
+   * - 'custom': Use customPrompt function
+   */
+  readonly strategy?: 'expand-array' | 'expand-detail' | 'expand-variety' | 'custom';
+  
+  /** 
+   * Minimum improvement threshold (0-1)
+   * Enhancement is only accepted if improvement exceeds this threshold
+   * Default: 0.2 (20% improvement)
+   */
+  readonly minImprovement?: number;
+  
+  /** 
+   * Custom prompt builder for enhancement
+   * Receives current result and round number, returns enhancement prompt
+   */
+  readonly customPrompt?: (currentResult: unknown, round: number) => string;
+  
+  /** 
+   * Custom improvement evaluator
+   * Returns improvement score between 0 and 1
+   * Return > minImprovement to accept the enhancement
+   */
+  readonly evaluateImprovement?: (baseline: unknown, enhanced: unknown) => number;
 }
 
 /**
