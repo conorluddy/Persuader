@@ -30,7 +30,7 @@ import {
   type PromptParts,
 } from '../prompt.js';
 import { retryWithFeedback } from '../retry.js';
-import { formatValidationErrorFeedback, validateJson } from '../validation/index.js';
+import { formatValidationErrorFeedback, validateJson } from '../validation.js';
 import type { ProcessedConfiguration } from './configuration-manager.js';
 import { buildEnhancementPrompt, evaluateImprovement } from './enhancement-utilities.js';
 

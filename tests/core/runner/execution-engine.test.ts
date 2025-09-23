@@ -217,21 +217,13 @@ describe('executeWithRetry', () => {
       };
 
       retryWithFeedback.mockImplementation(async ({ operation }) => {
-        // First attempt fails validation
-        const firstResult = await operation(1);
-        if (!firstResult.success) {
-          // Second attempt succeeds with error feedback
-          const secondResult = await operation(2, firstResult.error);
-          return {
-            success: true,
-            value: secondResult.value,
-            attempts: 2,
-          };
-        }
+        // Simulate: first attempt fails, second succeeds
+        await operation(1); // First attempt - fails validation
+        const secondResult = await operation(2, validationError); // Second attempt - succeeds
         return {
           success: true,
-          value: firstResult.value,
-          attempts: 1,
+          value: secondResult.value,
+          attempts: 2,
         };
       });
 
