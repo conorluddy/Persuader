@@ -8,7 +8,7 @@
 import { LogCategory, CategoryManager } from '../category-manager.js';
 import { ConfigResolver } from './config-resolver.js';
 import { getGlobalPerformanceMonitor, type PerformanceMonitor } from './performance-monitor.js';
-import { PrivacyFilter, type PrivacyConfig } from './privacy-filter.js';
+import { PrivacyFilter, type PrivacyConfig, type JsonValue } from './privacy-filter.js';
 import { JSONLRotationWriter } from './jsonl-rotation.js';
 import type { LogLevel } from '../logger.js';
 
@@ -229,7 +229,7 @@ export class SessionScopedLogger<T extends Record<string, unknown> = Record<stri
         ...this.context,
         metadata: { ...this.context.metadata, ...metadata } as T,
       },
-      data: data ? this.privacyFilter.filterObject(data) : undefined,
+      data: data ? this.privacyFilter.filterObject(data as JsonValue) : undefined,
     };
     
     this.writeLog(entry);
@@ -496,7 +496,7 @@ export class RequestScopedLogger<T extends Record<string, unknown> = Record<stri
         ...this.context,
         metadata: { ...this.context.metadata, ...metadata } as T,
       },
-      data: data ? this.privacyFilter.filterObject(data) : undefined,
+      data: data ? this.privacyFilter.filterObject(data as JsonValue) : undefined,
     };
     
     // Delegate to session logger for writing

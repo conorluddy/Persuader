@@ -286,7 +286,14 @@ export function shouldLogLevel(level: LogLevel): boolean {
 /**
  * Helper to migrate old logger config to new system
  */
-export function migrateLoggerConfig(oldConfig: any): CategoryManager {
-  const categories = LoggerMigrationBridge.mapConfig(oldConfig);
+export function migrateLoggerConfig(oldConfig: unknown): CategoryManager {
+  // Type guard to ensure oldConfig matches expected shape
+  const typedConfig = oldConfig as {
+    level?: LogLevel;
+    fullPromptLogging?: boolean;
+    rawResponseLogging?: boolean;
+    detailedValidationErrors?: boolean;
+  };
+  const categories = LoggerMigrationBridge.mapConfig(typedConfig);
   return new CategoryManager(categories);
 }

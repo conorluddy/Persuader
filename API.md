@@ -9,6 +9,14 @@
 - [Session Management](#session-management)
 - [Validation & Retry](#validation--retry)
 - [Utilities](#utilities)
+- [Logging System](#logging-system)
+  - [Category-Based Logging](#category-based-logging)
+  - [Logging Presets](#logging-presets)
+  - [Privacy Filter](#privacy-filter)
+  - [Performance Monitoring](#performance-monitoring)
+  - [Session Logger](#session-logger)
+  - [JSONL Rotation Writer](#jsonl-rotation-writer)
+  - [Logging Configuration](#logging-configuration)
 - [Legacy Interface](#legacy-interface)
 - [Type Exports](#type-exports)
 
@@ -750,6 +758,236 @@ import { getExecutionStats } from 'persuader';
 const stats = getExecutionStats(batchResults);
 console.log(stats.averageDuration);
 console.log(stats.totalTokens);
+```
+
+## Logging System
+
+### Category-Based Logging
+
+#### `CategoryManager`
+
+Manages logging categories with bitwise flags for fine-grained control.
+
+```typescript
+import { CategoryManager, LogCategory } from 'persuader';
+
+const manager = new CategoryManager(LogCategory.LLM | LogCategory.VALIDATION);
+manager.enable(LogCategory.PERFORMANCE);
+manager.disable(LogCategory.DEBUG);
+```
+
+#### `LogCategory` Enum
+
+Available logging categories:
+- `GENERAL` - General application logs
+- `LLM` - LLM request/response logs  
+- `VALIDATION` - Schema validation logs
+- `PERFORMANCE` - Performance metrics
+- `SESSION` - Session management
+- `RETRY` - Retry loop debugging
+- `SCHEMA` - Schema analysis
+- `PROVIDER` - Provider operations
+- `CACHE` - Cache operations
+- `CONFIG` - Configuration changes
+- `ERROR` - Error logs
+- `DEBUG` - Debug information
+
+### Logging Presets
+
+#### `CategoryPresets`
+
+Pre-configured category combinations for common use cases:
+
+```typescript
+import { CategoryPresets, setCategoryPreset } from 'persuader';
+
+// Set production logging
+setCategoryPreset(CategoryPresets.PRODUCTION);
+
+// Available presets:
+// - DEVELOPMENT: Full logging for development
+// - PRODUCTION: Minimal logging for production
+// - DEBUG: Maximum verbosity
+// - PERFORMANCE: Focus on performance metrics
+// - MINIMAL: Errors only
+```
+
+### Privacy Filter
+
+#### `PrivacyFilter`
+
+Intelligent masking and redaction of sensitive data in logs.
+
+```typescript
+import { PrivacyFilter, PrivacyLevel } from 'persuader';
+
+const filter = new PrivacyFilter({
+  level: PrivacyLevel.STANDARD,
+  preserveStructure: true,
+  showPartial: false
+});
+
+const filtered = filter.filterString("email: user@example.com");
+// Output: "email: ****@****.***"
+
+const hasPrivateData = filter.containsSensitiveData(input);
+const detectedTypes = filter.detectSensitiveData(input);
+```
+
+#### `PrivacyLevel` Enum
+
+- `OFF` - No masking
+- `MINIMAL` - Only mask obvious sensitive data (tokens, keys)
+- `STANDARD` - Mask PII and credentials
+- `STRICT` - Mask all potential sensitive data
+- `PARANOID` - Maximum masking, including metadata
+
+### Performance Monitoring
+
+#### `PerformanceMonitor`
+
+Track operation timings, memory usage, and performance metrics.
+
+```typescript
+import { getGlobalPerformanceMonitor, startTimer, endTimer } from 'persuader';
+
+const monitor = getGlobalPerformanceMonitor();
+
+// Start timing an operation
+const timerId = startTimer('data-processing');
+// ... do work ...
+endTimer(timerId, { success: true });
+
+// Get statistics
+const stats = monitor.getStats('data-processing');
+console.log(stats.mean, stats.p95, stats.p99);
+
+// Export metrics
+const prometheus = monitor.exportMetrics('prometheus');
+const json = monitor.exportMetrics('json');
+```
+
+#### `@timed` Decorator
+
+Automatically time class methods:
+
+```typescript
+import { timed } from 'persuader';
+
+class DataProcessor {
+  @timed('process-batch')
+  async processBatch(data: any[]) {
+    // Automatically timed
+  }
+}
+```
+
+### Session Logger
+
+#### `SessionLogger<T>`
+
+Context-aware logging with automatic scope management.
+
+```typescript
+import { SessionLogger, createSessionId, createRequestId } from 'persuader';
+
+interface AppContext {
+  userId: string;
+  feature: string;
+}
+
+const logger = new SessionLogger<AppContext>({
+  sessionId: createSessionId('session-123'),
+  userId: 'user-456',
+  feature: 'data-import'
+});
+
+// Log with context
+logger.info('Starting import', { fileCount: 10 });
+
+// Create request scope
+const requestLogger = logger.createRequestScope(
+  createRequestId('req-789'),
+  { endpoint: '/api/import' }
+);
+```
+
+### JSONL Rotation Writer
+
+#### `JSONLRotationWriter`
+
+Structured logging to JSONL files with automatic rotation.
+
+```typescript
+import { JSONLRotationWriter } from 'persuader';
+
+const writer = new JSONLRotationWriter({
+  directory: './logs',
+  maxFileSize: 10 * 1024 * 1024, // 10MB
+  maxFiles: 7,
+  compress: true
+});
+
+await writer.write({
+  timestamp: new Date(),
+  level: 'info',
+  message: 'Application started',
+  context: { version: '1.0.0' }
+});
+
+await writer.rotate(); // Manual rotation
+await writer.close(); // Cleanup
+```
+
+### Logging Configuration
+
+#### `LoggingConfig`
+
+Comprehensive logging configuration interface:
+
+```typescript
+import { LoggingConfig, configureLogging } from 'persuader';
+
+const config: LoggingConfig = {
+  categories: LogCategory.LLM | LogCategory.VALIDATION,
+  formatting: {
+    colors: true,
+    timestamp: true,
+    prefix: '[APP]'
+  },
+  output: {
+    console: true,
+    jsonl: true,
+    logsDirectory: './logs'
+  },
+  privacy: {
+    maskSensitiveData: true,
+    redactFields: ['password', 'apiKey']
+  },
+  performance: {
+    trackMetrics: true,
+    slowThreshold: 1000
+  }
+};
+
+configureLogging(config);
+```
+
+### Logging Utilities
+
+#### `sanitizeLogContext`
+
+Sanitize log context before writing:
+
+```typescript
+import { sanitizeLogContext } from 'persuader';
+
+const sanitized = sanitizeLogContext({
+  user: 'john@example.com',
+  apiKey: 'sk-123456',
+  data: { count: 42 }
+});
+// Output: { user: '****@****.***', apiKey: '<REDACTED_API_KEY>', data: { count: 42 } }
 ```
 
 ## Legacy Interface

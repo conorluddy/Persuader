@@ -72,7 +72,7 @@ export function generateExpectedStructure(issues: z.ZodIssue[]): Record<string, 
  * @param actual - Actual object structure
  * @param expected - Expected object structure
  */
-export function showStructuralDiff(actual: any, expected: any): void {
+export function showStructuralDiff(actual: unknown, expected: unknown): void {
   try {
     const actualStr = JSON.stringify(actual, null, 2);
     const expectedStr = JSON.stringify(expected, null, 2);
@@ -112,7 +112,7 @@ export function showStructuralDiff(actual: any, expected: any): void {
  * @param expected - Expected value
  * @returns Formatted diff report string
  */
-export function generateDiffReport(actual: any, expected: any): string {
+export function generateDiffReport(actual: unknown, expected: unknown): string {
   try {
     const actualStr = JSON.stringify(actual, null, 2);
     const expectedStr = JSON.stringify(expected, null, 2);

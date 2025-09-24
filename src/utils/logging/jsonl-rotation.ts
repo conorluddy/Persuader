@@ -155,7 +155,7 @@ export class JSONLRotationWriter {
   private async closeCurrentFile(): Promise<void> {
     if (this.currentStream) {
       await new Promise<void>((resolve, reject) => {
-        this.currentStream!.end((err: any) => {
+        this.currentStream!.end((err: Error | null | undefined) => {
           if (err) reject(err);
           else resolve();
         });

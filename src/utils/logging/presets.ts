@@ -470,7 +470,7 @@ export function getPresetNames(): string[] {
  * Combine multiple presets
  */
 export function combinePresets(...presets: LoggingPreset[]): Partial<LoggingConfig> {
-  const combined: any = {
+  const combined: Partial<LoggingConfig> = {
     categories: 0,
     formatting: {},
     output: {},
@@ -482,25 +482,25 @@ export function combinePresets(...presets: LoggingPreset[]): Partial<LoggingConf
     const preset = getPreset(presetName);
     
     // Combine categories with OR
-    if (preset.categories) {
+    if (preset.categories !== undefined && combined.categories !== undefined) {
       combined.categories |= preset.categories;
     }
     
     // Merge other settings
     if (preset.formatting) {
-      Object.assign(combined.formatting, preset.formatting);
+      Object.assign(combined.formatting!, preset.formatting);
     }
     
     if (preset.output) {
-      Object.assign(combined.output, preset.output);
+      Object.assign(combined.output!, preset.output);
     }
     
     if (preset.privacy) {
-      Object.assign(combined.privacy, preset.privacy);
+      Object.assign(combined.privacy!, preset.privacy);
     }
     
     if (preset.performance) {
-      Object.assign(combined.performance, preset.performance);
+      Object.assign(combined.performance!, preset.performance);
     }
   }
   

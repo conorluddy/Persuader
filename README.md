@@ -987,6 +987,114 @@ interface Options<T> {
 }
 ```
 
+### 📊 Comprehensive Logging System
+
+Persuader v0.8.0 introduces a powerful logging system with category-based control, privacy protection, and performance monitoring:
+
+#### Log Management Commands
+
+```bash
+# View recent logs with filtering
+persuader logs view --lines 100 --level error --category LLM
+
+# Search logs for patterns
+persuader logs search "validation failed" --ignore-case
+
+# Clean old log files
+persuader logs clean --older-than 7 --keep 10
+
+# Show log statistics
+persuader logs stats --by-level --by-category
+
+# Monitor performance metrics
+persuader logs perf --export prometheus
+
+# Scan for sensitive data
+persuader logs privacy-scan --level strict --fix
+
+# Configure logging presets
+persuader logs config --set-preset production
+```
+
+#### Category-Based Logging
+
+Control exactly what gets logged with fine-grained categories:
+
+```typescript
+import { CategoryManager, LogCategory, setCategoryPreset, CategoryPresets } from 'persuader';
+
+// Use presets for common scenarios
+setCategoryPreset(CategoryPresets.PRODUCTION);  // Minimal logging
+setCategoryPreset(CategoryPresets.DEVELOPMENT); // Full debugging
+setCategoryPreset(CategoryPresets.PERFORMANCE); // Focus on metrics
+
+// Or configure manually
+const manager = new CategoryManager(
+  LogCategory.LLM | 
+  LogCategory.VALIDATION | 
+  LogCategory.ERROR
+);
+```
+
+#### Privacy Protection
+
+Automatic sensitive data masking with configurable levels:
+
+```typescript
+import { PrivacyFilter, PrivacyLevel } from 'persuader';
+
+const filter = new PrivacyFilter({
+  level: PrivacyLevel.STANDARD,  // Masks PII and credentials
+  preserveStructure: true,       // Maintains data structure
+  showPartial: false             // Full redaction
+});
+
+// Automatically masks:
+// - Emails: user@example.com → ****@****.***
+// - API Keys: sk-123456 → <REDACTED_API_KEY>
+// - Credit Cards: 4111-1111-1111-1111 → ****-****-****-1111
+// - And more...
+```
+
+#### Performance Monitoring
+
+Track operation performance with built-in metrics:
+
+```typescript
+import { startTimer, endTimer, getGlobalPerformanceMonitor } from 'persuader';
+
+// Time operations
+const timerId = startTimer('schema-validation');
+// ... perform validation ...
+endTimer(timerId, { success: true });
+
+// Get statistics
+const monitor = getGlobalPerformanceMonitor();
+const stats = monitor.getStats('schema-validation');
+console.log(`Mean: ${stats.mean}ms, P95: ${stats.p95}ms`);
+
+// Export for monitoring systems
+const prometheusMetrics = monitor.exportMetrics('prometheus');
+```
+
+#### Session-Scoped Logging
+
+Context-aware logging with automatic propagation:
+
+```typescript
+import { SessionLogger, createSessionId } from 'persuader';
+
+const logger = new SessionLogger({
+  sessionId: createSessionId('session-123'),
+  userId: 'user-456',
+  feature: 'data-import'
+});
+
+// All logs include context automatically
+logger.info('Processing started', { fileCount: 10 });
+logger.error('Validation failed', { errors: validationErrors });
+```
+
 ### CLI Usage
 
 The production-ready CLI supports batch processing with glob patterns, progress tracking, and comprehensive error handling:

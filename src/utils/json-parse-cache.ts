@@ -10,7 +10,7 @@
  */
 export interface JsonParseResult {
   success: boolean;
-  value?: any;
+  value?: unknown;
   error?: Error;
 }
 

@@ -31,7 +31,7 @@ export interface MetricPoint {
   value: number;
   timestamp: Date;
   tags?: Record<string, string>;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -215,7 +215,7 @@ export class PerformanceMonitor {
   /**
    * End an operation and record its duration
    */
-  endOperation(operationId: string, metadata?: Record<string, any>): void {
+  endOperation(operationId: string, metadata?: Record<string, unknown>): void {
     const operation = this.activeOperations.get(operationId);
     if (!operation) return;
     

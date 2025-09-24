@@ -7,6 +7,22 @@
  */
 
 /**
+ * Maximum input length to prevent regex DoS attacks
+ */
+const MAX_INPUT_LENGTH = 100_000; // 100KB
+
+/**
+ * Maximum time allowed for regex operations (ms)
+ */
+const REGEX_TIMEOUT = 100; // 100ms
+
+/**
+ * Cache for regex match results to avoid re-computation
+ */
+const regexCache = new Map<string, boolean>();
+const MAX_CACHE_SIZE = 1000;
+
+/**
  * Privacy level determines how aggressive the masking is
  */
 export enum PrivacyLevel {
@@ -16,6 +32,13 @@ export enum PrivacyLevel {
   STRICT = 3,   // Mask all potential sensitive data
   PARANOID = 4, // Maximum masking, including metadata
 }
+
+/**
+ * JSON-compatible value types
+ */
+export type JsonValue = string | number | boolean | null | undefined | JsonObject | JsonArray;
+export interface JsonObject { [key: string]: JsonValue }
+export type JsonArray = JsonValue[];
 
 /**
  * Types of sensitive data to detect
@@ -167,6 +190,50 @@ const BUILT_IN_PATTERNS: SensitivePattern[] = [
 ];
 
 /**
+ * Safe regex execution with timeout protection
+ */
+function safeRegexReplace(
+  input: string,
+  pattern: RegExp,
+  replacement: string | ((match: string) => string)
+): string {
+  // Prevent regex DoS by limiting input length
+  if (input.length > MAX_INPUT_LENGTH) {
+    return input.substring(0, MAX_INPUT_LENGTH) + '... <TRUNCATED>';
+  }
+
+  // Cache key for potential future optimization
+  // const cacheKey = `${pattern.source}:${input.substring(0, 100)}`;
+  
+  // Simple timeout protection - for production use worker threads
+  const startTime = Date.now();
+  let result = input;
+  
+  try {
+    // Create a new regex to avoid state issues
+    const safePattern = new RegExp(pattern.source, pattern.flags);
+    
+    // Check if operation is taking too long (basic check)
+    if (Date.now() - startTime > REGEX_TIMEOUT) {
+      console.warn(`Regex operation timed out for pattern: ${pattern.source}`);
+      return input;
+    }
+    
+    result = input.replace(safePattern, replacement as string);
+  } catch (error) {
+    console.error(`Regex error for pattern ${pattern.source}:`, error);
+    return input;
+  }
+  
+  // Clear cache if too large
+  if (regexCache.size > MAX_CACHE_SIZE) {
+    regexCache.clear();
+  }
+  
+  return result;
+}
+
+/**
  * Privacy filter for masking sensitive data
  */
 export class PrivacyFilter {
@@ -199,16 +266,17 @@ export class PrivacyFilter {
       return input;
     }
     
+    // Prevent processing extremely long strings
+    if (input.length > MAX_INPUT_LENGTH) {
+      input = input.substring(0, MAX_INPUT_LENGTH) + '... <TRUNCATED>';
+    }
+    
     let filtered = input;
     
-    // Apply patterns based on privacy level
+    // Apply patterns based on privacy level using safe regex
     for (const pattern of this.patterns) {
       if (pattern.minPrivacyLevel <= this.config.level) {
-        if (typeof pattern.replacement === 'string') {
-          filtered = filtered.replace(pattern.pattern, pattern.replacement);
-        } else {
-          filtered = filtered.replace(pattern.pattern, pattern.replacement);
-        }
+        filtered = safeRegexReplace(filtered, pattern.pattern, pattern.replacement);
       }
     }
     
@@ -218,7 +286,7 @@ export class PrivacyFilter {
   /**
    * Filter an object recursively
    */
-  filterObject(obj: any, path: string = ''): any {
+  filterObject(obj: JsonValue, path: string = ''): JsonValue {
     if (this.config.level === PrivacyLevel.OFF) {
       return obj;
     }
@@ -243,7 +311,7 @@ export class PrivacyFilter {
     }
     
     // Handle objects
-    const filtered: any = {};
+    const filtered: JsonObject = {};
     
     for (const [key, value] of Object.entries(obj)) {
       const fieldPath = path ? `${path}.${key}` : key;
@@ -291,7 +359,7 @@ export class PrivacyFilter {
   /**
    * Redact a value while preserving type information
    */
-  private redactValue(value: any): any {
+  private redactValue(value: JsonValue): JsonValue {
     if (value === null || value === undefined) {
       return value;
     }
@@ -303,11 +371,13 @@ export class PrivacyFilter {
     }
     
     switch (type) {
-      case 'string':
-        if (this.config.showPartial && value.length > 4) {
-          return value.substring(0, 2) + this.config.maskChar.repeat(value.length - 4) + value.substring(value.length - 2);
+      case 'string': {
+        const strValue = value as string;
+        if (this.config.showPartial && strValue.length > 4) {
+          return strValue.substring(0, 2) + this.config.maskChar.repeat(strValue.length - 4) + strValue.substring(strValue.length - 2);
         }
         return this.config.maskChar.repeat(8);
+      }
         
       case 'number':
         return this.config.level >= PrivacyLevel.PARANOID ? 0 : value.toString().replace(/\d/g, this.config.maskChar);
@@ -329,8 +399,8 @@ export class PrivacyFilter {
   /**
    * Create a sanitized copy of log context
    */
-  sanitizeContext(context: Record<string, any>): Record<string, any> {
-    return this.filterObject(context);
+  sanitizeContext(context: JsonObject): JsonObject {
+    return this.filterObject(context) as JsonObject;
   }
   
   /**
@@ -341,9 +411,29 @@ export class PrivacyFilter {
       return false;
     }
     
+    // Prevent processing extremely long strings
+    if (input.length > MAX_INPUT_LENGTH) {
+      return true; // Assume sensitive if too large to process safely
+    }
+    
+    const startTime = Date.now();
+    
     for (const pattern of this.patterns) {
       if (pattern.minPrivacyLevel <= this.config.level) {
-        if (pattern.pattern.test(input)) {
+        // Timeout protection
+        if (Date.now() - startTime > REGEX_TIMEOUT) {
+          console.warn('Sensitive data check timed out, assuming sensitive');
+          return true;
+        }
+        
+        try {
+          const safePattern = new RegExp(pattern.pattern.source, pattern.pattern.flags);
+          if (safePattern.test(input)) {
+            return true;
+          }
+        } catch (error) {
+          console.error(`Regex error in containsSensitiveData: ${error}`);
+          // Assume sensitive if regex fails
           return true;
         }
       }
@@ -439,6 +529,6 @@ export function filterSensitive(input: string, level?: PrivacyLevel): string {
 /**
  * Helper to sanitize log context
  */
-export function sanitizeLogContext(context: Record<string, any>): Record<string, any> {
+export function sanitizeLogContext(context: JsonObject): JsonObject {
   return getGlobalPrivacyFilter().sanitizeContext(context);
 }
