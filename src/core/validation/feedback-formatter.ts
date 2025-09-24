@@ -7,7 +7,8 @@
 
 import type { z } from 'zod';
 import type { ValidationError } from '../../types/errors.js';
-import { debug } from '../../utils/logger.js';
+import { debug, getGlobalLogger } from '../../utils/logger.js';
+import { logValidationFailure } from '../../utils/validation-logger.js';
 import { generateFieldCorrections } from './suggestion-generator.js';
 
 /**
@@ -22,8 +23,21 @@ import { generateFieldCorrections } from './suggestion-generator.js';
  */
 export function formatValidationErrorFeedback(
   error: ValidationError,
-  attemptNumber: number = 1
+  attemptNumber: number = 1,
+  rawContent?: string
 ): string {
+  // Log enhanced validation failure details if available and in debug mode
+  const logger = getGlobalLogger();
+  if (rawContent && (logger.getLevel() === 'debug' || logger.getLevel() === 'verboseDebug')) {
+    logValidationFailure(error, rawContent, attemptNumber, {
+      maxContentLength: 1000,
+      showDiff: true,
+      showSuggestions: true,
+      showRawContent: false, // Already shown in main logger
+      formatJson: true,
+    });
+  }
+
   // Enhanced JSON parse error handling with progressive urgency
   if (error.code === 'json_parse') {
     return formatJsonParseErrorFeedback(error, attemptNumber);
@@ -89,18 +103,26 @@ export function formatSchemaValidationErrorFeedback(
 
   const suggestionLines = formatSuggestionsList([...(error.suggestions || [])]);
 
+  // Add visual separator and emphasis for later attempts
+  const visualSeparator = attemptNumber >= 2 ? '\n' + '─'.repeat(60) + '\n' : '';
   const urgencyNote = generateFinalAttemptWarning(attemptNumber, 3);
+
+  // Add structured guidance for complex failures
+  const structuredGuidance = attemptNumber >= 2 && error.structuredFeedback 
+    ? formatStructuredGuidance(error.structuredFeedback)
+    : '';
 
   debug('Formatting schema validation error feedback', {
     attemptNumber,
     issueCount: error.issues?.length || 0,
     hasFieldCorrections: fieldCorrections.length > 0,
     hasSuggestions: (error.suggestions?.length || 0) > 0,
+    hasStructuredGuidance: Boolean(structuredGuidance),
     fullErrorDetails: error, // Log complete error for analysis
     formattedFeedback: issueLines + correctionLines + suggestionLines + urgencyNote, // Log what we're sending back
   });
 
-  return `Schema Validation Failed (Attempt ${attemptNumber}):\n${issueLines}${correctionLines}${suggestionLines}${urgencyNote}`;
+  return `Schema Validation Failed (Attempt ${attemptNumber}):${visualSeparator}\n${issueLines}${correctionLines}${suggestionLines}${structuredGuidance}${urgencyNote}`;
 }
 
 /**
@@ -215,6 +237,45 @@ export function generateFinalAttemptWarning(
     return '\n🚨 CRITICAL: This is your final attempt. Please follow the corrections exactly.';
   }
   return '';
+}
+
+/**
+ * Format structured guidance for complex validation failures
+ * 
+ * Provides hierarchical, actionable guidance based on the structured
+ * feedback from the validation system.
+ * 
+ * @param feedback - Structured feedback from validation
+ * @returns Formatted guidance string
+ */
+export function formatStructuredGuidance(
+  feedback: {
+    readonly problemSummary: string;
+    readonly specificIssues: readonly string[];
+    readonly correctionInstructions: readonly string[];
+    readonly exampleCorrection?: string;
+  }
+): string {
+  const lines: string[] = [];
+  
+  lines.push('\n📋 STRUCTURED GUIDANCE:');
+  lines.push(`Problem: ${feedback.problemSummary}`);
+  
+  if (feedback.specificIssues.length > 0) {
+    lines.push('\nSpecific Issues:');
+    feedback.specificIssues.forEach(issue => {
+      lines.push(`  ⚠️  ${issue}`);
+    });
+  }
+  
+  if (feedback.correctionInstructions.length > 0) {
+    lines.push('\nRequired Corrections:');
+    feedback.correctionInstructions.forEach((instruction, index) => {
+      lines.push(`  ${index + 1}. ${instruction}`);
+    });
+  }
+  
+  return lines.join('\n');
 }
 
 /**
