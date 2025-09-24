@@ -8,8 +8,18 @@
 
 import chalk from 'chalk';
 import type { ValidationError } from '../types/errors.js';
-import type { z } from 'zod';
-import { diffLines } from 'diff';
+import { sanitizeContent } from './content-sanitizer.js';
+import { getValidationCache } from './validation-cache.js';
+import { parseJsonCached } from './json-parse-cache.js';
+import {
+  createContentBox,
+  formatContent,
+  formatValidationIssue,
+} from './validation-formatter.js';
+import {
+  generateExpectedStructure,
+  showStructuralDiff,
+} from './validation-diff.js';
 
 /**
  * Configuration for validation logging
@@ -20,6 +30,8 @@ export interface ValidationLogConfig {
   showSuggestions?: boolean;
   showRawContent?: boolean;
   formatJson?: boolean;
+  sanitize?: boolean;
+  cacheFailures?: boolean;
 }
 
 /**
@@ -42,7 +54,20 @@ export function logValidationFailure(
     showSuggestions = true,
     showRawContent = true,
     formatJson = true,
+    sanitize = true,
+    cacheFailures = true,
   } = config;
+  
+  // Cache the failure if enabled (prevents memory leaks)
+  if (cacheFailures) {
+    const cache = getValidationCache();
+    cache.add(error, rawContent, attemptNumber);
+  }
+  
+  // Sanitize content for safe display
+  const displayContent = sanitize 
+    ? sanitizeContent(rawContent, { maxLength: maxContentLength })
+    : rawContent;
 
   // Create a structured failure report
   console.log(chalk.red.bold('\n━━━ VALIDATION FAILURE REPORT ━━━'));
@@ -55,10 +80,10 @@ export function logValidationFailure(
   console.log(`  ${chalk.red('Message:')} ${error.message}`);
 
   // Show the actual content that failed
-  if (showRawContent && rawContent) {
+  if (showRawContent && displayContent) {
     console.log(chalk.dim('\n📄 Actual LLM Response:'));
-    const displayContent = formatContent(rawContent, maxContentLength, formatJson);
-    console.log(createContentBox(displayContent, 'red'));
+    const formatted = formatContent(displayContent, maxContentLength, formatJson);
+    console.log(createContentBox(formatted, 'red'));
   }
 
   // Show specific validation issues
@@ -72,15 +97,16 @@ export function logValidationFailure(
 
   // Show diff if we can parse the content as JSON
   if (showDiff && error.code === 'schema_validation') {
-    try {
-      const actualObj = JSON.parse(rawContent);
+    const parseResult = parseJsonCached(displayContent);
+    if (parseResult.success) {
       const expectedStructure = generateExpectedStructure(error.issues || []);
       if (expectedStructure) {
         console.log(chalk.dim('\n📊 Structural Diff:'));
-        showStructuralDiff(actualObj, expectedStructure);
+        showStructuralDiff(parseResult.value, expectedStructure);
       }
-    } catch {
-      // Not JSON or can't parse, skip diff
+    } else if (process.env.NODE_ENV === 'development') {
+      // Not JSON or can't parse, log in debug mode
+      console.debug('Could not parse content for diff:', parseResult.error);
     }
   }
 
@@ -96,198 +122,10 @@ export function logValidationFailure(
 }
 
 /**
- * Format content for display with optional JSON prettification
- */
-function formatContent(content: string, maxLength: number, formatJson: boolean): string {
-  let displayContent = content;
-  
-  // Try to format as JSON if requested
-  if (formatJson) {
-    try {
-      const parsed = JSON.parse(content);
-      displayContent = JSON.stringify(parsed, null, 2);
-    } catch {
-      // Not JSON, use as-is
-    }
-  }
-
-  // Truncate if too long
-  if (displayContent.length > maxLength) {
-    const truncated = displayContent.substring(0, maxLength);
-    return `${truncated}\n${chalk.yellow('... (truncated)')}`;
-  }
-
-  return displayContent;
-}
-
-/**
- * Create a visual box around content
- */
-function createContentBox(content: string, color: 'red' | 'green' | 'yellow' = 'red'): string {
-  const lines = content.split('\n');
-  const maxLineLength = Math.max(...lines.map(l => l.length));
-  const boxWidth = Math.min(maxLineLength + 4, 80);
-  
-  const colorFn = color === 'red' ? chalk.red : 
-                   color === 'green' ? chalk.green : 
-                   chalk.yellow;
-  
-  const result: string[] = [];
-  result.push(colorFn('┌' + '─'.repeat(boxWidth - 2) + '┐'));
-  
-  lines.forEach(line => {
-    const paddedLine = line.padEnd(boxWidth - 4);
-    result.push(colorFn('│ ') + paddedLine + colorFn(' │'));
-  });
-  
-  result.push(colorFn('└' + '─'.repeat(boxWidth - 2) + '┘'));
-  
-  return result.join('\n');
-}
-
-/**
- * Format a single validation issue with visual emphasis
- */
-function formatValidationIssue(issue: z.ZodIssue, index: number): string {
-  const path = issue.path.length > 0 ? issue.path.join('.') : 'root';
-  const lines: string[] = [];
-  
-  lines.push(chalk.red(`  ${index}. `) + chalk.yellow(path));
-  lines.push(chalk.dim('     └─ ') + issue.message);
-  
-  // Add additional context if available
-  if (issue.code === 'invalid_type') {
-    lines.push(chalk.dim(`        Expected: ${chalk.green((issue as any).expected)}`));
-    lines.push(chalk.dim(`        Received: ${chalk.red((issue as any).received)}`));
-  } else if ((issue as any).code === 'invalid_enum_value') {
-    const options = (issue as any).options;
-    if (options && options.length < 10) {
-      lines.push(chalk.dim(`        Valid options: ${chalk.green(options.join(', '))}`));
-    } else if (options) {
-      lines.push(chalk.dim(`        Valid options: ${chalk.green(`${options.length} choices available`)}`));
-    }
-  }
-  
-  return lines.join('\n');
-}
-
-/**
- * Generate expected structure from validation issues
- */
-function generateExpectedStructure(issues: z.ZodIssue[]): Record<string, any> | null {
-  try {
-    const structure: Record<string, any> = {};
-    
-    for (const issue of issues) {
-      if (issue.path.length === 0) continue;
-      
-      let current = structure;
-      for (let i = 0; i < issue.path.length - 1; i++) {
-        const key = issue.path[i];
-        if (typeof key === 'string' || typeof key === 'number') {
-          if (!(key in current)) {
-            current[String(key)] = {};
-          }
-          current = current[String(key)];
-        }
-      }
-      
-      const lastKey = issue.path[issue.path.length - 1];
-      if (typeof lastKey === 'string' || typeof lastKey === 'number') {
-        const keyStr = String(lastKey);
-        if (issue.code === 'invalid_type') {
-          current[keyStr] = `<${(issue as any).expected}>`;
-        } else if ((issue as any).code === 'invalid_enum_value') {
-          const options = (issue as any).options;
-          if (options && options.length < 5) {
-            current[keyStr] = `<${options.join(' | ')}>`;
-          } else {
-            current[keyStr] = `<enum>`;
-          }
-        } else {
-          current[keyStr] = `<${issue.message}>`;
-        }
-      }
-    }
-    
-    return Object.keys(structure).length > 0 ? structure : null;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Show structural diff between actual and expected
- */
-function showStructuralDiff(actual: any, expected: any): void {
-  try {
-    const actualStr = JSON.stringify(actual, null, 2);
-    const expectedStr = JSON.stringify(expected, null, 2);
-    
-    const diff = diffLines(expectedStr, actualStr, { ignoreWhitespace: false });
-    
-    diff.forEach(part => {
-      if (part.added) {
-        // Lines in actual but not expected (extra fields)
-        const lines = part.value.split('\n').filter(l => l.trim());
-        lines.forEach(line => {
-          console.log(chalk.green(`  + ${line}`));
-        });
-      } else if (part.removed) {
-        // Lines in expected but not actual (missing fields)
-        const lines = part.value.split('\n').filter(l => l.trim());
-        lines.forEach(line => {
-          console.log(chalk.red(`  - ${line}`));
-        });
-      } else {
-        // Common lines (correct structure)
-        const lines = part.value.split('\n').filter(l => l.trim());
-        lines.forEach(line => {
-          console.log(chalk.dim(`    ${line}`));
-        });
-      }
-    });
-  } catch {
-    console.log(chalk.yellow('  Unable to generate diff'));
-  }
-}
-
-/**
- * Create a visual comparison table
- */
-export function createComparisonTable(
-  expected: Record<string, any>,
-  actual: Record<string, any>
-): string {
-  const lines: string[] = [];
-  
-  lines.push(chalk.bold('\n  Field Comparison:'));
-  lines.push(chalk.dim('  ─'.repeat(60)));
-  lines.push(chalk.dim('  Field                    Expected            Actual'));
-  lines.push(chalk.dim('  ─'.repeat(60)));
-  
-  const allKeys = new Set([...Object.keys(expected), ...Object.keys(actual)]);
-  
-  for (const key of allKeys) {
-    const expectedVal = key in expected ? JSON.stringify(expected[key]) : 'undefined';
-    const actualVal = key in actual ? JSON.stringify(actual[key]) : 'undefined';
-    
-    const keyStr = key.padEnd(24).substring(0, 24);
-    const expStr = expectedVal.padEnd(20).substring(0, 20);
-    const actStr = actualVal.substring(0, 20);
-    
-    const match = expectedVal === actualVal;
-    const line = `  ${keyStr} ${match ? chalk.green(expStr) : chalk.yellow(expStr)} ${match ? chalk.green(actStr) : chalk.red(actStr)}`;
-    lines.push(line);
-  }
-  
-  lines.push(chalk.dim('  ─'.repeat(60)));
-  
-  return lines.join('\n');
-}
-
-/**
  * Log validation success for contrast and learning
+ * 
+ * @param parsedContent - The successfully validated content
+ * @param attemptNumber - The attempt number that succeeded
  */
 export function logValidationSuccess(
   parsedContent: any,
@@ -305,11 +143,16 @@ export function logValidationSuccess(
       console.log(chalk.dim('\nValidated Structure Preview:'));
       console.log(createContentBox(lines.join('\n'), 'green'));
     }
-  } catch {
-    // Can't preview, skip
+  } catch (previewError) {
+    // Can't preview, log in debug mode
+    if (process.env.NODE_ENV === 'development') {
+      console.debug('Could not preview validation success:', previewError);
+    }
   }
   
   console.log('');
 }
 
+// Re-export utilities from formatter module
+export { createComparisonTable } from './validation-formatter.js';
 export type { ValidationError };

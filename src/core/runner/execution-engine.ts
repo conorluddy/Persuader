@@ -497,8 +497,8 @@ async function validateProviderResponse<T>(
     });
 
     // Log validation success with preview when in debug or verbose mode
-    const logger = getGlobalLogger();
-    if (logger.getLevel() === 'debug' || logger.getLevel() === 'verboseDebug' || logger.getLevel() === 'prompts') {
+    const shouldLogValidation = shouldLogValidationDetails();
+    if (shouldLogValidation) {
       logValidationSuccess(validationResult.value, attemptNumber);
     }
 
@@ -537,8 +537,8 @@ async function validateProviderResponse<T>(
     });
 
     // Enhanced validation failure logging with actual content display
-    const logger = getGlobalLogger();
-    if (logger.getLevel() === 'debug' || logger.getLevel() === 'verboseDebug' || logger.getLevel() === 'prompts') {
+    const shouldLogValidation = shouldLogValidationDetails();
+    if (shouldLogValidation) {
       logValidationFailure(validationResult.error, responseContent, attemptNumber, {
         maxContentLength: 2000,
         showDiff: true,
@@ -831,6 +831,17 @@ function combineEnhancementPrompt<T>(
   }
 
   return parts.join('\n\n');
+}
+
+/**
+ * Helper function to check if validation details should be logged
+ * 
+ * @returns Boolean indicating if validation details should be logged
+ */
+function shouldLogValidationDetails(): boolean {
+  const logger = getGlobalLogger();
+  const level = logger.getLevel();
+  return level === 'debug' || level === 'verboseDebug' || level === 'prompts';
 }
 
 /**
