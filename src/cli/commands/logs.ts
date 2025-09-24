@@ -634,7 +634,7 @@ function parseSinceTime(since: string | undefined): Date {
   const match = since.match(/^(\d+)([mhd])$/);
   if (match) {
     const [, num, unit] = match;
-    const value = parseInt(num, 10);
+    const value = parseInt(num!, 10);
     const now = Date.now();
     
     switch (unit) {

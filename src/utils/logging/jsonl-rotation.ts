@@ -108,7 +108,7 @@ export class JSONLRotationWriter {
       let maxIndex = -1;
       for (const file of files) {
         const match = pattern.exec(file);
-        if (match) {
+        if (match && match[1]) {
           const index = parseInt(match[1], 10);
           if (index > maxIndex) {
             maxIndex = index;
@@ -312,7 +312,7 @@ export class JSONLRotationWriter {
             size: stats.size,
             createdAt: stats.birthtime,
             isCompressed: entry.endsWith('.gz'),
-            index: parseInt(match[1], 10),
+            index: parseInt(match[1] ?? '0', 10),
           });
         }
       }
@@ -401,14 +401,14 @@ export class JSONLRotationWriter {
     const stats = {
       totalFiles: files.length,
       totalSize: files.reduce((sum, f) => sum + f.size, 0),
-      oldestFile: files.reduce((oldest, f) => 
+      oldestFile: files.length > 0 ? files.reduce((oldest, f) => 
         f.createdAt < oldest ? f.createdAt : oldest, 
-        files[0].createdAt
-      ),
-      newestFile: files.reduce((newest, f) => 
+        files[0]!.createdAt
+      ) : new Date(),
+      newestFile: files.length > 0 ? files.reduce((newest, f) => 
         f.createdAt > newest ? f.createdAt : newest, 
-        files[0].createdAt
-      ),
+        files[0]!.createdAt
+      ) : new Date(),
       compressedFiles: files.filter(f => f.isCompressed).length,
       uncompressedFiles: files.filter(f => !f.isCompressed).length,
     };
