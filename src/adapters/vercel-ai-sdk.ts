@@ -92,7 +92,10 @@ export class VercelAISDKAdapter implements ProviderAdapter {
 
   constructor(config: VercelAISDKAdapterConfig) {
     this.model = config.model;
-    this.modelId = config.modelId ?? (typeof config.model === 'string' ? config.model : (config.model as any).modelId) ?? 'ai-sdk-model';
+    this.modelId = config.modelId ?? 
+      (typeof config.model === 'string' ? config.model : 
+       'modelId' in config.model && typeof config.model.modelId === 'string' ? config.model.modelId : 
+       'ai-sdk-model');
     this.useStreaming = config.useStreaming ?? false;
     this.defaultMaxTokens = config.maxTokens;
     this.defaultTemperature = config.temperature;

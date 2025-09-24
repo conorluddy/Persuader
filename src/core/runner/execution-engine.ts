@@ -22,7 +22,12 @@ import {
   verboseDebug,
   llmRequest,
   llmResponse,
+  getGlobalLogger,
 } from '../../utils/logger.js';
+import {
+  logValidationFailure,
+  logValidationSuccess,
+} from '../../utils/validation-logger.js';
 import {
   augmentPromptWithErrors,
   buildPrompt,
@@ -491,6 +496,12 @@ async function validateProviderResponse<T>(
       hasValue: Boolean(validationResult.value),
     });
 
+    // Log validation success with preview when in debug or verbose mode
+    const shouldLogValidation = shouldLogValidationDetails();
+    if (shouldLogValidation) {
+      logValidationSuccess(validationResult.value, attemptNumber);
+    }
+
     // Send success feedback if conditions are met (after every successful validation)
     if (config.successMessage && sessionId) {
       try {
@@ -525,7 +536,19 @@ async function validateProviderResponse<T>(
       issues: validationResult.error.issues?.length || 0,
     });
 
-    // Enhanced debug logging: Log raw response content on validation failure
+    // Enhanced validation failure logging with actual content display
+    const shouldLogValidation = shouldLogValidationDetails();
+    if (shouldLogValidation) {
+      logValidationFailure(validationResult.error, responseContent, attemptNumber, {
+        maxContentLength: 2000,
+        showDiff: true,
+        showSuggestions: true,
+        showRawContent: true,
+        formatJson: true,
+      });
+    }
+
+    // Keep original verbose debug logging for JSONL
     verboseDebug('Raw response content that failed validation', {
       attemptNumber,
       rawContent: responseContent,
@@ -808,6 +831,17 @@ function combineEnhancementPrompt<T>(
   }
 
   return parts.join('\n\n');
+}
+
+/**
+ * Helper function to check if validation details should be logged
+ * 
+ * @returns Boolean indicating if validation details should be logged
+ */
+function shouldLogValidationDetails(): boolean {
+  const logger = getGlobalLogger();
+  const level = logger.getLevel();
+  return level === 'debug' || level === 'verboseDebug' || level === 'prompts';
 }
 
 /**

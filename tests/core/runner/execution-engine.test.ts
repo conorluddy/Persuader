@@ -13,6 +13,7 @@ import type { ProviderAdapter, ProviderResponse, ValidationError } from '../../.
 
 // Mock dependencies
 vi.mock('../../../src/utils/logger.js');
+vi.mock('../../../src/utils/validation-logger.js');
 vi.mock('../../../src/core/prompt.js');
 vi.mock('../../../src/core/retry.js');
 vi.mock('../../../src/core/validation.js');
@@ -21,6 +22,7 @@ vi.mock('../../../src/core/validation.js');
 import * as promptModule from '../../../src/core/prompt.js';
 import * as retryModule from '../../../src/core/retry.js';
 import * as validationModule from '../../../src/core/validation.js';
+import * as loggerModule from '../../../src/utils/logger.js';
 
 const buildPrompt = vi.mocked(promptModule.buildPrompt);
 const combinePromptParts = vi.mocked(promptModule.combinePromptParts);
@@ -28,6 +30,7 @@ const augmentPromptWithErrors = vi.mocked(promptModule.augmentPromptWithErrors);
 const retryWithFeedback = vi.mocked(retryModule.retryWithFeedback);
 const validateJson = vi.mocked(validationModule.validateJson);
 const formatValidationErrorFeedback = vi.mocked(validationModule.formatValidationErrorFeedback);
+const getGlobalLogger = vi.mocked(loggerModule.getGlobalLogger);
 
 // Test fixtures
 const testSchema = z.object({
@@ -90,6 +93,19 @@ describe('executeWithRetry', () => {
       userPrompt: 'User prompt with errors',
       instructions: 'Instructions with errors',
     });
+
+    // Mock getGlobalLogger to return a mock logger with getLevel method
+    getGlobalLogger.mockReturnValue({
+      getLevel: vi.fn().mockReturnValue('info'),
+      log: vi.fn(),
+      debug: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      verboseDebug: vi.fn(),
+      llmRequest: vi.fn(),
+      llmResponse: vi.fn(),
+    } as any);
   });
 
   describe('successful execution', () => {
