@@ -106,6 +106,9 @@ export interface DetailedValidationErrorData {
   suggestions?: string[];
   errorCode: string;
   message: string;
+  fullContent?: string; // The complete raw response
+  contentPreview?: string; // A truncated preview of the response
+  structuralDiff?: string; // Visual diff between expected and actual
 }
 
 class PersuaderLogger {
@@ -593,9 +596,29 @@ class PersuaderLogger {
       ...(data.suggestions && data.suggestions.length > 0 && {
         suggestions: data.suggestions,
       }),
+      ...(data.contentPreview && {
+        contentPreview: data.contentPreview,
+      }),
+      ...(data.structuralDiff && {
+        structuralDiff: data.structuralDiff,
+      }),
     };
 
     this.log('verboseDebug', message, context);
+
+    // Show the full content in a special formatted box if available
+    if (data.fullContent && this.config.colors) {
+      console.log(chalk.red('\n┌─ FULL FAILED CONTENT'));
+      console.log(this.formatMultilineText(data.fullContent));
+      console.log(chalk.red('└─ END FAILED CONTENT\n'));
+    }
+
+    // Show structural diff if available
+    if (data.structuralDiff && this.config.colors) {
+      console.log(chalk.yellow('\n┌─ STRUCTURAL DIFF'));
+      console.log(data.structuralDiff);
+      console.log(chalk.yellow('└─ END DIFF\n'));
+    }
 
     // Enhanced JSONL logging for detailed validation errors
     if (this.jsonlWriter) {
@@ -605,6 +628,7 @@ class PersuaderLogger {
         {
           ...context,
           allValidOptions: data.validOptions, // Store complete list in JSONL
+          fullContent: data.fullContent, // Store full content in JSONL for analysis
         },
         'validation'
       );

@@ -22,7 +22,12 @@ import {
   verboseDebug,
   llmRequest,
   llmResponse,
+  getGlobalLogger,
 } from '../../utils/logger.js';
+import {
+  logValidationFailure,
+  logValidationSuccess,
+} from '../../utils/validation-logger.js';
 import {
   augmentPromptWithErrors,
   buildPrompt,
@@ -491,6 +496,12 @@ async function validateProviderResponse<T>(
       hasValue: Boolean(validationResult.value),
     });
 
+    // Log validation success with preview when in debug or verbose mode
+    const logger = getGlobalLogger();
+    if (logger.getLevel() === 'debug' || logger.getLevel() === 'verboseDebug' || logger.getLevel() === 'prompts') {
+      logValidationSuccess(validationResult.value, attemptNumber);
+    }
+
     // Send success feedback if conditions are met (after every successful validation)
     if (config.successMessage && sessionId) {
       try {
@@ -525,7 +536,19 @@ async function validateProviderResponse<T>(
       issues: validationResult.error.issues?.length || 0,
     });
 
-    // Enhanced debug logging: Log raw response content on validation failure
+    // Enhanced validation failure logging with actual content display
+    const logger = getGlobalLogger();
+    if (logger.getLevel() === 'debug' || logger.getLevel() === 'verboseDebug' || logger.getLevel() === 'prompts') {
+      logValidationFailure(validationResult.error, responseContent, attemptNumber, {
+        maxContentLength: 2000,
+        showDiff: true,
+        showSuggestions: true,
+        showRawContent: true,
+        formatJson: true,
+      });
+    }
+
+    // Keep original verbose debug logging for JSONL
     verboseDebug('Raw response content that failed validation', {
       attemptNumber,
       rawContent: responseContent,

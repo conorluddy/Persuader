@@ -76,11 +76,13 @@
   "homepage": "https://github.com/conorluddy/Persuader#readme",
   "devDependencies": {
     "@eslint/js": "^9.35.0",
+    "@types/diff": "^7.0.2",
     "@types/node": "^24.3.1",
     "@typescript-eslint/eslint-plugin": "^8.43.0",
     "@typescript-eslint/parser": "^8.43.0",
     "@vitest/coverage-v8": "^3.2.4",
     "@vitest/ui": "^3.2.4",
+    "diff": "^8.0.2",
     "eslint": "^9.35.0",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.6.2",
