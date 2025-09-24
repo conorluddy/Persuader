@@ -8,7 +8,7 @@
  * and type safety concerns, with no validation logic or external dependencies.
  */
 
-import { z } from 'zod';
+import { z, type ZodIssue, type ZodSchema } from 'zod';
 import type { ValidationError } from '../../types/errors.js';
 
 /**
@@ -17,7 +17,7 @@ import type { ValidationError } from '../../types/errors.js';
  * Safely narrows Zod issues to those containing minimum size information
  * for strings, numbers, and arrays.
  */
-export function isTooSmallIssue(issue: z.ZodIssue): issue is z.ZodIssue & {
+export function isTooSmallIssue(issue: ZodIssue): issue is ZodIssue & {
   type: 'string' | 'number' | 'array';
   minimum: number;
 } {
@@ -30,7 +30,7 @@ export function isTooSmallIssue(issue: z.ZodIssue): issue is z.ZodIssue & {
  * Safely narrows Zod issues to those containing maximum size information
  * for strings, numbers, and arrays.
  */
-export function isTooBigIssue(issue: z.ZodIssue): issue is z.ZodIssue & {
+export function isTooBigIssue(issue: ZodIssue): issue is ZodIssue & {
   type: 'string' | 'number' | 'array';
   maximum: number;
 } {
@@ -43,7 +43,7 @@ export function isTooBigIssue(issue: z.ZodIssue): issue is z.ZodIssue & {
  * Safely narrows Zod issues to those containing string validation information
  * such as email, URL, UUID, etc.
  */
-export function hasValidation(issue: z.ZodIssue): issue is z.ZodIssue & {
+export function hasValidation(issue: ZodIssue): issue is ZodIssue & {
   validation: string;
 } {
   return (
@@ -58,7 +58,7 @@ export function hasValidation(issue: z.ZodIssue): issue is z.ZodIssue & {
  * Safely narrows Zod issues to those containing enumeration or union options
  * for generating helpful error messages with valid choices.
  */
-export function hasOptions(issue: z.ZodIssue): issue is z.ZodIssue & {
+export function hasOptions(issue: ZodIssue): issue is ZodIssue & {
   options: string[];
 } {
   return (
@@ -84,7 +84,7 @@ export function hasOptions(issue: z.ZodIssue): issue is z.ZodIssue & {
 export function createValidationError(
   code: string,
   message: string,
-  issues: z.ZodIssue[],
+  issues: ZodIssue[],
   rawValue: unknown,
   schemaDescription?: string,
   suggestions?: string[]
@@ -125,7 +125,7 @@ export function createValidationError(
  * @returns Human-readable description of expected schema structure
  */
 export function generateSchemaDescription(
-  schema: z.ZodSchema<unknown>
+  schema: ZodSchema<unknown>
 ): string {
   try {
     // Convert to JSON Schema for detailed type information
@@ -136,7 +136,7 @@ export function generateSchemaDescription(
 
     // Generate human-readable description based on JSON Schema
     if (jsonSchema.type === 'object' && jsonSchema.properties) {
-      const properties = jsonSchema.properties as Record<string, any>;
+      const properties = jsonSchema.properties as Record<string, unknown>;
       const fieldNames = Object.keys(properties).slice(0, 3);
       const required = Array.isArray(jsonSchema.required) ? jsonSchema.required : [];
       

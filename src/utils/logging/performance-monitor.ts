@@ -6,6 +6,8 @@
  * for optimization and debugging.
  */
 
+import { performance } from 'perf_hooks';
+
 /**
  * Performance metric types
  */

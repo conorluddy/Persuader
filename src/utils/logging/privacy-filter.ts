@@ -105,6 +105,7 @@ const BUILT_IN_PATTERNS: SensitivePattern[] = [
   },
   {
     type: SensitiveDataType.API_KEY,
+    // eslint-disable-next-line no-useless-escape
     pattern: /\b(?:api[_-]?key|apikey|api_token|access[_-]?token)["\s]*[:=]["\s]*["']?([A-Za-z0-9_\-]{20,})["']?\b/gi,
     replacement: '$1=<REDACTED_API_KEY>',
     minPrivacyLevel: PrivacyLevel.MINIMAL,
@@ -112,6 +113,7 @@ const BUILT_IN_PATTERNS: SensitivePattern[] = [
   },
   {
     type: SensitiveDataType.TOKEN,
+    // eslint-disable-next-line no-useless-escape
     pattern: /\b(?:Bearer\s+)?([A-Za-z0-9_\-\.]{40,})\b/g,
     replacement: (match) => {
       if (match.startsWith('Bearer')) {
@@ -151,7 +153,8 @@ const BUILT_IN_PATTERNS: SensitivePattern[] = [
   },
   {
     type: SensitiveDataType.FILEPATH,
-    pattern: /(?:\/Users\/[^\/\s]+|\/home\/[^\/\s]+|C:\\Users\\[^\\\s]+)/g,
+    // eslint-disable-next-line no-useless-escape
+    pattern: /(?:\/Users\/[^\/\s]+|\/home\/[^\/\s]+|C:\\\\Users\\\\[^\\\s]+)/g,
     replacement: (match) => {
       if (match.startsWith('/Users/')) return '/Users/<USER>';
       if (match.startsWith('/home/')) return '/home/<USER>';

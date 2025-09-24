@@ -4,7 +4,6 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import chalk from 'chalk';
-import { z } from 'zod';
 import type { ValidationError } from '../types/errors.js';
 import { 
   logValidationFailure, 
