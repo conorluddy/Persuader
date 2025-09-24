@@ -56,8 +56,8 @@ export class InteractiveConfigBuilder {
    */
   private initializeTemplates(): void {
     // Templates are defined locally for type checking
-    // const _templates: ConfigTemplate[] = [  // Commented out to avoid unused variable warning
-    [
+    // Will be used in future implementation
+    /* const _templates: ConfigTemplate[] = [
       {
         name: 'Quick Debug',
         description: 'Enable all debug categories for troubleshooting',
@@ -121,8 +121,8 @@ export class InteractiveConfigBuilder {
           };
         },
       },
-    ];
-    // Templates were defined but not used
+    ]; */
+    // Templates will be used in future implementation
   }
   
   /**
@@ -391,7 +391,7 @@ export class InteractiveConfigBuilder {
       // Apply other settings
       this.context.config = { ...preset };
       this.context.preset = presetName;
-    } catch (error) {
+    } catch {
       // If preset doesn't exist, just continue
       console.warn(`Preset ${presetName} not found`);
     }

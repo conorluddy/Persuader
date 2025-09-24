@@ -38,7 +38,7 @@ const SENSITIVE_PATTERNS: ReadonlyArray<{
   },
   // Bearer tokens
   {
-    pattern: /\b(Bearer|Authorization)[\s:]+["']?([a-zA-Z0-9\-_.~+\/]+=*)["']?/gi,
+    pattern: /\b(Bearer|Authorization)[\s:]+["']?([a-zA-Z0-9\-_.~+/]+=*)["']?/gi,
     replacement: '$1 ***REDACTED_TOKEN***'
   },
   // AWS Keys
@@ -48,7 +48,7 @@ const SENSITIVE_PATTERNS: ReadonlyArray<{
   },
   // AWS Secret Keys (high entropy strings)
   {
-    pattern: /\b([a-zA-Z0-9+\/]{40})\b/g,
+    pattern: /\b([a-zA-Z0-9+/]{40})\b/g,
     replacement: '***REDACTED_SECRET***'
   },
   // Private keys
@@ -131,6 +131,7 @@ export function sanitizeContent(
 export function removeAnsiEscapeSequences(content: string): string {
   // Pattern to match ANSI escape codes
   // Covers most common ANSI sequences including colors, cursor movement, etc.
+  // eslint-disable-next-line no-control-regex
   const ansiPattern = /\x1b\[[0-9;]*[a-zA-Z]|\x1b\].*?(\x07|\x1b\\)|\x1b[PX^_].*?(\x1b\\|\x07)|\x1b\[[0-9;]*m/g;
   return content.replace(ansiPattern, '');
 }
