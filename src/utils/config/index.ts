@@ -91,6 +91,19 @@ export {
   type BaseConfig
 } from './inheritance.js';
 
+// Environment variable interpolation
+export {
+  EnvironmentInterpolator,
+  getGlobalInterpolator,
+  setGlobalInterpolator,
+  interpolateConfig,
+  createSecureInterpolator,
+  createDevelopmentInterpolator,
+  analyzeInterpolationPatterns,
+  type InterpolationOptions,
+  type InterpolationResult
+} from './interpolation.js';
+
 // Configuration system integration
 export {
   EnhancedConfigResolver,

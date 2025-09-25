@@ -233,6 +233,31 @@ async function showConfig(options: {
   if (loadResult.pipeline) {
     consola.info(`🚀 Pipeline: ${loadResult.pipeline}`);
   }
+  
+  // Show inheritance information
+  if (loadResult.inheritanceChain) {
+    consola.info(`🔗 Inheritance: Extended from ${loadResult.inheritanceChain.baseConfigs.length} base config(s)`);
+    if (loadResult.inheritanceChain.conflicts.length > 0) {
+      consola.warn(`⚠️  ${loadResult.inheritanceChain.conflicts.length} inheritance conflicts resolved`);
+    }
+  }
+  
+  // Show interpolation information
+  if (loadResult.interpolationResult) {
+    const { interpolationResult } = loadResult;
+    if (interpolationResult.resolvedVariables.length > 0) {
+      consola.info(`🔧 Interpolated ${interpolationResult.resolvedVariables.length} environment variable(s)`);
+    }
+    if (interpolationResult.missingVariables.length > 0) {
+      consola.warn(`❌ ${interpolationResult.missingVariables.length} missing variable(s): ${interpolationResult.missingVariables.join(', ')}`);
+    }
+    if (interpolationResult.typeCoercions.length > 0) {
+      consola.info(`🔄 Applied ${interpolationResult.typeCoercions.length} type coercion(s)`);
+    }
+    if (Object.keys(interpolationResult.defaultsUsed).length > 0) {
+      consola.info(`📝 Used ${Object.keys(interpolationResult.defaultsUsed).length} default value(s)`);
+    }
+  }
 
   if (loadResult.warnings?.length) {
     consola.warn('Warnings:');

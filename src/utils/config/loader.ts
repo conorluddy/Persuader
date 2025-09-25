@@ -28,6 +28,11 @@ import {
   type InheritanceOptions,
   type BaseConfig
 } from './inheritance.js';
+import {
+  EnvironmentInterpolator,
+  type InterpolationOptions,
+  type InterpolationResult
+} from './interpolation.js';
 
 export interface LoadConfigOptions extends ConfigDiscoveryOptions, ParseOptions {
   /** Environment name for environment-specific configuration */
@@ -50,6 +55,12 @@ export interface LoadConfigOptions extends ConfigDiscoveryOptions, ParseOptions 
   
   /** Inheritance resolver options */
   inheritanceOptions?: InheritanceOptions;
+  
+  /** Enable environment variable interpolation */
+  enableInterpolation?: boolean;
+  
+  /** Environment interpolation options */
+  interpolationOptions?: InterpolationOptions;
 }
 
 export interface LoadConfigResult {
@@ -76,6 +87,9 @@ export interface LoadConfigResult {
   
   /** Inheritance chain information */
   inheritanceChain?: InheritanceChain;
+  
+  /** Environment variable interpolation result */
+  interpolationResult?: InterpolationResult;
   
   /** Any errors encountered */
   errors: string[];
@@ -205,7 +219,36 @@ export async function loadConfig(options: LoadConfigOptions = {}): Promise<LoadC
       }
     }
     
-    // 5. Cache the loaded configuration
+    // 5. Handle environment variable interpolation
+    let interpolationResult: InterpolationResult | undefined;
+    
+    if (options.enableInterpolation !== false) {
+      try {
+        const interpolator = options.interpolationOptions 
+          ? new EnvironmentInterpolator(options.interpolationOptions)
+          : new EnvironmentInterpolator();
+        
+        interpolationResult = interpolator.interpolate(finalConfig);
+        
+        if (interpolationResult.errors.length > 0) {
+          errors.push(...interpolationResult.errors.map(err => `Interpolation error: ${err}`));
+        } else {
+          finalConfig = interpolationResult.value;
+        }
+        
+        if (interpolationResult.missingVariables.length > 0) {
+          warnings.push(`Missing environment variables: ${interpolationResult.missingVariables.join(', ')}`);
+        }
+        
+        if (interpolationResult.typeCoercions.length > 0) {
+          warnings.push(`Applied ${interpolationResult.typeCoercions.length} type coercions during interpolation`);
+        }
+      } catch (error) {
+        errors.push(`Failed to interpolate environment variables: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+    }
+    
+    // 6. Cache the loaded configuration
     if (options.cache !== false) {
       configCache.set(cacheKey, {
         config: finalConfig,
@@ -231,6 +274,10 @@ export async function loadConfig(options: LoadConfigOptions = {}): Promise<LoadC
     
     if (inheritanceChain) {
       result.inheritanceChain = inheritanceChain;
+    }
+    
+    if (interpolationResult) {
+      result.interpolationResult = interpolationResult;
     }
     
     return result;
