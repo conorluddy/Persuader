@@ -12,6 +12,7 @@ import { Command } from 'commander';
 import { consola } from 'consola';
 import packageJson from '../../package.json' with { type: 'json' };
 import { runCommand } from './commands/run.js';
+import { createLogsCommand } from './commands/logs.js';
 
 /**
  * Configure consola options
@@ -113,6 +114,9 @@ Run Command Examples:
   `
     )
     .action(runCommand);
+
+  // Add logs command
+  program.addCommand(createLogsCommand());
 
   // Error handling for unknown commands
   program.on('command:*', (operands: string[]) => {

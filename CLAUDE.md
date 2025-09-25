@@ -47,6 +47,17 @@ npm run format           # Format code with Prettier
 npm run lint             # Lint code with ESLint
 ```
 
+### Log Management (Production & Development)
+```bash
+# View and analyze logs (see LOGGING.md for complete reference)
+persuader logs view --follow --lines 50       # Real-time log viewing
+persuader logs search "error" --since 1h      # Search for issues
+persuader logs stats --period 24h             # Performance analytics
+persuader logs clean --older-than 7           # Cleanup old logs
+```
+
+> **📖 Complete Logging Guide**: See [LOGGING.md](./LOGGING.md) for comprehensive logging system documentation including CLI commands, category-based configuration, privacy features, and debug workflows.
+
 ### Demo and Examples
 ```bash
 # Core examples
