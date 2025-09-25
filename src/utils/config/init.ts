@@ -7,6 +7,7 @@
 
 import { 
   initializeGlobalConfigResolver,
+  getGlobalEnhancedConfigResolver,
   migrateToEnhancedResolver,
   type EnhancedConfigResolver 
 } from './config-resolver-integration.js';
@@ -252,7 +253,6 @@ export async function initializeForTesting(): Promise<EnhancedConfigResolver> {
  */
 export function isConfigSystemInitialized(): boolean {
   try {
-    const { getGlobalEnhancedConfigResolver } = require('./config-resolver-integration.js');
     const resolver = getGlobalEnhancedConfigResolver();
     return resolver !== null;
   } catch {
@@ -275,17 +275,29 @@ export function getConfigSystemStatus(): {
   }
   
   try {
-    const { getGlobalEnhancedConfigResolver } = require('./config-resolver-integration.js');
     const resolver = getGlobalEnhancedConfigResolver();
     const status = resolver.getLoadStatus();
     
-    return {
+    const result: {
+      initialized: boolean;
+      hasFileConfig: boolean;
+      configAge?: number;
+      environment?: string;
+      pipeline?: string;
+    } = {
       initialized: true,
       hasFileConfig: status.hasFileConfig,
-      configAge: status.configAge,
-      environment: status.environment,
-      pipeline: status.pipeline
+      configAge: status.configAge
     };
+    
+    if (status.environment !== undefined) {
+      result.environment = status.environment;
+    }
+    if (status.pipeline !== undefined) {
+      result.pipeline = status.pipeline;
+    }
+    
+    return result;
   } catch {
     return { initialized: false, hasFileConfig: false };
   }

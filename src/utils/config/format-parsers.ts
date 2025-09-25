@@ -201,7 +201,7 @@ export class EnhancedJsonParser {
     }
     
     // Determine complexity
-    const brackets = (content.match(/[{}\[\]]/g) || []).length;
+    const brackets = (content.match(/[{}[\]]/g) || []).length;
     const quotes = (content.match(/"/g) || []).length;
     const complexity = brackets + quotes;
     
