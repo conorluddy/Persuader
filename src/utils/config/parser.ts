@@ -14,6 +14,10 @@ import {
   type ConfigValidationResult
 } from './schema.js';
 import type { ConfigFileFormat } from './file-discovery.js';
+import { 
+  EnhancedMultiFormatParser,
+  type EnhancedParseOptions
+} from './format-parsers.js';
 
 export interface ParseResult extends ConfigValidationResult {
   /** Original file path */
@@ -44,6 +48,29 @@ export interface ParseOptions {
   
   /** Environment variables for interpolation */
   env?: Record<string, string>;
+  
+  /** Use enhanced parsers with better error handling */
+  useEnhancedParsers?: boolean;
+  
+  /** Maximum file size to parse (in bytes) */
+  maxFileSize?: number;
+  
+  /** Enable strict parsing mode */
+  strictMode?: boolean;
+  
+  /** Custom format-specific parsing options */
+  formatOptions?: {
+    json?: {
+      allowComments?: boolean;
+      allowTrailingCommas?: boolean;
+      allowUnquotedKeys?: boolean;
+    };
+    yaml?: {
+      allowDuplicateKeys?: boolean;
+      maxAliasCount?: number;
+      prettyErrors?: boolean;
+    };
+  };
 }
 
 /**
@@ -315,7 +342,12 @@ export async function parseConfigFile(
   const startTime = Date.now();
   
   try {
-    // Read file content
+    // Use enhanced parsers if requested
+    if (options.useEnhancedParsers) {
+      return await parseWithEnhancedParser(filePath, options, startTime);
+    }
+    
+    // Fallback to original parsing logic
     const content = await fs.readFile(filePath, 'utf8');
     const stats = await fs.stat(filePath);
     const format = detectConfigFormat(filePath);
@@ -478,6 +510,75 @@ export function getParserMetrics(): ParserMetrics {
     successRate: totalFiles > 0 ? parserMetrics.successCount / totalFiles : 0,
     formatDistribution: parserMetrics.formatCounts,
     averageFileSize: totalFiles > 0 ? parserMetrics.totalFileSize / totalFiles : 0
+  };
+}
+
+/**
+ * Parse configuration using enhanced parsers with better error handling
+ */
+async function parseWithEnhancedParser(
+  filePath: string, 
+  options: ParseOptions,
+  _startTime: number
+): Promise<ParseResult> {
+  const enhancedOptions: EnhancedParseOptions = {};
+  
+  if (options.allowExecution !== undefined) enhancedOptions.allowExecution = options.allowExecution;
+  if (options.includeRawContent !== undefined) enhancedOptions.includeRawContent = options.includeRawContent;
+  if (options.validate !== undefined) enhancedOptions.validate = options.validate;
+  if (options.env !== undefined) enhancedOptions.env = options.env;
+  if (options.maxFileSize !== undefined) enhancedOptions.maxFileSize = options.maxFileSize;
+  if (options.strictMode !== undefined) enhancedOptions.strictMode = options.strictMode;
+  if (options.formatOptions?.json !== undefined) enhancedOptions.jsonOptions = options.formatOptions.json;
+  if (options.formatOptions?.yaml !== undefined) enhancedOptions.yamlOptions = options.formatOptions.yaml;
+  
+  const enhancedResult = await EnhancedMultiFormatParser.parseFile(filePath, enhancedOptions);
+  
+  // Convert enhanced result to ParseResult format
+  let validationResult: ConfigValidationResult = {
+    valid: false,
+    config: undefined,
+    errors: undefined,
+    errorMessages: undefined,
+    warnings: undefined
+  };
+  
+  if (enhancedResult.success && enhancedResult.config) {
+    if (options.validate !== false) {
+      validationResult = validateConfig(enhancedResult.config);
+    } else {
+      validationResult = {
+        valid: true,
+        config: enhancedResult.config,
+        errors: undefined,
+        errorMessages: undefined,
+        warnings: undefined
+      };
+    }
+  } else {
+    validationResult = {
+      valid: false,
+      config: undefined,
+      errors: undefined,
+      errorMessages: enhancedResult.errors.map(err => err.message),
+      warnings: enhancedResult.warnings.length > 0 ? enhancedResult.warnings : undefined
+    };
+  }
+  
+  // Merge warnings from enhanced parser
+  const allWarnings = [
+    ...(validationResult.warnings || []),
+    ...enhancedResult.warnings
+  ];
+  
+  return {
+    ...validationResult,
+    filePath: enhancedResult.filePath,
+    format: enhancedResult.format as ConfigFileFormat,
+    rawContent: enhancedResult.rawContent,
+    parseTimeMs: enhancedResult.parseTimeMs,
+    fileSizeBytes: enhancedResult.fileSizeBytes,
+    warnings: allWarnings.length > 0 ? allWarnings : undefined
   };
 }
 
