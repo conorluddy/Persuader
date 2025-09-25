@@ -18,7 +18,6 @@ import {
 } from './parser.js';
 import {
   type PersuaderConfig,
-  mergeConfigs,
   getDefaultConfig,
   validateConfig
 } from './schema.js';
@@ -33,6 +32,13 @@ import {
   type InterpolationOptions,
   type InterpolationResult
 } from './interpolation.js';
+import {
+  hasFileChanged,
+  performanceCollector,
+  optimizedMergeConfigs,
+  getCacheStats,
+  type ConfigPerformanceMetrics
+} from './performance.js';
 
 export interface LoadConfigOptions extends ConfigDiscoveryOptions, ParseOptions {
   /** Environment name for environment-specific configuration */
@@ -145,23 +151,31 @@ export async function loadConfig(options: LoadConfigOptions = {}): Promise<LoadC
       };
     }
     
-    // 2. Check cache
+    // 2. Check cache and file changes
     const cacheKey = getCacheKey(discovery.configPath, options);
     if (options.cache !== false && !options.forceReload) {
       const cached = configCache.get(cacheKey);
       if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
-        const resolvedConfig = await resolveConfiguration(cached.config, options);
-        
-        return {
-          config: resolvedConfig.config,
-          discovery,
-          environment: resolvedConfig.environment,
-          pipeline: resolvedConfig.pipeline,
-          fromCache: true,
-          loadTimeMs: Date.now() - startTime,
-          errors: resolvedConfig.errors,
-          warnings: resolvedConfig.warnings
-        };
+        // Check if file has actually changed
+        const fileChanged = await hasFileChanged(discovery.configPath);
+        if (!fileChanged) {
+          const resolvedConfig = await resolveConfiguration(cached.config, options);
+          
+          // Record cache hit
+          const loadTime = Date.now() - startTime;
+          performanceCollector.recordOperation(loadTime, true);
+          
+          return {
+            config: resolvedConfig.config,
+            discovery,
+            environment: resolvedConfig.environment,
+            pipeline: resolvedConfig.pipeline,
+            fromCache: true,
+            loadTimeMs: loadTime,
+            errors: resolvedConfig.errors,
+            warnings: resolvedConfig.warnings
+          };
+        }
       }
     }
     
@@ -175,8 +189,13 @@ export async function loadConfig(options: LoadConfigOptions = {}): Promise<LoadC
     
     const parseResult = await parseConfigFile(discovery.configPath, parseOptions);
     
+    // Record file read and validation
+    performanceCollector.recordFileRead();
+    performanceCollector.recordValidation();
+    
     if (!parseResult.valid || !parseResult.config) {
       errors.push(...(parseResult.errorMessages || ['Failed to parse configuration']));
+      performanceCollector.recordError();
       
       return {
         config: options.mergeWithDefaults ? getDefaultConfig() : null,
@@ -280,6 +299,9 @@ export async function loadConfig(options: LoadConfigOptions = {}): Promise<LoadC
       result.interpolationResult = interpolationResult;
     }
     
+    // Record successful operation
+    performanceCollector.recordOperation(result.loadTimeMs, false);
+    
     return result;
   } catch (error) {
     return {
@@ -332,7 +354,7 @@ async function resolveConfiguration(
   const environment = options.environment || process.env.NODE_ENV || 'development';
   if (finalConfig.environments && finalConfig.environments[environment]) {
     try {
-      finalConfig = mergeConfigs(finalConfig, { 
+      finalConfig = optimizedMergeConfigs(finalConfig, { 
         logging: finalConfig.environments[environment] 
       });
       appliedEnvironment = environment;
@@ -350,7 +372,7 @@ async function resolveConfiguration(
           logging: pipelineConfig.logging,
           provider: pipelineConfig.provider
         };
-        finalConfig = mergeConfigs(finalConfig, pipelineAsFullConfig);
+        finalConfig = optimizedMergeConfigs(finalConfig, pipelineAsFullConfig);
         appliedPipeline = options.pipeline;
       }
     } catch (error) {
@@ -361,7 +383,7 @@ async function resolveConfiguration(
   // 3. Merge with defaults if requested
   if (options.mergeWithDefaults) {
     const defaults = getDefaultConfig();
-    finalConfig = mergeConfigs(defaults, finalConfig);
+    finalConfig = optimizedMergeConfigs(defaults, finalConfig);
   }
   
   // 4. Final validation
@@ -527,4 +549,25 @@ export async function watchConfigFile(
   return () => {
     clearInterval(interval);
   };
+}
+
+/**
+ * Get configuration system performance metrics
+ */
+export function getConfigPerformanceMetrics(): ConfigPerformanceMetrics {
+  return performanceCollector.getMetrics();
+}
+
+/**
+ * Get enhanced configuration cache statistics
+ */
+export function getEnhancedConfigCacheStats(): ReturnType<typeof getCacheStats> {
+  return getCacheStats();
+}
+
+/**
+ * Reset performance metrics
+ */
+export function resetConfigPerformanceMetrics(): void {
+  performanceCollector.reset();
 }

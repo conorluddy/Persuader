@@ -71,11 +71,26 @@ export {
   loadPipelineConfig,
   clearConfigCache,
   getConfigCacheStats,
+  getEnhancedConfigCacheStats,
   preloadConfig,
   watchConfigFile,
+  getConfigPerformanceMetrics,
+  resetConfigPerformanceMetrics,
   type LoadConfigOptions,
   type LoadConfigResult
 } from './loader.js';
+
+// Performance optimizations
+export {
+  hasFileChanged,
+  performanceCollector,
+  optimizedMergeConfigs,
+  batchConfigOperations,
+  createDebouncedReloader,
+  ConfigWatcher,
+  clearAllCaches,
+  type ConfigPerformanceMetrics
+} from './performance.js';
 
 // Configuration inheritance
 export {
