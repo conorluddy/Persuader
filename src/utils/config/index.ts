@@ -77,5 +77,29 @@ export {
   type LoadConfigResult
 } from './loader.js';
 
+// Configuration system integration
+export {
+  EnhancedConfigResolver,
+  initializeGlobalConfigResolver,
+  getGlobalEnhancedConfigResolver,
+  getGlobalConfigResolver,
+  migrateToEnhancedResolver,
+  createEnvironmentSessionLogging,
+  createPipelineSessionLogging
+} from './config-resolver-integration.js';
+
+// Configuration initialization
+export {
+  initializePersuaderConfig,
+  initializePersuaderConfigForEnvironment,
+  initializeForDevelopment,
+  initializeForProduction,
+  initializeForTesting,
+  isConfigSystemInitialized,
+  getConfigSystemStatus,
+  autoInitialize,
+  type ConfigInitOptions
+} from './init.js';
+
 // Re-export LogLevel from logger for convenience
 export type { LogLevel } from '../logger.js';
