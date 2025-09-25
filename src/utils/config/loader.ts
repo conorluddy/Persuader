@@ -105,18 +105,35 @@ export interface LoadConfigResult {
 }
 
 /**
- * Configuration cache
+ * Configuration cache with enhanced metrics
  */
 const configCache = new Map<string, {
   config: PersuaderConfig;
   timestamp: number;
   filePath: string;
+  hitCount: number;
+  lastAccessed: number;
 }>();
+
+/**
+ * Cache performance metrics
+ */
+let cacheMetrics = {
+  hits: 0,
+  misses: 0,
+  evictions: 0,
+  totalSize: 0
+};
 
 /**
  * Cache TTL in milliseconds (5 minutes default)
  */
 const CACHE_TTL = 5 * 60 * 1000;
+
+/**
+ * Maximum cache size before LRU eviction kicks in
+ */
+const MAX_CACHE_SIZE = 50;
 
 /**
  * Load configuration from file system
@@ -159,6 +176,11 @@ export async function loadConfig(options: LoadConfigOptions = {}): Promise<LoadC
         // Check if file has actually changed
         const fileChanged = await hasFileChanged(discovery.configPath);
         if (!fileChanged) {
+          // Update cache metrics
+          cached.hitCount++;
+          cached.lastAccessed = Date.now();
+          cacheMetrics.hits++;
+          
           const resolvedConfig = await resolveConfiguration(cached.config, options);
           
           // Record cache hit
@@ -175,8 +197,19 @@ export async function loadConfig(options: LoadConfigOptions = {}): Promise<LoadC
             errors: resolvedConfig.errors,
             warnings: resolvedConfig.warnings
           };
+        } else {
+          // File changed, remove from cache
+          configCache.delete(cacheKey);
+          cacheMetrics.evictions++;
         }
+      } else if (cached) {
+        // Cache entry expired
+        configCache.delete(cacheKey);
+        cacheMetrics.evictions++;
       }
+      
+      // Cache miss
+      cacheMetrics.misses++;
     }
     
     // 3. Parse configuration file
@@ -269,11 +302,21 @@ export async function loadConfig(options: LoadConfigOptions = {}): Promise<LoadC
     
     // 6. Cache the loaded configuration
     if (options.cache !== false) {
+      // Check if cache size limit exceeded
+      if (configCache.size >= MAX_CACHE_SIZE) {
+        evictLeastRecentlyUsed();
+      }
+      
       configCache.set(cacheKey, {
         config: finalConfig,
         timestamp: Date.now(),
-        filePath: discovery.configPath
+        filePath: discovery.configPath,
+        hitCount: 0,
+        lastAccessed: Date.now()
       });
+      
+      // Update cache size metrics
+      cacheMetrics.totalSize = configCache.size;
     }
     
     // 6. Resolve environment and pipeline-specific configuration
@@ -475,10 +518,36 @@ async function registerBaseConfigurations(
 }
 
 /**
+ * Evict least recently used cache entries
+ */
+function evictLeastRecentlyUsed(): void {
+  if (configCache.size === 0) return;
+  
+  // Find entries to evict (oldest 25% based on lastAccessed)
+  const entries = Array.from(configCache.entries());
+  const toEvict = Math.max(1, Math.floor(entries.length * 0.25));
+  
+  // Sort by lastAccessed (oldest first)
+  entries.sort(([, a], [, b]) => a.lastAccessed - b.lastAccessed);
+  
+  // Remove oldest entries
+  for (let i = 0; i < toEvict; i++) {
+    configCache.delete(entries[i]![0]);
+    cacheMetrics.evictions++;
+  }
+}
+
+/**
  * Clear configuration cache
  */
 export function clearConfigCache(): void {
   configCache.clear();
+  cacheMetrics = {
+    hits: 0,
+    misses: 0,
+    evictions: 0,
+    totalSize: 0
+  };
 }
 
 /**
@@ -488,67 +557,217 @@ export function getConfigCacheStats(): {
   size: number;
   hits: number;
   misses: number;
-  entries: Array<{ filePath: string; age: number; }>;
+  evictions: number;
+  hitRate: number;
+  entries: Array<{ 
+    filePath: string; 
+    age: number; 
+    hitCount: number;
+    lastAccessed: number;
+  }>;
 } {
   const entries = Array.from(configCache.entries()).map(([_key, value]) => ({
     filePath: value.filePath,
-    age: Date.now() - value.timestamp
+    age: Date.now() - value.timestamp,
+    hitCount: value.hitCount,
+    lastAccessed: value.lastAccessed
   }));
   
-  // Note: hit/miss tracking would require additional instrumentation
+  const totalRequests = cacheMetrics.hits + cacheMetrics.misses;
+  const hitRate = totalRequests > 0 ? cacheMetrics.hits / totalRequests : 0;
+  
   return {
     size: configCache.size,
-    hits: 0, // Would need tracking
-    misses: 0, // Would need tracking
+    hits: cacheMetrics.hits,
+    misses: cacheMetrics.misses,
+    evictions: cacheMetrics.evictions,
+    hitRate,
     entries
   };
 }
 
 /**
- * Preload configuration (for performance optimization)
+ * Preload configuration with batch support (for performance optimization)
  */
-export async function preloadConfig(options: LoadConfigOptions = {}): Promise<boolean> {
-  try {
-    const result = await loadConfig({ ...options, cache: true });
-    return result.config !== null;
-  } catch {
-    return false;
+export async function preloadConfig(
+  configPathsOrOptions?: string[] | LoadConfigOptions,
+  options: LoadConfigOptions = {}
+): Promise<{
+  loaded: number;
+  errors: number;
+  totalTime: number;
+  averageTime: number;
+  fromCache: number;
+  details: Array<{ path: string; success: boolean; time: number; fromCache: boolean; }>;
+}> {
+  const startTime = Date.now();
+  let loaded = 0;
+  let errors = 0;
+  let fromCache = 0;
+  const details: Array<{ path: string; success: boolean; time: number; fromCache: boolean; }> = [];
+  
+  // Handle single config load case
+  if (!Array.isArray(configPathsOrOptions)) {
+    const loadOptions = configPathsOrOptions || options;
+    const operationStart = Date.now();
+    
+    try {
+      const result = await loadConfig({ ...loadOptions, cache: true });
+      const operationTime = Date.now() - operationStart;
+      
+      if (result.config) {
+        loaded++;
+        if (result.fromCache) fromCache++;
+        details.push({
+          path: result.discovery.configPath || 'unknown',
+          success: true,
+          time: operationTime,
+          fromCache: result.fromCache
+        });
+      } else {
+        errors++;
+        details.push({
+          path: result.discovery.configPath || 'unknown',
+          success: false,
+          time: operationTime,
+          fromCache: false
+        });
+      }
+    } catch (error) {
+      errors++;
+      details.push({
+        path: 'unknown',
+        success: false,
+        time: Date.now() - operationStart,
+        fromCache: false
+      });
+    }
+  } else {
+    // Handle batch preloading
+    const configPaths = configPathsOrOptions;
+    
+    const loadPromises = configPaths.map(async (configPath) => {
+      const operationStart = Date.now();
+      
+      try {
+        const result = await loadConfig({
+          ...options,
+          configPath,
+          cache: true
+        });
+        const operationTime = Date.now() - operationStart;
+        
+        if (result.config) {
+          loaded++;
+          if (result.fromCache) fromCache++;
+          details.push({
+            path: configPath,
+            success: true,
+            time: operationTime,
+            fromCache: result.fromCache
+          });
+        } else {
+          errors++;
+          details.push({
+            path: configPath,
+            success: false,
+            time: operationTime,
+            fromCache: false
+          });
+        }
+      } catch (error) {
+        errors++;
+        details.push({
+          path: configPath,
+          success: false,
+          time: Date.now() - operationStart,
+          fromCache: false
+        });
+      }
+    });
+    
+    await Promise.all(loadPromises);
   }
+  
+  const totalTime = Date.now() - startTime;
+  const totalOperations = loaded + errors;
+  const averageTime = totalOperations > 0 ? totalTime / totalOperations : 0;
+  
+  return {
+    loaded,
+    errors,
+    totalTime,
+    averageTime,
+    fromCache,
+    details
+  };
 }
 
 /**
- * Watch configuration file for changes (basic implementation)
- * Full implementation would use fs.watch with proper debouncing
+ * Watch configuration file for changes with intelligent caching
  */
 export async function watchConfigFile(
-  callback: (config: PersuaderConfig | null) => void,
+  configPathOrCallback: string | ((config: PersuaderConfig | null) => void),
+  callbackOrOptions?: ((config: PersuaderConfig | null) => void) | LoadConfigOptions,
   options: LoadConfigOptions = {}
 ): Promise<() => void> {
-  // Basic implementation - would need proper file watching in production
+  let configPath: string | undefined;
+  let callback: (config: PersuaderConfig | null) => void;
+  let watchOptions: LoadConfigOptions;
+  
+  // Handle overloaded parameters
+  if (typeof configPathOrCallback === 'string') {
+    configPath = configPathOrCallback;
+    callback = callbackOrOptions as (config: PersuaderConfig | null) => void;
+    watchOptions = options;
+  } else {
+    callback = configPathOrCallback;
+    watchOptions = (callbackOrOptions as LoadConfigOptions) || options;
+  }
+  
+  const { ConfigWatcher } = await import('./performance.js');
+  const watcher = new ConfigWatcher();
+  
+  // Discover config path if not provided
+  if (!configPath) {
+    const discovery = await discoverConfigFile(watchOptions);
+    if (!discovery.configPath) {
+      callback(null);
+      return () => {}; // No config file to watch
+    }
+    configPath = discovery.configPath;
+  }
+  
+  // Track last config for change detection
   let lastConfig: PersuaderConfig | null = null;
   
-  const checkForChanges = async () => {
+  const reloadConfig = async () => {
     try {
-      const result = await loadConfig({ ...options, forceReload: true });
+      const result = await loadConfig({
+        ...watchOptions,
+        configPath,
+        forceReload: true
+      });
       
-      if (JSON.stringify(result.config) !== JSON.stringify(lastConfig)) {
+      // Only trigger callback if config actually changed
+      const configChanged = JSON.stringify(result.config) !== JSON.stringify(lastConfig);
+      
+      if (configChanged) {
         lastConfig = result.config;
         callback(result.config);
       }
-    } catch {
-      // Ignore errors in watch mode
+    } catch (error) {
+      callback(null);
     }
   };
   
   // Initial load
-  await checkForChanges();
+  await reloadConfig();
   
-  // Poll for changes (in production, use fs.watch)
-  const interval = setInterval(checkForChanges, 1000);
+  // Start watching for file changes
+  await watcher.watch([configPath], reloadConfig);
   
-  return () => {
-    clearInterval(interval);
-  };
+  return () => watcher.stop();
 }
 
 /**
@@ -559,10 +778,61 @@ export function getConfigPerformanceMetrics(): ConfigPerformanceMetrics {
 }
 
 /**
- * Get enhanced configuration cache statistics
+ * Get enhanced configuration cache statistics with comprehensive performance data
  */
-export function getEnhancedConfigCacheStats(): ReturnType<typeof getCacheStats> {
-  return getCacheStats();
+export function getEnhancedConfigCacheStats(): {
+  cache: ReturnType<typeof getConfigCacheStats>;
+  performance: ConfigPerformanceMetrics;
+  system: ReturnType<typeof getCacheStats>;
+  analysis: {
+    efficiency: number;
+    averageHitsPerEntry: number;
+    mostAccessedEntries: Array<{ path: string; hitCount: number; age: number; }>;
+    recommendedCacheSize: number;
+    memoryEfficiency: string;
+  };
+} {
+  const cacheStats = getConfigCacheStats();
+  const performanceStats = getConfigPerformanceMetrics();
+  const systemStats = getCacheStats();
+  
+  // Calculate efficiency metrics
+  const totalRequests = cacheStats.hits + cacheStats.misses;
+  const efficiency = totalRequests > 0 ? (cacheStats.hits / totalRequests) * 100 : 0;
+  
+  // Calculate average hits per entry
+  const totalHits = cacheStats.entries.reduce((sum, entry) => sum + entry.hitCount, 0);
+  const averageHitsPerEntry = cacheStats.entries.length > 0 ? totalHits / cacheStats.entries.length : 0;
+  
+  // Get most accessed entries
+  const mostAccessedEntries = cacheStats.entries
+    .sort((a, b) => b.hitCount - a.hitCount)
+    .slice(0, 5)
+    .map(entry => ({
+      path: entry.filePath,
+      hitCount: entry.hitCount,
+      age: entry.age
+    }));
+  
+  // Recommend cache size based on usage patterns
+  const activeEntries = cacheStats.entries.filter(entry => entry.hitCount > 0);
+  const recommendedCacheSize = Math.max(
+    activeEntries.length + 10, // Active entries plus buffer
+    Math.min(MAX_CACHE_SIZE, Math.ceil(totalRequests * 0.1)) // 10% of total requests
+  );
+  
+  return {
+    cache: cacheStats,
+    performance: performanceStats,
+    system: systemStats,
+    analysis: {
+      efficiency: parseFloat(efficiency.toFixed(2)),
+      averageHitsPerEntry: parseFloat(averageHitsPerEntry.toFixed(2)),
+      mostAccessedEntries,
+      recommendedCacheSize,
+      memoryEfficiency: `${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB used`
+    }
+  };
 }
 
 /**
