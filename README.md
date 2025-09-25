@@ -989,7 +989,9 @@ interface Options<T> {
 
 ### 📊 Comprehensive Logging System
 
-Persuader v0.8.0 introduces a powerful logging system with category-based control, privacy protection, and performance monitoring:
+Persuader v0.8.0 introduces a powerful logging system with category-based control, privacy protection, and performance monitoring.
+
+> **📖 Complete Documentation**: See [LOGGING.md](./LOGGING.md) for the comprehensive logging framework guide including advanced configuration, CLI commands, privacy features, and troubleshooting.
 
 #### Log Management Commands
 
@@ -1144,7 +1146,9 @@ persuader run \
 
 #### Debug Mode & Advanced Logging
 
-Persuader includes sophisticated debug capabilities for troubleshooting validation issues and understanding LLM interactions:
+Persuader includes sophisticated debug capabilities for troubleshooting validation issues and understanding LLM interactions.
+
+> **📖 Complete Debug Guide**: See [LOGGING.md - Visual Examples & Debug Mode](./LOGGING.md#visual-examples--output) for comprehensive debug output examples and advanced troubleshooting workflows.
 
 ```bash
 # Enable full LLM visibility with debug mode

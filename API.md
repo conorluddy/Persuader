@@ -762,6 +762,8 @@ console.log(stats.totalTokens);
 
 ## Logging System
 
+> **📖 Complete Logging Documentation**: This section provides API reference for logging components. For comprehensive usage guides, configuration examples, CLI commands, and troubleshooting, see [LOGGING.md](./LOGGING.md).
+
 ### Category-Based Logging
 
 #### `CategoryManager`
