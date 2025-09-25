@@ -77,6 +77,20 @@ export {
   type LoadConfigResult
 } from './loader.js';
 
+// Configuration inheritance
+export {
+  ConfigInheritanceResolver,
+  getGlobalInheritanceResolver,
+  setGlobalInheritanceResolver,
+  resolveEnvironmentConfig,
+  resolvePipelineConfig,
+  analyzeInheritanceConflicts,
+  type InheritanceChain,
+  type ConfigConflict,
+  type InheritanceOptions,
+  type BaseConfig
+} from './inheritance.js';
+
 // Configuration system integration
 export {
   EnhancedConfigResolver,

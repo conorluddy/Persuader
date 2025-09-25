@@ -22,6 +22,12 @@ import {
   getDefaultConfig,
   validateConfig
 } from './schema.js';
+import {
+  ConfigInheritanceResolver,
+  type InheritanceChain,
+  type InheritanceOptions,
+  type BaseConfig
+} from './inheritance.js';
 
 export interface LoadConfigOptions extends ConfigDiscoveryOptions, ParseOptions {
   /** Environment name for environment-specific configuration */
@@ -38,6 +44,12 @@ export interface LoadConfigOptions extends ConfigDiscoveryOptions, ParseOptions 
   
   /** Force reload even if cached */
   forceReload?: boolean;
+  
+  /** Enable configuration inheritance */
+  enableInheritance?: boolean;
+  
+  /** Inheritance resolver options */
+  inheritanceOptions?: InheritanceOptions;
 }
 
 export interface LoadConfigResult {
@@ -61,6 +73,9 @@ export interface LoadConfigResult {
   
   /** Total load time in milliseconds */
   loadTimeMs: number;
+  
+  /** Inheritance chain information */
+  inheritanceChain?: InheritanceChain;
   
   /** Any errors encountered */
   errors: string[];
@@ -164,9 +179,27 @@ export async function loadConfig(options: LoadConfigOptions = {}): Promise<LoadC
     
     // 4. Handle configuration inheritance (extends)
     let finalConfig = parseResult.config;
-    if (parseResult.config.extends) {
+    let inheritanceChain: InheritanceChain | undefined;
+    
+    if (options.enableInheritance !== false && parseResult.config.extends) {
       try {
-        finalConfig = await resolveInheritance(parseResult.config, path.dirname(discovery.configPath));
+        const resolver = new ConfigInheritanceResolver(options.inheritanceOptions);
+        
+        // Register base configurations from the same directory
+        await registerBaseConfigurations(resolver, path.dirname(discovery.configPath));
+        
+        // Create inheritance configuration
+        const inheritanceConfig: PersuaderConfig & BaseConfig = {
+          ...parseResult.config,
+          extends: parseResult.config.extends
+        };
+        
+        inheritanceChain = await resolver.resolveInheritance(inheritanceConfig);
+        finalConfig = inheritanceChain.finalConfig;
+        
+        if (inheritanceChain.conflicts.length > 0) {
+          warnings.push(`Configuration inheritance resulted in ${inheritanceChain.conflicts.length} conflicts`);
+        }
       } catch (error) {
         errors.push(`Failed to resolve inheritance: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
@@ -184,7 +217,7 @@ export async function loadConfig(options: LoadConfigOptions = {}): Promise<LoadC
     // 6. Resolve environment and pipeline-specific configuration
     const resolvedConfig = await resolveConfiguration(finalConfig, options);
     
-    return {
+    const result: LoadConfigResult = {
       config: resolvedConfig.config,
       discovery,
       parse: parseResult,
@@ -195,6 +228,12 @@ export async function loadConfig(options: LoadConfigOptions = {}): Promise<LoadC
       errors: [...errors, ...resolvedConfig.errors],
       warnings: [...warnings, ...(parseResult.warnings || []), ...resolvedConfig.warnings]
     };
+    
+    if (inheritanceChain) {
+      result.inheritanceChain = inheritanceChain;
+    }
+    
+    return result;
   } catch (error) {
     return {
       config: options.mergeWithDefaults ? getDefaultConfig() : null,
@@ -222,47 +261,6 @@ function getCacheKey(filePath: string, options: LoadConfigOptions): string {
   return `${filePath}:${options.environment || 'default'}:${options.pipeline || 'default'}`;
 }
 
-/**
- * Resolve configuration inheritance
- */
-async function resolveInheritance(
-  config: PersuaderConfig, 
-  configDir: string
-): Promise<PersuaderConfig> {
-  if (!config.extends) {
-    return config;
-  }
-  
-  const extendsArray = Array.isArray(config.extends) ? config.extends : [config.extends];
-  let resolvedConfig = { ...config };
-  
-  // Remove extends property from final config
-  delete resolvedConfig.extends;
-  
-  // Load and merge parent configurations (in order)
-  for (const parentPath of extendsArray) {
-    const absoluteParentPath = path.resolve(configDir, parentPath);
-    
-    try {
-      const parentResult = await parseConfigFile(absoluteParentPath, {
-        allowExecution: true,
-        validate: true
-      });
-      
-      if (parentResult.valid && parentResult.config) {
-        // Recursively resolve parent's inheritance
-        const resolvedParent = await resolveInheritance(parentResult.config, path.dirname(absoluteParentPath));
-        
-        // Merge parent with current (current takes precedence)
-        resolvedConfig = mergeConfigs(resolvedParent, resolvedConfig);
-      }
-    } catch (error) {
-      throw new Error(`Failed to load parent configuration '${parentPath}': ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  }
-  
-  return resolvedConfig;
-}
 
 /**
  * Resolve environment and pipeline-specific configuration
@@ -362,6 +360,49 @@ export async function loadPipelineConfig(
     pipeline,
     mergeWithDefaults: true
   });
+}
+
+/**
+ * Register base configurations from a directory for inheritance
+ */
+async function registerBaseConfigurations(
+  resolver: ConfigInheritanceResolver,
+  configDir: string
+): Promise<void> {
+  const { promises: fs } = await import('node:fs');
+  
+  try {
+    const files = await fs.readdir(configDir);
+    const configFiles = files.filter(file => 
+      file.endsWith('.json') ||
+      file.endsWith('.js') ||
+      file.endsWith('.ts') ||
+      file.endsWith('.yaml') ||
+      file.endsWith('.yml')
+    );
+    
+    for (const file of configFiles) {
+      try {
+        const filePath = path.join(configDir, file);
+        const baseName = path.basename(file, path.extname(file));
+        
+        // Skip if this looks like the main config file
+        if (baseName === '.persuader' || baseName === 'persuader') {
+          continue;
+        }
+        
+        // Try to parse as configuration
+        const parseResult = await parseConfigFile(filePath, { validate: false });
+        if (parseResult.valid && parseResult.config) {
+          resolver.registerBaseConfig(baseName, parseResult.config);
+        }
+      } catch {
+        // Ignore invalid files
+      }
+    }
+  } catch {
+    // Directory doesn't exist or can't be read
+  }
 }
 
 /**
