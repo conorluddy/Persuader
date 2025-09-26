@@ -12,7 +12,8 @@
 
 import { 
   ConfigResolver, 
-  LoggingConfig
+  LoggingConfig,
+  setGlobalConfigResolver
 } from '../logging/config-resolver.js';
 import { LogCategory, CategoryPresets } from '../category-manager.js';
 import { 
@@ -399,7 +400,6 @@ export function initializeGlobalConfigResolver(options?: {
   );
   
   // Replace the original global resolver
-  const { setGlobalConfigResolver } = require('../logging/config-resolver.js');
   setGlobalConfigResolver(globalEnhancedResolver);
   
   return globalEnhancedResolver;
@@ -492,7 +492,6 @@ export function migrateToEnhancedResolver(): void {
   const enhancedResolver = getGlobalEnhancedConfigResolver();
   
   // Replace the original global resolver reference
-  const { setGlobalConfigResolver } = require('../logging/config-resolver.js');
   setGlobalConfigResolver(enhancedResolver);
   
   console.log('✅ Migrated to enhanced configuration resolver with .persuader file support');

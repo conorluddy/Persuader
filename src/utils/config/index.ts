@@ -88,6 +88,7 @@ export {
   batchConfigOperations,
   createDebouncedReloader,
   ConfigWatcher,
+  getCacheStats,
   clearAllCaches,
   type ConfigPerformanceMetrics
 } from './performance.js';
