@@ -13,6 +13,8 @@ import { consola } from 'consola';
 import packageJson from '../../package.json' with { type: 'json' };
 import { runCommand } from './commands/run.js';
 import { createLogsCommand } from './commands/logs.js';
+import { createConfigCommand } from './commands/config.js';
+import { autoInitialize, isConfigSystemInitialized } from '../utils/config/index.js';
 
 /**
  * Configure consola options
@@ -117,6 +119,9 @@ Run Command Examples:
 
   // Add logs command
   program.addCommand(createLogsCommand());
+  
+  // Add config command
+  program.addCommand(createConfigCommand());
 
   // Error handling for unknown commands
   program.on('command:*', (operands: string[]) => {
@@ -132,9 +137,12 @@ Run Command Examples:
 /**
  * Main CLI execution function
  */
-export function runCli(CommandConstructor = Command): void {
+export async function runCli(CommandConstructor = Command): Promise<void> {
   // Configure consola
   configureConsola();
+  
+  // Auto-initialize configuration system
+  await initializeConfigSystem();
 
   // Create and configure program
   const program = createProgram(CommandConstructor);
@@ -147,6 +155,24 @@ export function runCli(CommandConstructor = Command): void {
     consola.info(chalk.green('Persuader'));
     consola.info(chalk.blue('Clean validated data from messy AI responses\n'));
     program.outputHelp();
+  }
+}
+
+/**
+ * Initialize configuration system for CLI usage
+ */
+async function initializeConfigSystem(): Promise<void> {
+  if (isConfigSystemInitialized()) {
+    return; // Already initialized
+  }
+  
+  try {
+    await autoInitialize();
+  } catch (error) {
+    // Fail silently - CLI can still function without file-based config
+    if (process.env.DEBUG === 'true' || process.env.NODE_ENV === 'development') {
+      consola.debug('Configuration auto-initialization failed:', error);
+    }
   }
 }
 

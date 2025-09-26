@@ -1,0 +1,96 @@
+# CLI Application Configuration Example
+# Demonstrates practical configuration for command-line tools
+
+version: "1.0"
+$schema: "https://schemas.persuader.dev/config/v1"
+
+# CLI-specific configuration
+cli:
+  colors: true
+  interactive: true
+  defaultTimeout: "30s"
+  outputFormat: "table"  # json, yaml, table
+
+# Enhanced logging for CLI applications
+logging:
+  preset: "LOCAL_DEV"
+  colors: true
+  timestamp: false  # Usually not needed in CLI output
+  prefix: "MyApp"
+  
+  # Categories optimized for CLI tools
+  categories:
+    enabled: ["error", "warn", "info"]
+    disabled: ["debug"]
+  
+  # Performance monitoring for CLI operations
+  performance:
+    enabled: true
+    slowThreshold: "2s"
+    sampleRate: 1.0  # Monitor all operations in development
+
+# Provider configuration
+provider:
+  name: "claude-cli"
+  timeout: "60s"
+  retryAttempts: 3
+
+# Feature flags for CLI application
+features:
+  enableCache: true
+  enableMetrics: true
+  enableDebug: false
+
+# Environment-specific configurations
+environments:
+  development:
+    cli:
+      colors: true
+      interactive: true
+    logging:
+      preset: "DEBUG_FULL"
+    features:
+      enableDebug: true
+      
+  production:
+    cli:
+      colors: false
+      interactive: false
+      outputFormat: "json"
+    logging:
+      preset: "PRODUCTION"
+      privacy:
+        level: "strict"
+    features:
+      enableDebug: false
+      
+  ci:
+    cli:
+      colors: false
+      interactive: false
+      outputFormat: "json"
+    logging:
+      preset: "CI_PIPELINE"
+      jsonl:
+        enabled: true
+        directory: "./ci-logs"
+
+# Pipeline-specific configurations
+pipelines:
+  data-processing:
+    logging:
+      preset: "PERFORMANCE_FOCUS"
+      performance:
+        enabled: true
+        sampleRate: 0.1
+    provider:
+      timeout: "300s"  # Longer timeout for data processing
+      
+  interactive-session:
+    cli:
+      interactive: true
+      colors: true
+    logging:
+      preset: "LLM_DEBUG"
+      performance:
+        enabled: false  # Less noise in interactive mode
