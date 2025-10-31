@@ -221,6 +221,9 @@ export class ClaudeCLIAdapter implements ProviderAdapter {
       // Use JSON output for structured parsing
       args.push('--output-format', 'json');
 
+      // Force specific session ID to ensure fresh session
+      args.push('--session-id', sessionId);
+
       // Add model if specified
       if (options.model) {
         args.push('--model', options.model);
