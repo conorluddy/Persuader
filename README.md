@@ -7,6 +7,12 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Devin DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/conorluddy/Persuader)
 
+
+
+> [!NOTE]  
+> I built this Persuader repo months ago when I needed a way to loop over hundreds of JSON files and get consistent results. Recently the "Ralph Wiggum" workflow has popped up a lot, and it has a lot of similarities to what I was trying to do with this. Persuader basically enables you to run a loop of AI sessions, iterating over a collection, and tries to enforce consistent structured output. Whether those sessions are independent from one another, or whether they share the same sessionId, is up to the user. I'll revisit this repo again this year and see if it can be better adapted to the way of the Ralph!
+
+
 **Production-ready TypeScript framework for schema-driven LLM orchestration with validation-driven retry loops and guaranteed structured output.**
 
 Transform unreliable LLM responses into type-safe, validated data through intelligent retry loops. Combines Zod schema validation with sophisticated error feedback to achieve 95%+ success rates in data extraction and transformation tasks.
