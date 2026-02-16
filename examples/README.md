@@ -47,6 +47,11 @@ cp .env.example .env
 All examples can be run using standardized npm scripts from the project root:
 
 ```bash
+# Configuration system integration examples
+./examples/cli-integration.js init          # Initialize CLI configuration system
+./examples/cli-integration.js status        # Display configuration status
+./examples/cli-integration.js run-app       # Example CLI application
+
 # Fitness program analysis with multiple expert perspectives
 npm run example:fitness
 
@@ -127,6 +132,63 @@ npm run example:anthropic
 - Stateless design patterns
 - Professional music composition structure
 - Creative data transformation workflows
+
+---
+
+## ⚙️ Configuration System Examples
+
+### 🛠️ [CLI Integration](./cli-integration.js) - **Complete Configuration System Demo**
+**Complexity**: ⭐⭐⭐⭐  
+**Key Features**: Auto-discovery, environment configs, pipeline configs, caching, validation
+
+Complete CLI application demonstrating the Persuader configuration system. Shows configuration discovery, validation, inheritance, environment-specific overrides, pipeline configurations, and performance optimization through caching.
+
+```bash
+# Make executable (first time only)
+chmod +x examples/cli-integration.js
+
+# Initialize with auto-discovery
+./examples/cli-integration.js init
+
+# Initialize with specific config and environment
+./examples/cli-integration.js init --config examples/config-examples/cli-app.yaml --environment development
+
+# Display system status and performance metrics
+./examples/cli-integration.js status
+
+# Validate configuration files
+./examples/cli-integration.js validate examples/config-examples/cli-app.yaml
+
+# Run example application with configuration
+./examples/cli-integration.js run-app --environment production --verbose
+
+# Cache management
+./examples/cli-integration.js cache stats
+./examples/cli-integration.js cache clear
+
+# Preload multiple configurations (batch operations)
+./examples/cli-integration.js preload ./config/*.yaml
+```
+
+**Learning Focus**:
+- Complete configuration system integration
+- Environment-specific configuration inheritance
+- Pipeline-specific configuration overrides
+- Performance optimization with intelligent caching
+- Configuration validation and error handling
+- CLI application patterns with configuration
+- Batch configuration operations
+
+### 📄 [Configuration Examples](./config-examples/)
+
+Ready-to-use configuration files demonstrating various patterns:
+
+- **`cli-app.yaml`** - Complete CLI application configuration with:
+  - Environment-specific overrides (development, production, ci)
+  - Pipeline-specific configurations (data-processing, interactive-session)
+  - CLI-specific settings (colors, output format, interactivity)
+  - Advanced logging configuration with privacy controls
+  - Performance monitoring and feature flags
 
 ---
 
@@ -254,11 +316,13 @@ example-name/
 
 ## 🎓 Learning Path
 
-### Beginner: Provider Basics
+### Beginner: System Integration & Provider Basics
+- **Configuration System**: `./examples/cli-integration.js init` - Complete configuration system integration
 - **Local LLMs**: `npm run example:ollama` - Privacy-first creative writing
 - **Basic**: `npm run example:yoga` - Simple relationship extraction with efficient session usage
 
-### Intermediate: Provider Features
+### Intermediate: Provider Features & Configuration Management
+- **Environment Config**: `./examples/cli-integration.js init --environment production` - Environment-specific configurations
 - **JSON Mode**: `npm run example:gemini` - Structured output with Gemini
 - **Multi-Category**: `npm run example:exercise` - Structured categorization patterns
 
@@ -267,8 +331,9 @@ example-name/
 - **Multi-Lens**: `npm run example:fitness` - Professional perspective modeling
 - **Multi-Dimensional**: `npm run example:yoga-advanced` - Complex relationship extraction
 
-### Expert: Orchestration
+### Expert: Orchestration & Production Systems
 - **Multi-Stage**: `npm run example:workout` - Complete workflow orchestration
+- **Production Config**: `./examples/cli-integration.js run-app --environment production` - Production-ready configuration systems
 
 ## 🔧 Development Patterns
 
@@ -335,6 +400,7 @@ const exercises = await selectExercises(profile, sessionId);
 
 | Example | Schema Complexity | Domain Depth | Session Usage | Output Richness | Learning Value |
 |---------|-------------------|--------------|---------------|-----------------|----------------|
+| **CLI Integration** | ⭐⭐⭐⭐ Configuration | ⭐⭐⭐⭐ System Integration | ⭐⭐⭐ Management | ⭐⭐⭐⭐ CLI Apps | ⭐⭐⭐⭐⭐ Highest |
 | **Ollama Local** | ⭐⭐⭐ Rich Objects | ⭐⭐⭐ Creative | ⭐⭐⭐ Continuity | ⭐⭐⭐⭐ Creative | ⭐⭐⭐⭐ High |
 | **Gemini Analysis** | ⭐⭐⭐⭐ Complex | ⭐⭐⭐⭐ Technical | ⭐⭐⭐⭐ Context Building | ⭐⭐⭐⭐⭐ Professional | ⭐⭐⭐⭐⭐ Highest |
 | **Anthropic Music** | ⭐⭐⭐⭐⭐ Multi-Layered | ⭐⭐⭐⭐ Artistic | ⭐⭐ Stateless | ⭐⭐⭐⭐⭐ Complete Songs | ⭐⭐⭐⭐⭐ Highest |
@@ -392,6 +458,14 @@ These examples demonstrate production-ready patterns:
 ## 🔗 Integration Examples
 
 Use these examples as templates for:
+
+### Configuration System Applications
+- **CLI Tools**: Command-line applications with environment-specific configurations
+- **Web Applications**: Environment-based configuration inheritance (development/staging/production)
+- **Microservices**: Service-specific configuration with shared base configurations
+- **CI/CD Pipelines**: Pipeline-specific configurations with environment overrides
+- **Multi-tenant Applications**: Tenant-specific configuration inheritance
+- **Development Tools**: IDE plugins and development utilities with user preferences
 
 ### Provider-Specific Applications
 - **Ollama Local**: Privacy-sensitive creative tools, offline content generation, cost-effective bulk processing

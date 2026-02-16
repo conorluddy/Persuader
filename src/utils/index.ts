@@ -46,6 +46,102 @@ export {
   type SchemaLoadResult,
 } from './schema-loader.js';
 
+// Configuration system utilities
+export {
+  // File discovery
+  discoverConfigFile,
+  hasConfigFile,
+  getDefaultConfigPath,
+  validateConfigPath,
+  getDiscoveryMetrics,
+  CONFIG_FILENAMES,
+  type ConfigDiscoveryOptions,
+  type ConfigDiscoveryResult,
+  type ConfigFileFormat,
+  type DiscoveryMethod,
+  
+  // Schema and validation
+  PersuaderConfigSchema,
+  LoggingConfigSchema,
+  validateConfig,
+  getDefaultConfig,
+  mergeConfigs,
+  type PersuaderConfig,
+  type LoggingConfig,
+  type LoggingPreset,
+  type PrivacyLevel,
+  type ConfigValidationResult,
+  
+  // Configuration loading
+  loadConfig,
+  loadEnvironmentConfig,
+  loadPipelineConfig,
+  validateConfigFile,
+  clearConfigCache,
+  getConfigCacheStats,
+  getEnhancedConfigCacheStats,
+  preloadConfig,
+  watchConfigFile,
+  getConfigPerformanceMetrics,
+  resetConfigPerformanceMetrics,
+  type LoadConfigOptions,
+  type LoadConfigResult,
+  
+  // Configuration inheritance
+  ConfigInheritanceResolver,
+  getGlobalInheritanceResolver,
+  setGlobalInheritanceResolver,
+  resolveEnvironmentConfig,
+  resolvePipelineConfig,
+  analyzeInheritanceConflicts,
+  type InheritanceChain,
+  type ConfigConflict,
+  type InheritanceOptions,
+  type BaseConfig,
+  
+  // Environment interpolation
+  EnvironmentInterpolator,
+  getGlobalInterpolator,
+  setGlobalInterpolator,
+  interpolateConfig,
+  createSecureInterpolator,
+  createDevelopmentInterpolator,
+  analyzeInterpolationPatterns,
+  type InterpolationOptions,
+  type InterpolationResult,
+  
+  // Performance utilities
+  hasFileChanged,
+  performanceCollector,
+  optimizedMergeConfigs,
+  batchConfigOperations,
+  createDebouncedReloader,
+  ConfigWatcher,
+  getCacheStats,
+  clearAllCaches,
+  type ConfigPerformanceMetrics,
+  
+  // System integration
+  EnhancedConfigResolver,
+  initializeGlobalConfigResolver,
+  getGlobalEnhancedConfigResolver,
+  getGlobalConfigResolver,
+  migrateToEnhancedResolver,
+  createEnvironmentSessionLogging,
+  createPipelineSessionLogging,
+  
+  // Initialization
+  initializePersuaderConfig,
+  initializePersuaderConfigForEnvironment,
+  initializeForDevelopment,
+  initializeForProduction,
+  initializeForTesting,
+  isConfigSystemInitialized,
+  getConfigSystemStatus,
+  autoInitialize,
+  type ConfigInitOptions
+} from './config/index.js';
+
 /**
  * Utility module version and capabilities
  */
